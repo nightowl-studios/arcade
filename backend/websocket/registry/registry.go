@@ -29,6 +29,8 @@ func GetRegistryProvider() *RegistryProvider {
 	}
 }
 
+// Register should take the send chan and fill in the lookupMap
+// This function should be threadsafe
 func (r *RegistryProvider) Register(
 	send chan []byte,
 	clientID identifier.Client,
