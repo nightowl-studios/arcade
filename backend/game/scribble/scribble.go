@@ -47,3 +47,14 @@ func (a *API) SignalClose() {
 	// stub
 	return
 }
+
+func (a *API) Upgrader() *websocket.Upgrader {
+	return &websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		// Allow all origins to connect
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
+}
