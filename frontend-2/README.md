@@ -1,5 +1,14 @@
 # frontend-2
 
+## Install NPM and Node
+```
+npm -v
+6.14.5
+
+node -v
+v12.18.1
+```
+
 ## Project setup
 ```
 npm install
