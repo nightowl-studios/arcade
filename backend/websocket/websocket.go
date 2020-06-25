@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/gorilla/websocket"
 )
@@ -117,9 +118,25 @@ func (c *Client) Close() {
 func (c *Client) Upgrade(
 	w http.ResponseWriter,
 	r *http.Request,
-) (err error) {
+) error {
+	conn, err := c.handler.Upgrader().Upgrade(w, r, nil)
+	if err != nil {
+		return err
+	}
+
+	c.conn = conn
+
+	go c.writePump()
+
+	id, err := c.handler.HandleAuthentication(w, r, conn, c.send)
+	if err != nil {
+		log.Errorf("unable to handle auth, exiting: %v", err)
+		return err
+	}
+	c.clientID = id
+
 	// stub
-	return
+	return err
 }
 
 // readPump is a function in charge of reading from the websocket. No other

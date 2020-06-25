@@ -23,7 +23,6 @@ func initializeRoutes() {
 		wsClient := websocket.GetClient(scribbleAPI)
 		wsClient.Upgrade(w, r)
 	})
-
 }
 
 func initializeLogging() {
