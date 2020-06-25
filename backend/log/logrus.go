@@ -21,6 +21,7 @@ func getFormatter(isJSON bool) logrus.Formatter {
 		return &logrus.JSONFormatter{}
 	}
 	return &logrus.TextFormatter{
+		ForceColors:            true,
 		FullTimestamp:          true,
 		DisableLevelTruncation: true,
 	}
