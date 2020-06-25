@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"bytes"
 	"net/http"
 	"time"
 
@@ -69,7 +70,12 @@ var defaultUpgrader = websocket.Upgrader{
 }
 
 type Client struct {
+	conn *websocket.Conn
+	send chan []byte
+
 	handler WebsocketHandler
+
+	clientID identifier.Client
 }
 
 func GetClient(handler WebsocketHandler) Client {
@@ -96,6 +102,73 @@ func (c *Client) Upgrade(
 
 // Close will close the websocket connection and stop any internal processes
 func (c *Client) Close() {
+	// stub
+	return
+}
+
+// readPump is a function in charge of reading from the websocket. No other
+// process should read from the connection when the readPump is running.
+// this function is meant to be called as a go routine
+func (c *Client) readPump() {
+	defer func() {
+		c.Close()
+	}()
+
+	c.conn.SetReadLimit(maxMessageSize)
+	c.conn.SetReadDeadline(time.Now().Add(pongWait))
+	c.conn.SetPongHandler(func(string) error {
+		c.conn.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
+	for {
+		messageType, message, err := c.conn.ReadMessage()
+		if err != nil {
+			break
+		}
+		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+
+		c.handler.HandleMessage(
+			messageType,
+			message,
+			c.clientID,
+			err,
+		)
+	}
+}
+
+// writePump is a function in charge of writing to the websocket. If any messages
+// need to be sent to the websocket, it needs to be done through this function
+// This function is meant to be called as a go routine
+func (c *Client) writePump() {
+	ticker := time.NewTicker(pingPeriod)
+	defer func() {
+		c.Close()
+
+		// cleanup local variables
+		ticker.Stop()
+	}()
+
+	for {
+		select {
+		case message, ok := <-c.send:
+			if !ok {
+				return
+			}
+			c.sendMessages(message)
+		case <-ticker.C:
+			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				// ask the frontend client to close the channel
+				// this should trigger the readPump to unregister and close
+				// which will trigger the `ok <- c.send` to be false
+				c.Close()
+				continue
+			}
+		}
+	}
+}
+
+func (c *Client) sendMessages(message []byte) {
 	// stub
 	return
 }
