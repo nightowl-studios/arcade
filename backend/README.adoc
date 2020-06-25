@@ -1,0 +1,8 @@
+= backend
+
+== Testify and Mockery
+
+go get github.com/stretchr/testify/mock
+go get github.com/vektra/mockery/.../
+
+mockery -dir websocket/ -name WebsocketHandler
