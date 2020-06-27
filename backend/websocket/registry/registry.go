@@ -3,6 +3,7 @@ package registry
 import (
 	"sync"
 
+	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 )
 
@@ -35,14 +36,37 @@ func (r *RegistryProvider) Register(
 	send chan []byte,
 	clientID identifier.Client,
 ) {
-	//stub
-	return
+	r.lookupLock.Lock()
+	defer r.lookupLock.Unlock()
+
+	_, ok := r.lookupMap[clientID.HubName]
+
+	if ok != true {
+		// we did not find a clientMap under this hubName
+		clientMap := make(map[identifier.ClientUUIDStruct](chan []byte))
+		r.lookupMap[clientID.HubName] = clientMap
+	}
+
+	r.lookupMap[clientID.HubName][clientID.ClientUUID] = send
 }
 
 func (r *RegistryProvider) Unregister(
 	clientID identifier.Client,
 ) {
-	// stub
+	r.lookupLock.Lock()
+	defer r.lookupLock.Unlock()
+
+	_, ok := r.lookupMap[clientID.HubName][clientID.ClientUUID]
+	if !ok {
+		log.Errorf("could not find client to unregister: %v", clientID)
+		return
+	}
+
+	delete(r.lookupMap[clientID.HubName], clientID.ClientUUID)
+	if len(r.lookupMap[clientID.HubName]) == 0 {
+		delete(r.lookupMap, clientID.HubName)
+	}
+
 	return
 }
 
@@ -50,14 +74,30 @@ func (r *RegistryProvider) SendToSameHub(
 	clientID identifier.Client,
 	message []byte,
 ) {
-	// stub
+	r.lookupLock.Lock()
+	defer r.lookupLock.Unlock()
+
+	sendHubChannel, ok := r.lookupMap[clientID.HubName]
+	if ok != true {
+		log.Errorf("cannot find channel for %v", clientID)
+		return
+	}
+	for _, clientChannel := range sendHubChannel {
+		clientChannel <- message
+	}
 	return
 
 }
+
 func (r *RegistryProvider) SendToCaller(
 	clientID identifier.Client,
 	message []byte,
 ) {
-	//stub
-	return
+	sendChannel, ok := r.lookupMap[clientID.HubName][clientID.ClientUUID]
+	if ok != true {
+		log.Errorf("could not find channel for ID: %v", clientID)
+		return
+	}
+
+	sendChannel <- message
 }

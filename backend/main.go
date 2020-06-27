@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"net/http"
 
 	"github.com/bseto/arcade/backend/game/scribble"
@@ -10,8 +12,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var port *int = flag.Int("port", 8080, "defines the port to listen and serve on")
+
 func main() {
+	flag.Parse()
 	initializeLogging()
+	initializeRoutes()
 }
 
 func initializeRoutes() {
@@ -24,6 +30,11 @@ func initializeRoutes() {
 		wsClient.Upgrade(w, r)
 	})
 
+	address := fmt.Sprintf(":%v", *port)
+
+	log.Infof("starting server on: %v", address)
+	err := http.ListenAndServe(address, r)
+	log.Fatalf("unable to listen and serve: %v", err)
 }
 
 func initializeLogging() {
