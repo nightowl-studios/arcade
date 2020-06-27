@@ -5,24 +5,31 @@ package scribble
 import (
 	"net/http"
 
-	ws "github.com/bseto/arcade/backend/websocket"
+	"github.com/bseto/arcade/backend/game"
+	"github.com/bseto/arcade/backend/websocket/game/scribble/handler/echo"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/bseto/arcade/backend/websocket/registry"
 	"github.com/gorilla/websocket"
 )
 
 type API struct {
-	handlers map[string]ws.WebsocketHandler
+	handlers map[string]game.GameHandler
 	registry registry.Registry
 }
 
 func GetScribbleAPI(reg registry.Registry) *API {
+
+	handlers := game.CreateGameHandlers(
+		echo.Echo{},
+	)
+
 	return &API{
-		handlers: make(map[string]ws.WebsocketHandler),
+		handlers: handlers,
 		registry: reg,
 	}
 }
 
+// HandleMessage is the router to GameHandlers
 func (a *API) HandleMessage(
 	messageType int,
 	message []byte,
@@ -39,12 +46,23 @@ func (a *API) HandleAuthentication(
 	conn *websocket.Conn,
 	send chan []byte,
 ) (client identifier.Client, err error) {
-	// stub
+	// no authentication
+
+	// Create an ID
+	client = identifier.Client{
+		ClientUUID: identifier.ClientUUIDStruct{
+			UUID: identifier.CreateClientUUID(),
+		},
+		HubName: identifier.HubNameStruct{
+			HubName: r.URL.Path,
+		},
+	}
+	a.registry.Register(send, client)
 	return
 }
 
-func (a *API) SignalClose() {
-	// stub
+func (a *API) SignalClose(caller identifier.Client) {
+	a.registry.Unregister(caller)
 	return
 }
 

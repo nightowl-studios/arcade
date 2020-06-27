@@ -59,7 +59,7 @@ type WebsocketHandler interface {
 	// client is about to close.
 	// Make sure to do all cleanup in this SignalClose - ie, cleaning up
 	// the send channel
-	SignalClose()
+	SignalClose(caller identifier.Client)
 
 	// Upgrader allows the WebsocketHandler to decide the properties of the
 	// websocket upgrade
@@ -95,13 +95,6 @@ type Client struct {
 	clientID identifier.Client
 }
 
-func GetClient(handler WebsocketHandler) Client {
-	return Client{
-		send:    make(chan []byte),
-		handler: handler,
-	}
-}
-
 // Close will close the websocket connection and stop any internal processes
 func (c *Client) Close() {
 	// stub
@@ -135,7 +128,8 @@ func (c *Client) Upgrade(
 	}
 	c.clientID = id
 
-	// stub
+	go c.readPump()
+
 	return err
 }
 
@@ -156,6 +150,7 @@ func (c *Client) readPump() {
 	for {
 		messageType, message, err := c.conn.ReadMessage()
 		if err != nil {
+			log.Errorf("unable to read from websocket, closing socket: %v", err)
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
@@ -200,4 +195,13 @@ func (c *Client) writePump() {
 func (c *Client) sendMessages(message []byte) {
 	// stub
 	return
+}
+
+// Utility Functions
+
+func GetClient(handler WebsocketHandler) Client {
+	return Client{
+		send:    make(chan []byte),
+		handler: handler,
+	}
 }

@@ -2,6 +2,8 @@
 // clients
 package identifier
 
+import uuid "github.com/satori/go.uuid"
+
 // Client struct should contain all information about the client connected via
 // websocket
 type Client struct {
@@ -19,4 +21,8 @@ type ClientUUIDStruct struct {
 
 type HubNameStruct struct {
 	HubName string
+}
+
+func CreateClientUUID() string {
+	return uuid.NewV4().String()
 }

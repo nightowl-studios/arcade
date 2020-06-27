@@ -3,6 +3,7 @@ package websocket
 import (
 	"bufio"
 	"bytes"
+	"log"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -32,6 +33,10 @@ func (c *CustomResponseRecorder) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	return conn, rw, nil
 }
 
+func (c *CustomResponseRecorder) Flush() {
+	log.Printf("hello")
+}
+
 func TestUpgradeCallsUpgrader(t *testing.T) {
 
 	// This websocket connection is too hard to mock out. I'll try to figure
@@ -56,6 +61,8 @@ func TestUpgradeCallsUpgrader(t *testing.T) {
 			Code:      200,
 		},
 	}
+
+	w.Flush()
 
 	// Define expected behaviour
 	mockHandler.On("Upgrader").Return(&websocket.Upgrader{})

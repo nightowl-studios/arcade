@@ -20,6 +20,8 @@ type Registry interface {
 type RegistryProvider struct {
 	lookupLock sync.RWMutex
 	lookupMap  map[identifier.HubNameStruct]map[identifier.ClientUUIDStruct](chan []byte)
+
+	password int
 }
 
 func GetRegistryProvider() *RegistryProvider {
@@ -37,6 +39,7 @@ func (r *RegistryProvider) Register(
 	clientID identifier.Client,
 ) {
 
+	//doing stuff here
 	//stub
 	return
 }
@@ -66,6 +69,7 @@ func (r *RegistryProvider) SendToSameHub(
 	return
 
 }
+
 func (r *RegistryProvider) SendToCaller(
 	clientID identifier.Client,
 	message []byte,
