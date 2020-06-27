@@ -3,6 +3,7 @@ package registry
 import (
 	"sync"
 
+	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 )
 
@@ -35,6 +36,7 @@ func (r *RegistryProvider) Register(
 	send chan []byte,
 	clientID identifier.Client,
 ) {
+
 	//stub
 	return
 }
@@ -50,7 +52,17 @@ func (r *RegistryProvider) SendToSameHub(
 	clientID identifier.Client,
 	message []byte,
 ) {
-	// stub
+	r.lookupLock.Lock()
+	defer r.lookupLock.Unlock()
+
+	sendHubChannel, ok := r.lookupMap[clientID.HubName]
+	if ok != true {
+		log.Errorf("cannot find channel for %v", clientID)
+		return
+	}
+	for _, clientChannel := range sendHubChannel {
+		clientChannel <- message
+	}
 	return
 
 }
