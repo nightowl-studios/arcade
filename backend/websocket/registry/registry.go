@@ -52,6 +52,9 @@ func (r *RegistryProvider) SendToSameHub(
 	clientID identifier.Client,
 	message []byte,
 ) {
+	r.lookupLock.Lock()
+	defer r.lookupLock.Unlock()
+
 	sendHubChannel, ok := r.lookupMap[clientID.HubName]
 	if ok != true {
 		log.Errorf("cannot find channel for %v", clientID)
@@ -60,8 +63,8 @@ func (r *RegistryProvider) SendToSameHub(
 	for _, clientChannel := range sendHubChannel {
 		clientChannel <- message
 	}
-
 	return
+
 }
 func (r *RegistryProvider) SendToCaller(
 	clientID identifier.Client,
