@@ -22,7 +22,7 @@ type API struct {
 func GetScribbleAPI(reg registry.Registry) *API {
 
 	handlers := game.CreateGameHandlers(
-		&echo.Echo{},
+		echo.Get(),
 	)
 
 	return &API{
@@ -38,12 +38,24 @@ func (a *API) HandleMessage(
 	clientID identifier.Client,
 	messageErr error,
 ) {
-	var unmarshalledMessage game.Message
+	var msg game.Message
 
-	err := json.Unmarshal(message, &unmarshalledMessage)
+	err := json.Unmarshal(message, &msg)
 	if err != nil {
 		log.Errorf("unable to unmarshal the message: %v", err)
 	}
+
+	handler, ok := a.handlers[msg.API]
+	if !ok {
+		log.Errorf("unable to find handler for: %v", msg.API)
+		return
+	}
+
+	handler.HandleInteraction(
+		msg.Payload,
+		clientID,
+		a.registry,
+	)
 
 	return
 }

@@ -4,7 +4,6 @@ package game
 import (
 	"encoding/json"
 
-	"github.com/bseto/arcade/backend/util/nullable"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/bseto/arcade/backend/websocket/registry"
 )
@@ -14,8 +13,8 @@ import (
 // and it is necessary for the GameHandler as it needs the information
 // for routing
 type Message struct {
-	API     nullable.NullString `json:"api"`
-	Payload json.RawMessage     `json:"payload"`
+	API     string          `json:"api"`
+	Payload json.RawMessage `json:"payload"`
 }
 
 type GameHandler interface {

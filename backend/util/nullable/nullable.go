@@ -4,7 +4,10 @@
 // sql database
 package nullable
 
-import "database/sql"
+import (
+	"database/sql"
+	"encoding/json"
+)
 
 type NullFloat64 struct {
 	sql.NullFloat64
@@ -20,4 +23,20 @@ type NullBool struct {
 
 type NullInt64 struct {
 	sql.NullInt64
+}
+
+func (n NullString) UnmarshalJSON(data []byte) error {
+	// Unmarshalling into a pointer will let us detect null
+	var x *string
+	if err := json.Unmarshal(data, &x); err != nil {
+		return err
+	}
+	if x != nil {
+		n.Valid = true
+		n.String = *x
+	} else {
+		n.Valid = false
+		n.String = "."
+	}
+	return nil
 }

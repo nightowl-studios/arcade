@@ -3,6 +3,7 @@ package websocket
 import (
 	"bytes"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/bseto/arcade/backend/log"
@@ -87,8 +88,9 @@ var (
 
 // Client is the struct that will implement the WebsocketClient interface
 type Client struct {
-	conn *websocket.Conn
-	send chan []byte
+	connWriteLock sync.Mutex
+	conn          *websocket.Conn
+	send          chan []byte
 
 	handler WebsocketHandler
 
@@ -97,7 +99,17 @@ type Client struct {
 
 // Close will close the websocket connection and stop any internal processes
 func (c *Client) Close() {
-	// stub
+	c.connWriteLock.Lock()
+	defer c.connWriteLock.Unlock()
+
+	c.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(
+		websocket.CloseNormalClosure,
+		"",
+	))
+
+	time.Sleep(writeWait)
+	c.conn.Close()
+
 	return
 }
 
@@ -129,7 +141,6 @@ func (c *Client) Upgrade(
 	c.clientID = id
 
 	go c.readPump()
-
 	return err
 }
 
@@ -193,7 +204,14 @@ func (c *Client) writePump() {
 }
 
 func (c *Client) sendMessages(message []byte) {
-	// stub
+	c.connWriteLock.Lock()
+	defer c.connWriteLock.Unlock()
+	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	err := c.conn.WriteMessage(websocket.TextMessage, message)
+	if err != nil {
+		log.Errorf("unable to send message: %v : clientID: %v", err, c.clientID)
+	}
+
 	return
 }
 
