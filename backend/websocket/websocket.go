@@ -3,8 +3,10 @@ package websocket
 import (
 	"bytes"
 	"net/http"
+	"sync"
 	"time"
 
+	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/gorilla/websocket"
 )
@@ -12,8 +14,6 @@ import (
 // WebsocketClient should be created and used to upgrade the http request
 // to create a websocket connection
 type WebsocketClient interface {
-	InsertHandler(handler WebsocketHandler)
-
 	// Upgrade will upgrade the http request. It is also in the Upgrade
 	// function that the WebsocketHandler handleAuthentication function will
 	// be called
@@ -23,14 +23,32 @@ type WebsocketClient interface {
 	Close()
 }
 
+// WebsocketHandler allows for different API handlers to be used within a websocket
+// context. As long as these functions are defined, the WebsocketHandler will
+// have access to reading (via HandleMessage) and writing (via `send chan []byte`)
+// to the websocket.
+// Other functionality such as database references, or translations or anything
+// should be stored within the struct that implements this interface
 type WebsocketHandler interface {
+
+	// HandleMessage is where the WebsocketHandler should route the messages.
+	// Essentially, this function is to become the router for this Game / or API
 	HandleMessage(
 		messageType int,
 		message []byte,
 		clientID identifier.Client,
-		err error,
+		messageErr error,
 	)
 
+	// HandleAuthentication is called during the websocket upgrade.
+	// If there is any authentication handshake, it should be done here.
+	// The `writePump` will be started prior to calling this function,
+	// so sending messages via the send channel is the proper way to
+	// send outgoing messages. As for incoming messages, the `readPump` will
+	// not be started (to avoid calling the HandleMessage function prior to
+	// proper authentication) so reading the incoming messages has to be done
+	// manually
+	// The WebsocketClient will abort if this function returns a non nil error
 	HandleAuthentication(
 		w http.ResponseWriter,
 		r *http.Request,
@@ -38,7 +56,15 @@ type WebsocketHandler interface {
 		send chan []byte,
 	) (identifier.Client, error)
 
-	SignalClose()
+	// SignalClose is called by the WebsocketClient when the websocket
+	// client is about to close.
+	// Make sure to do all cleanup in this SignalClose - ie, cleaning up
+	// the send channel
+	SignalClose(caller identifier.Client)
+
+	// Upgrader allows the WebsocketHandler to decide the properties of the
+	// websocket upgrade
+	Upgrader() *websocket.Upgrader
 }
 
 const (
@@ -60,50 +86,62 @@ var (
 	space   = []byte{' '}
 )
 
-var defaultUpgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	// Allow all origins to initialize connections
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
-
+// Client is the struct that will implement the WebsocketClient interface
 type Client struct {
-	conn *websocket.Conn
-	send chan []byte
+	connWriteLock sync.Mutex
+	conn          *websocket.Conn
+	send          chan []byte
 
 	handler WebsocketHandler
 
 	clientID identifier.Client
 }
 
-func GetClient(handler WebsocketHandler) Client {
-	return Client{
-		handler: handler,
-	}
-}
+// Close will close the websocket connection and stop any internal processes
+func (c *Client) Close() {
+	c.connWriteLock.Lock()
+	defer c.connWriteLock.Unlock()
 
-func (c *Client) InsertHandler(handler WebsocketHandler) {
-	// stub
+	c.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(
+		websocket.CloseNormalClosure,
+		"",
+	))
+
+	time.Sleep(writeWait)
+	c.conn.Close()
+
 	return
 }
 
-// Upgrade will upgrade the http request. It is also in the Upgrade
+// upgrade will upgrade the http request. It is also in the Upgrade
 // function that the WebsocketHandler handleAuthentication function will
 // be called
+
+// Upgrade will upgrade the http request to a websocket.
+// The Upgrade function will use the Upgrader from the handler
+// and call the handler's Authentication function
 func (c *Client) Upgrade(
 	w http.ResponseWriter,
 	r *http.Request,
-) (err error) {
-	// stub
-	return
-}
+) error {
+	conn, err := c.handler.Upgrader().Upgrade(w, r, nil)
+	if err != nil {
+		return err
+	}
 
-// Close will close the websocket connection and stop any internal processes
-func (c *Client) Close() {
-	// stub
-	return
+	c.conn = conn
+
+	go c.writePump()
+
+	id, err := c.handler.HandleAuthentication(w, r, conn, c.send)
+	if err != nil {
+		log.Errorf("unable to handle auth, exiting: %v", err)
+		return err
+	}
+	c.clientID = id
+
+	go c.readPump()
+	return err
 }
 
 // readPump is a function in charge of reading from the websocket. No other
@@ -123,6 +161,7 @@ func (c *Client) readPump() {
 	for {
 		messageType, message, err := c.conn.ReadMessage()
 		if err != nil {
+			log.Errorf("unable to read from websocket, closing socket: %v", err)
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
@@ -143,7 +182,6 @@ func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		c.Close()
-
 		// cleanup local variables
 		ticker.Stop()
 	}()
@@ -158,9 +196,6 @@ func (c *Client) writePump() {
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				// ask the frontend client to close the channel
-				// this should trigger the readPump to unregister and close
-				// which will trigger the `ok <- c.send` to be false
 				c.Close()
 				continue
 			}
@@ -169,6 +204,22 @@ func (c *Client) writePump() {
 }
 
 func (c *Client) sendMessages(message []byte) {
-	// stub
+	c.connWriteLock.Lock()
+	defer c.connWriteLock.Unlock()
+	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	err := c.conn.WriteMessage(websocket.TextMessage, message)
+	if err != nil {
+		log.Errorf("unable to send message: %v : clientID: %v", err, c.clientID)
+	}
+
 	return
+}
+
+// Utility Functions
+
+func GetClient(handler WebsocketHandler) Client {
+	return Client{
+		send:    make(chan []byte),
+		handler: handler,
+	}
 }
