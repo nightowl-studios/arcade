@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 
+	runtime "github.com/banzaicloud/logrus-runtime-formatter"
 	"github.com/sirupsen/logrus"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
@@ -20,11 +21,17 @@ func getFormatter(isJSON bool) logrus.Formatter {
 	if isJSON {
 		return &logrus.JSONFormatter{}
 	}
-	return &logrus.TextFormatter{
-		ForceColors:            true,
-		FullTimestamp:          true,
-		DisableLevelTruncation: true,
+	formatter := runtime.Formatter{
+		Line: true,
+		File: true,
+		ChildFormatter: &logrus.TextFormatter{
+			ForceColors:     true,
+			TimestampFormat: DefaultTimeFormat,
+			FullTimestamp:   true,
+		},
 	}
+
+	return &formatter
 }
 
 func newLogrusLogger(config Configuration) (Logger, error) {

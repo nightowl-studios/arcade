@@ -3,6 +3,7 @@ module github.com/bseto/arcade/backend
 go 1.13
 
 require (
+	github.com/banzaicloud/logrus-runtime-formatter v0.0.0-20190729070250-5ae5475bae5e
 	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/websocket v1.4.2
 	github.com/satori/go.uuid v1.2.0

@@ -36,7 +36,7 @@ type WebsocketHandler interface {
 		messageType int,
 		message []byte,
 		clientID identifier.Client,
-		err error,
+		messageErr error,
 	)
 
 	// HandleAuthentication is called during the websocket upgrade.

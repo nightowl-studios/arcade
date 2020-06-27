@@ -3,10 +3,12 @@
 package scribble
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/bseto/arcade/backend/game"
-	"github.com/bseto/arcade/backend/websocket/game/scribble/handler/echo"
+	"github.com/bseto/arcade/backend/game/scribble/handler/echo"
+	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/bseto/arcade/backend/websocket/registry"
 	"github.com/gorilla/websocket"
@@ -20,7 +22,7 @@ type API struct {
 func GetScribbleAPI(reg registry.Registry) *API {
 
 	handlers := game.CreateGameHandlers(
-		echo.Echo{},
+		&echo.Echo{},
 	)
 
 	return &API{
@@ -34,9 +36,15 @@ func (a *API) HandleMessage(
 	messageType int,
 	message []byte,
 	clientID identifier.Client,
-	err error,
+	messageErr error,
 ) {
-	// stub
+	var unmarshalledMessage game.Message
+
+	err := json.Unmarshal(message, &unmarshalledMessage)
+	if err != nil {
+		log.Errorf("unable to unmarshal the message: %v", err)
+	}
+
 	return
 }
 
