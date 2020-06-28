@@ -2,17 +2,23 @@
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
     <HelloWorld msg="Welcome to Your Vue.js App"/>
-    <b-button v-on:click="sendMessage('hello')">Button</b-button>
+    <CreateButton @onCreateRoom="onCreateRoom"/>
+    <b-button v-on:click="sendMessage('hello')">Send a Message</b-button>
+    <JoinModal @myEvent="onModalClick"/>
   </div>
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld.vue'
+import CreateButton from './components/CreateButton.vue'
+import JoinModal from './components/JoinModal.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    HelloWorld,
+    CreateButton,
+    JoinModal
   },
   data: function() {
     return {
@@ -20,6 +26,9 @@ export default {
     }
   },
   methods: {
+    onCreateRoom: function(event) {
+      console.log(event);
+    },
     sendMessage: function(message) {
       message = {
         "api":"echo",
@@ -31,21 +40,22 @@ export default {
       console.log(json)
       console.log(this.connection);
       this.connection.send(json);
-    }
-  },
-  created: function() {
-    console.log("Starting connection to WebSocket Server")
-    this.connection = new WebSocket("ws://localhost:8081/ws/1")
+    },
+    onModalClick: function(roomId) {
+      console.log("Starting connection to WebSocket Server")
+      console.log("Connecting to room id: " + roomId);
+      let webSocketUrl = "ws://localhost:8080/ws/" + roomId;
+      this.connection = new WebSocket(webSocketUrl);
 
-    this.connection.onmessage = function(event) {
-      console.log(event);
-    }
+      this.connection.onmessage = function(event) {
+        console.log(event);
+      }
 
-    this.connection.onopen = function(event) {
-      console.log(event)
-      console.log("Successfully connected to the echo websocket server...")
+      this.connection.onopen = function(event) {
+        console.log(event)
+        console.log("Successfully connected to the echo websocket server...")
+      }
     }
-
   }
 }
 </script>
