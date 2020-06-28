@@ -12,7 +12,7 @@ export default {
       console.log("Creating room...")
       // TODO make api request to backend
       let apiUrl = "";
-      axois
+      axios
         .get(apiUrl)
         .then(response => (this.$emit("onCreateRoom", response)));
     }
