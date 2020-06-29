@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/bseto/arcade/backend/game/scribble"
+	"github.com/bseto/arcade/backend/hub"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket"
 	"github.com/bseto/arcade/backend/websocket/registry"
@@ -24,6 +25,8 @@ func initializeRoutes() {
 	r := mux.NewRouter()
 	reg := registry.GetRegistryProvider()
 	scribbleAPI := scribble.GetScribbleAPI(reg)
+	hub := hub.GetHub(reg)
+	hub.SetupRoutes(r)
 
 	r.PathPrefix("/ws/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		wsClient := websocket.GetClient(scribbleAPI)
@@ -31,7 +34,6 @@ func initializeRoutes() {
 	})
 
 	address := fmt.Sprintf(":%v", *port)
-
 	log.Infof("starting server on: %v", address)
 	err := http.ListenAndServe(address, r)
 	log.Fatalf("unable to listen and serve: %v", err)
