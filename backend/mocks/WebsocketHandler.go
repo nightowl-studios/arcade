@@ -37,14 +37,14 @@ func (_m *WebsocketHandler) HandleAuthentication(w http.ResponseWriter, r *http.
 	return r0, r1
 }
 
-// HandleMessage provides a mock function with given fields: messageType, message, clientID, err
-func (_m *WebsocketHandler) HandleMessage(messageType int, message []byte, clientID identifier.Client, err error) {
-	_m.Called(messageType, message, clientID, err)
+// HandleMessage provides a mock function with given fields: messageType, message, clientID, messageErr
+func (_m *WebsocketHandler) HandleMessage(messageType int, message []byte, clientID identifier.Client, messageErr error) {
+	_m.Called(messageType, message, clientID, messageErr)
 }
 
-// SignalClose provides a mock function with given fields:
-func (_m *WebsocketHandler) SignalClose() {
-	_m.Called()
+// SignalClose provides a mock function with given fields: caller
+func (_m *WebsocketHandler) SignalClose(caller identifier.Client) {
+	_m.Called(caller)
 }
 
 // Upgrader provides a mock function with given fields:

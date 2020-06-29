@@ -12,6 +12,8 @@ type Registry interface {
 	Register(send chan []byte, clientID identifier.Client)
 	Unregister(clientID identifier.Client)
 
+	CheckIfHubExists(hubName identifier.HubNameStruct) bool
+
 	SendToSameHub(clientID identifier.Client, message []byte)
 	SendToCaller(clientID identifier.Client, message []byte)
 }
@@ -93,6 +95,9 @@ func (r *RegistryProvider) SendToCaller(
 	clientID identifier.Client,
 	message []byte,
 ) {
+	r.lookupLock.Lock()
+	defer r.lookupLock.Unlock()
+
 	sendChannel, ok := r.lookupMap[clientID.HubName][clientID.ClientUUID]
 	if ok != true {
 		log.Errorf("could not find channel for ID: %v", clientID)
@@ -100,4 +105,16 @@ func (r *RegistryProvider) SendToCaller(
 	}
 
 	sendChannel <- message
+}
+
+// CheckIfHubExists will return whether or not the hub exists within this
+// registry
+func (r *RegistryProvider) CheckIfHubExists(
+	hubName identifier.HubNameStruct,
+) bool {
+	r.lookupLock.RLock()
+	defer r.lookupLock.RUnlock()
+
+	_, ok := r.lookupMap[hubName]
+	return ok
 }
