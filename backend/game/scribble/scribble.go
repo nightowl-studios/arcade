@@ -4,6 +4,7 @@ package scribble
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/bseto/arcade/backend/game"
@@ -11,7 +12,12 @@ import (
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/bseto/arcade/backend/websocket/registry"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+)
+
+var (
+	ErrHubIDNotDefined = errors.New("HubID not found in URL")
 )
 
 type API struct {
@@ -68,13 +74,20 @@ func (a *API) HandleAuthentication(
 ) (client identifier.Client, err error) {
 	// no authentication
 
+	vars := mux.Vars(r)
+	hubID, ok := vars["hubID"]
+	if !ok {
+		log.Errorf("%v", ErrHubIDNotDefined)
+		return identifier.Client{}, ErrHubIDNotDefined
+	}
+
 	// Create an ID
 	client = identifier.Client{
 		ClientUUID: identifier.ClientUUIDStruct{
 			UUID: identifier.CreateClientUUID(),
 		},
 		HubName: identifier.HubNameStruct{
-			HubName: r.URL.Path,
+			HubName: hubID,
 		},
 	}
 	a.registry.Register(send, client)

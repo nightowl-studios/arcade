@@ -28,7 +28,7 @@ func initializeRoutes() {
 	hub := hub.GetHub(reg)
 	hub.SetupRoutes(r)
 
-	r.PathPrefix("/ws/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	r.PathPrefix("/ws/{hubID}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		wsClient := websocket.GetClient(scribbleAPI)
 		wsClient.Upgrade(w, r)
 	})
