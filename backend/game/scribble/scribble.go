@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/bseto/arcade/backend/game"
+	"github.com/bseto/arcade/backend/game/scribble/handler/addition"
 	"github.com/bseto/arcade/backend/game/scribble/handler/echo"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
@@ -23,6 +24,7 @@ func GetScribbleAPI(reg registry.Registry) *API {
 
 	handlers := game.CreateGameHandlers(
 		echo.Get(),
+		addition.Get(),
 	)
 
 	return &API{
