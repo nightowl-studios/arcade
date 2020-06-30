@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var port *int = flag.Int("port", 8080, "defines the port to listen and serve on")
+var port *int = flag.Int("port", 8081, "defines the port to listen and serve on")
 
 func main() {
 	flag.Parse()
