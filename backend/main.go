@@ -4,12 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/bseto/arcade/backend/game/scribble"
 	"github.com/bseto/arcade/backend/hub"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket"
 	"github.com/bseto/arcade/backend/websocket/registry"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -35,7 +37,12 @@ func initializeRoutes() {
 
 	address := fmt.Sprintf(":%v", *port)
 	log.Infof("starting server on: %v", address)
-	err := http.ListenAndServe(address, r)
+
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
+	originsOk := handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+
+	err := http.ListenAndServe(address, handlers.CORS(originsOk, headersOk, methodsOk)(r))
 	log.Fatalf("unable to listen and serve: %v", err)
 }
 
