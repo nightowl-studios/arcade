@@ -10,6 +10,7 @@ import (
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket"
 	"github.com/bseto/arcade/backend/websocket/registry"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -35,7 +36,12 @@ func initializeRoutes() {
 
 	address := fmt.Sprintf(":%v", *port)
 	log.Infof("starting server on: %v", address)
-	err := http.ListenAndServe(address, r)
+
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
+	originsOk := handlers.AllowedOrigins([]string{"localhost:8080"}) // we need to add our domain name here one day
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+
+	err := http.ListenAndServe(address, handlers.CORS(originsOk, headersOk, methodsOk)(r))
 	log.Fatalf("unable to listen and serve: %v", err)
 }
 
