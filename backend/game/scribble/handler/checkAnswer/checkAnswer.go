@@ -15,7 +15,7 @@ const (
 	name string = "guess"
 )
 
-type IsCorrect struct{}
+type CheckAnswer struct{}
 
 type GuessMessage struct {
 	Answer string `json:"answer"`
@@ -26,11 +26,11 @@ type GuessResult struct {
 	Result string `json:"result"`
 }
 
-func Get() *IsCorrect {
-	return &IsCorrect{}
+func Get() *CheckAnswer {
+	return &CheckAnswer{}
 }
 
-func (i *IsCorrect) HandleInteraction(
+func (i *CheckAnswer) HandleInteraction(
 	message json.RawMessage,
 	caller identifier.Client,
 	registry registry.Registry,
@@ -81,6 +81,6 @@ func (i *IsCorrect) HandleInteraction(
 	registry.SendToCaller(caller, responseMessage)
 }
 
-func (i *IsCorrect) Name() string {
+func (i *CheckAnswer) Name() string {
 	return name
 }
