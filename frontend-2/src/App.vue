@@ -4,7 +4,7 @@
     <HelloWorld msg="Welcome to Your Vue.js App"/>
     <CreateButton @onCreateRoom="onCreateRoom"/>
     <b-button v-on:click="sendMessage('hello')">Send a Message</b-button>
-    <JoinModal @myEvent="onModalClick"/>
+    <JoinModal @onJoinRoom="onJoinRoom"/>
     <div>{{connectionState}} : {{hubId}}</div>
   </div>
 </template>
@@ -30,8 +30,8 @@ export default {
   },
   methods: {
     onCreateRoom: function(event) {
+      console.log("Connecting to websocket...");
       this.connectionState = "CONNECTING";
-      console.log(event);
       this.hubId = event.data.hubID;
 
       let webSocketUrl = this.$websocketURL + "/" + this.hubId;
@@ -43,7 +43,7 @@ export default {
 
       this.connection.onopen = (event) => {
         console.log(event);
-        console.log("Successfully connected to the echo websocket server...");
+        console.log("Successfully connected to the websocket...");
         console.log(this);
         this.connectionState = "CONNECTED";
       }
@@ -60,19 +60,31 @@ export default {
       console.log(this.connection);
       this.connection.send(json);
     },
-    onModalClick: function(hubId) {
-      console.log("Starting connection to WebSocket Server")
-      console.log("Connecting to room id: " + hubId);
-      let webSocketUrl = this.$websocketURL + "/" + hubId;
-      this.connection = new WebSocket(webSocketUrl);
+    onJoinRoom: function(event) {
+      console.log("Checking if hubId exists...");
 
-      this.connection.onmessage = function(event) {
+      console.log(event);
+      if (event.response.data.exists) {
+        console.log("Connecting to websocket...");
+        this.connectionState = "CONNECTING";
+        this.hubId = event.hubId;
         console.log(event);
-      }
 
-      this.connection.onopen = function(event) {
-        console.log(event)
-        console.log("Successfully connected to the echo websocket server...")
+        let webSocketUrl = this.$websocketURL + "/" + this.hubId;
+        this.connection = new WebSocket(webSocketUrl);
+
+        this.connection.onmessage = function(event) {
+          console.log(event);
+        }
+
+        this.connection.onopen = (event) => {
+          console.log(event);
+          console.log("Successfully connected to the websocket...");
+          console.log(this);
+          this.connectionState = "CONNECTED";
+        }
+      } else {
+        console.log("HubId does not exist...");
       }
     }
   }
