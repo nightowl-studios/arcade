@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var port *int = flag.Int("port", 8080, "defines the port to listen and serve on")
+var port *int = flag.Int("port", 8081, "defines the port to listen and serve on")
 
 func main() {
 	flag.Parse()
@@ -28,7 +28,7 @@ func initializeRoutes() {
 	hub := hub.GetHub(reg)
 	hub.SetupRoutes(r)
 
-	r.PathPrefix("/ws/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	r.PathPrefix("/ws/{hubID}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		wsClient := websocket.GetClient(scribbleAPI)
 		wsClient.Upgrade(w, r)
 	})
