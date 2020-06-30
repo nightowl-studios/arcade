@@ -21,14 +21,10 @@ type EchoResponse struct {
 	Message string
 }
 
-type Echo struct {
-	name string
-}
+type Echo struct{}
 
 func Get() *Echo {
-	return &Echo{
-		name: name,
-	}
+	return &Echo{}
 }
 
 // HandleInteraction will echo with a flavour :D
