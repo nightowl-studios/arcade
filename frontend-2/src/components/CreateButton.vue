@@ -12,8 +12,7 @@ export default {
   methods: {
     createRoom: function() {
       console.log("Creating room...")
-      // TODO make api request to backend
-      let apiUrl = "http://localhost:8080/hub";
+      let apiUrl = this.$httpURL + '/hub';
       axios
         .get(apiUrl)
         .then(response => (this.$emit("onCreateRoom", response)));
