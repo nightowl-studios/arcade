@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/bseto/arcade/backend/game/scribble"
 	"github.com/bseto/arcade/backend/hub"
@@ -39,7 +38,7 @@ func initializeRoutes() {
 	log.Infof("starting server on: %v", address)
 
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
+	originsOk := handlers.AllowedOrigins([]string{"localhost:8080"}) // we need to add our domain name here one day
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
 	err := http.ListenAndServe(address, handlers.CORS(originsOk, headersOk, methodsOk)(r))
