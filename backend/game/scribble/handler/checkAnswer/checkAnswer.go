@@ -38,6 +38,7 @@ func (i *IsCorrect) HandleInteraction(
 	var isCorrect bool
 	isCorrect = false
 	var msg GuessMessage
+
 	err := json.Unmarshal(message, &msg)
 	if err != nil {
 		log.Errorf("unable to unmarshal message: %v", err)
