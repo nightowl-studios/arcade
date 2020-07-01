@@ -60,9 +60,26 @@ type Client struct {
 
 	clientID identifier.Client
 
+	// closeState tracks whether or not this websocket client is
+	// already cleaning up.
+	// This is needed since either one of the read or write pump can trigger
+	// a close
+	closeState     bool
+	closeStateLock sync.RWMutex
+
 	// listeners
 	closeListenerLock sync.RWMutex
 	closeListener     []WebsocketCloseListener
+}
+
+func GetClient(
+	hubInstance hub.Hub,
+) Client {
+	return Client{
+		send:       make(chan []byte),
+		hub:        hubInstance,
+		closeState: false,
+	}
 }
 
 func (c *Client) RegisterCloseListener(listener WebsocketCloseListener) {
@@ -81,6 +98,19 @@ func (c *Client) NotifyClose() {
 
 // Close will close the websocket connection and stop any internal processes
 func (c *Client) Close() {
+	c.closeStateLock.Lock()
+	if c.closeState == true {
+		// This websocket has already triggered a Close cleanup - exiting
+		c.closeStateLock.Unlock()
+		return
+	}
+	c.closeState = true
+	c.closeStateLock.Unlock()
+
+	// stop anyone from trying to use the websocket before we actually
+	// close the websocket
+	c.NotifyClose()
+
 	c.connWriteLock.Lock()
 	defer c.connWriteLock.Unlock()
 
@@ -89,9 +119,8 @@ func (c *Client) Close() {
 		"",
 	))
 
-	time.Sleep(writeWait)
+	time.Sleep(time.Second * 1)
 	c.conn.Close()
-	c.NotifyClose()
 
 	return
 }
@@ -144,7 +173,7 @@ func (c *Client) readPump() {
 	for {
 		messageType, message, err := c.conn.ReadMessage()
 		if err != nil {
-			log.Errorf("unable to read from websocket, closing socket: %v", err)
+			log.Infof("websocket has been closed from client: %v, %v", c.clientID, err)
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
@@ -196,13 +225,4 @@ func (c *Client) sendMessages(message []byte) {
 	}
 
 	return
-}
-
-func GetClient(
-	hubInstance hub.Hub,
-) Client {
-	return Client{
-		send: make(chan []byte),
-		hub:  hubInstance,
-	}
 }

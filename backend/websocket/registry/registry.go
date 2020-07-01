@@ -42,6 +42,7 @@ func (r *RegistryProvider) Register(
 ) {
 	r.lookupLock.Lock()
 	defer r.lookupLock.Unlock()
+	log.Infof("registering: %v", clientID)
 
 	_, ok := r.lookupMap[clientID.ClientUUID]
 
@@ -61,6 +62,7 @@ func (r *RegistryProvider) Unregister(
 ) (registryEmpty bool) {
 	r.lookupLock.Lock()
 	defer r.lookupLock.Unlock()
+	log.Infof("unregistering: %v", clientID)
 
 	delete(r.lookupMap, clientID.ClientUUID)
 	if len(r.lookupMap) == 0 {
