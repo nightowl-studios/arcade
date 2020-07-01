@@ -6,10 +6,9 @@ import (
 	"net/http"
 
 	"github.com/bseto/arcade/backend/game/gamefactory"
-	"github.com/bseto/arcade/backend/hub"
+	"github.com/bseto/arcade/backend/hub/hubmanager"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket"
-	"github.com/bseto/arcade/backend/websocket/registry"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
@@ -24,16 +23,24 @@ func main() {
 
 func initializeRoutes() {
 	r := mux.NewRouter()
-	reg := registry.GetRegistryProvider()
 	//scribbleAPI := scribble.GetScribbleRouter(reg)
-	hubFactory := hub.GetHubFactory(reg)
-	hubFactory.SetupRoutes(r)
+	hubManager := hubmanager.GetHubManager()
+	hubManager.SetupRoutes(r)
 	gameFactory := gamefactory.GetGameFactory()
 
-	r.PathPrefix("/ws/{hubID}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		hubInstance := hubFactory.GetHub(r, gameFactory)
+	r.PathPrefix("/ws/{hubID}").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		hubInstance, err := hubManager.GetHub(req, gameFactory)
+		if err != nil {
+			log.Errorf("unable to ")
+		}
+
 		wsClient := websocket.GetClient(hubInstance)
-		wsClient.Upgrade(w, r)
+		err = wsClient.Upgrade(w, req)
+		if err != nil {
+			log.Errorf("unable to upgrade websocket: %v", err)
+			return
+		}
+		wsClient.RegisterCloseListener(hubManager)
 	})
 
 	address := fmt.Sprintf(":%v", *port)

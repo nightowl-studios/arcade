@@ -1,35 +1,21 @@
 package hub
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
+	"sync"
 
 	"github.com/bseto/arcade/backend/game"
 	"github.com/bseto/arcade/backend/game/gamefactory"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
-	"github.com/bseto/arcade/backend/websocket/registry"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-)
-
-const (
-	// hubNameLength for now will just be 4 in length
-	hubNameLength int = 4
 )
 
 var (
 	ErrHubIDNotDefined = errors.New("HubID not found in URL")
 )
-
-type HubFactory interface {
-	GetHub(r *http.Request, gameFactory gamefactory.GameFactory) *Hub
-	SetupRoutes(r *mux.Router)
-
-	CheckIfExists(w http.ResponseWriter, r *http.Request)
-	GetNewHubName(w http.ResponseWriter, r *http.Request)
-}
 
 // Hub allows for different `GameRouters` to be used within a websocket
 // context. As long as these functions are defined, the Hub will
@@ -59,86 +45,69 @@ type Hub interface {
 	// Upgrader allows the WebsocketHandler to decide the properties of the
 	// websocket upgrade
 	Upgrader() *websocket.Upgrader
-}
 
-type hubFactory struct {
-	registry registry.Registry
+	RegisterClient(clientID identifier.Client, send chan []byte)
+	UnregisterClient(clientID identifier.Client) (clientMapEmpty bool)
 }
 
 type hub struct {
-	registry    registry.Registry
-	gameRouter  game.GameRouter
+	// we need the gameFactory since the user can choose after creating
+	// a hub, which game they'd like to play
 	gameFactory gamefactory.GameFactory
+	gameRouter  game.GameRouter
+
+	clientMapLock sync.RWMutex
+	clientMap     map[identifier.ClientUUIDStruct]hubClient
 }
 
-type HubResponse struct {
-	Exists bool   `json:"exists"`
-	HubID  string `json:"hubID,omitempty"`
+// hubClient should only store basic information about the client
+// and the send channel
+type hubClient struct {
+	send     (chan []byte)
+	nickname string
 }
 
-// GetHubFactory will return a hubFactory
-func GetHubFactory(registry registry.Registry) *hubFactory {
-	return &hubFactory{
-		registry: registry,
-	}
+func GetEmptyHub() Hub {
+	return &hub{}
 }
 
-func (h *hubFactory) GetHub(
-	r *http.Request,
-	gameFactory gamefactory.GameFactory,
-) *hub {
+func GetHub(gameFactory gamefactory.GameFactory) Hub {
 	return &hub{
-		registry:    h.registry,
 		gameFactory: gameFactory,
 	}
 }
 
-// SetupRoutes will setup the routes that the hubFactory can respond to
-func (h *hubFactory) SetupRoutes(r *mux.Router) {
-	r.HandleFunc("/hub", h.GetNewHubName).Methods("GET")
-	r.HandleFunc("/hub/{hubID}", h.CheckIfExists).Methods("GET")
-}
+func (h *hub) RegisterClient(clientID identifier.Client, send chan []byte) {
+	h.clientMapLock.Lock()
+	defer h.clientMapLock.Unlock()
 
-// GetNewHubName will provide a name of a hub that does not already exist
-// in the registry. This function is intended to be used to respond to the
-// "Create" button from the front end
-func (h *hubFactory) GetNewHubName(w http.ResponseWriter, r *http.Request) {
-	// TODO: Need to add some context based cancel timeout later
-	var hubName string
-
-	for {
-		hubName = identifier.CreateHubName(hubNameLength)
-		if !h.registry.CheckIfHubExists(identifier.HubNameStruct{hubName}) {
-			// hub does not exist, we can exit
-			break
-		}
-	}
-
-	respondWithJSON(w, http.StatusOK, HubResponse{HubID: hubName})
-}
-
-// CheckIfExists will provide a response on whether or not the provided
-// HubID exists within the registry. This function is intended to be used
-// to respond to the "Join" button from the front end
-func (h *hubFactory) CheckIfExists(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	hubID, ok := vars["hubID"]
-	if !ok {
-		log.Errorf("HubID not found in URL")
+	hClient, ok := h.clientMap[clientID.ClientUUID]
+	if ok {
+		log.Errorf(
+			"the client already exists: %v : %v",
+			hClient.nickname,
+			clientID,
+		)
 		return
 	}
+	hClient = hubClient{
+		send: send,
+	}
 
-	exists := h.registry.CheckIfHubExists(identifier.HubNameStruct{hubID})
-
-	respondWithJSON(w, http.StatusOK, HubResponse{Exists: exists})
+	h.clientMap[clientID.ClientUUID] = hClient
 }
 
-func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	response, _ := json.Marshal(payload)
+func (h *hub) UnregisterClient(
+	clientID identifier.Client,
+) (clientMapEmpty bool) {
+	h.clientMapLock.Lock()
+	defer h.clientMapLock.Unlock()
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	w.Write(response)
+	delete(h.clientMap, clientID.ClientUUID)
+	if len(h.clientMap) == 0 {
+		clientMapEmpty = true
+	}
+	return
 }
 
 // HandleAuthentication is called during the websocket upgrade.
@@ -174,7 +143,8 @@ func (h *hub) HandleAuthentication(
 			HubName: hubID,
 		},
 	}
-	h.registry.Register(send, client)
+
+	h.RegisterClient(client, send)
 	return
 }
 

@@ -22,6 +22,13 @@ type WebsocketClient interface {
 
 	// Close will close the websocket connection and stop any internal processes
 	Close()
+
+	RegisterCloseListener(listener WebsocketCloseListener)
+}
+
+// WebsocketCloseListener are notified when the websocket is closed
+type WebsocketCloseListener interface {
+	WebsocketClose(clientID identifier.Client)
 }
 
 const (
@@ -52,6 +59,24 @@ type Client struct {
 	hub hub.Hub
 
 	clientID identifier.Client
+
+	// listeners
+	closeListenerLock sync.RWMutex
+	closeListener     []WebsocketCloseListener
+}
+
+func (c *Client) RegisterCloseListener(listener WebsocketCloseListener) {
+	c.closeListenerLock.Lock()
+	defer c.closeListenerLock.Unlock()
+	c.closeListener = append(c.closeListener, listener)
+}
+
+func (c *Client) NotifyClose() {
+	c.closeListenerLock.RLock()
+	defer c.closeListenerLock.RUnlock()
+	for _, listener := range c.closeListener {
+		listener.WebsocketClose(c.clientID)
+	}
 }
 
 // Close will close the websocket connection and stop any internal processes
@@ -66,6 +91,7 @@ func (c *Client) Close() {
 
 	time.Sleep(writeWait)
 	c.conn.Close()
+	c.NotifyClose()
 
 	return
 }
@@ -172,11 +198,11 @@ func (c *Client) sendMessages(message []byte) {
 	return
 }
 
-// Utility Functions
-
-func GetClient(handler hub.Hub) Client {
+func GetClient(
+	hubInstance hub.Hub,
+) Client {
 	return Client{
 		send: make(chan []byte),
-		hub:  handler,
+		hub:  hubInstance,
 	}
 }
