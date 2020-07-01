@@ -35,7 +35,9 @@ type HubResponse struct {
 
 // GetHubFactory will return a hubManager
 func GetHubManager() *hubManager {
-	return &hubManager{}
+	return &hubManager{
+		hubs: make(map[identifier.HubNameStruct]hub.Hub),
+	}
 }
 
 func (h *hubManager) WebsocketClose(clientID identifier.Client) {

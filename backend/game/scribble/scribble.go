@@ -19,7 +19,6 @@ const (
 
 type Router struct {
 	handlers map[string]game.GameHandler
-	registry registry.Registry
 }
 
 func GetScribbleRouter() *Router {
@@ -44,6 +43,7 @@ func (r *Router) RouteMessage(
 	message []byte,
 	clientID identifier.Client,
 	messageErr error,
+	reg registry.Registry,
 ) {
 	var msg game.Message
 
@@ -61,13 +61,8 @@ func (r *Router) RouteMessage(
 	handler.HandleInteraction(
 		msg.Payload,
 		clientID,
-		r.registry,
+		reg,
 	)
 
-	return
-}
-
-func (r *Router) SignalClose(caller identifier.Client) {
-	r.registry.Unregister(caller)
 	return
 }

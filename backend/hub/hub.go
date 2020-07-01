@@ -3,12 +3,12 @@ package hub
 import (
 	"errors"
 	"net/http"
-	"sync"
 
 	"github.com/bseto/arcade/backend/game"
 	"github.com/bseto/arcade/backend/game/gamefactory"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
+	"github.com/bseto/arcade/backend/websocket/registry"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
@@ -38,16 +38,12 @@ type Hub interface {
 		send chan []byte,
 	) (identifier.Client, error)
 
-	// SignalClose is called by the WebsocketClient when the websocket
-	// client is about to close.
-	SignalClose(caller identifier.Client)
-
 	// Upgrader allows the WebsocketHandler to decide the properties of the
 	// websocket upgrade
 	Upgrader() *websocket.Upgrader
 
 	RegisterClient(clientID identifier.Client, send chan []byte)
-	UnregisterClient(clientID identifier.Client) (clientMapEmpty bool)
+	UnregisterClient(clientID identifier.Client) (hubEmpty bool)
 }
 
 type hub struct {
@@ -56,8 +52,7 @@ type hub struct {
 	gameFactory gamefactory.GameFactory
 	gameRouter  game.GameRouter
 
-	clientMapLock sync.RWMutex
-	clientMap     map[identifier.ClientUUIDStruct]hubClient
+	reg registry.Registry
 }
 
 // hubClient should only store basic information about the client
@@ -74,39 +69,19 @@ func GetEmptyHub() Hub {
 func GetHub(gameFactory gamefactory.GameFactory) Hub {
 	return &hub{
 		gameFactory: gameFactory,
+		reg:         registry.GetRegistryProvider(),
+		gameRouter:  gameFactory.GetGame("scribble"),
 	}
 }
 
 func (h *hub) RegisterClient(clientID identifier.Client, send chan []byte) {
-	h.clientMapLock.Lock()
-	defer h.clientMapLock.Unlock()
-
-	hClient, ok := h.clientMap[clientID.ClientUUID]
-	if ok {
-		log.Errorf(
-			"the client already exists: %v : %v",
-			hClient.nickname,
-			clientID,
-		)
-		return
-	}
-	hClient = hubClient{
-		send: send,
-	}
-
-	h.clientMap[clientID.ClientUUID] = hClient
+	h.reg.Register(send, clientID)
 }
 
 func (h *hub) UnregisterClient(
 	clientID identifier.Client,
-) (clientMapEmpty bool) {
-	h.clientMapLock.Lock()
-	defer h.clientMapLock.Unlock()
-
-	delete(h.clientMap, clientID.ClientUUID)
-	if len(h.clientMap) == 0 {
-		clientMapEmpty = true
-	}
+) (hubEmpty bool) {
+	hubEmpty = h.reg.Unregister(clientID)
 	return
 }
 
@@ -165,9 +140,12 @@ func (h *hub) HandleMessage(
 	clientID identifier.Client,
 	messageErr error,
 ) {
-	// stub
-}
 
-func (h *hub) SignalClose(caller identifier.Client) {
-	// stub
+	h.gameRouter.RouteMessage(
+		messageType,
+		message,
+		clientID,
+		messageErr,
+		h.reg,
+	)
 }

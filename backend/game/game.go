@@ -23,6 +23,7 @@ type GameRouter interface {
 		message []byte,
 		clientID identifier.Client,
 		messageErr error,
+		reg registry.Registry,
 	)
 
 	RouterName() string
