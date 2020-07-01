@@ -61,7 +61,7 @@ func (e *Echo) HandleInteraction(
 		return
 	}
 
-	registry.SendToCaller(caller, responseMessage)
+	registry.SendToSameHub(caller, responseMessage)
 }
 
 func (e *Echo) Name() string {
