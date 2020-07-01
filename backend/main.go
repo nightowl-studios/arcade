@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/bseto/arcade/backend/game/scribble"
+	"github.com/bseto/arcade/backend/game/gamefactory"
 	"github.com/bseto/arcade/backend/hub"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket"
@@ -25,12 +25,14 @@ func main() {
 func initializeRoutes() {
 	r := mux.NewRouter()
 	reg := registry.GetRegistryProvider()
-	scribbleAPI := scribble.GetScribbleAPI(reg)
-	hub := hub.GetHub(reg)
-	hub.SetupRoutes(r)
+	//scribbleAPI := scribble.GetScribbleRouter(reg)
+	hubFactory := hub.GetHubFactory(reg)
+	hubFactory.SetupRoutes(r)
+	gameFactory := gamefactory.GetGameFactory()
 
 	r.PathPrefix("/ws/{hubID}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		wsClient := websocket.GetClient(scribbleAPI)
+		hubInstance := hubFactory.GetHub(r, gameFactory)
+		wsClient := websocket.GetClient(hubInstance)
 		wsClient.Upgrade(w, r)
 	})
 
