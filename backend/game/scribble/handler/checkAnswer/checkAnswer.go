@@ -45,13 +45,10 @@ func (i *CheckAnswer) HandleInteraction(
 		return
 	}
 
-	if msg.Guess == msg.Answer {
-		isCorrect = true
-	}
-
 	var result string
 
-	if isCorrect == true {
+	if msg.Guess == msg.Answer {
+		isCorrect = true
 		result = "Your guess is correct!"
 	} else {
 		result = "Your guess is incorrect."
