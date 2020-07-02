@@ -16,6 +16,11 @@ type Registry interface {
 	Register(send chan []byte, clientID identifier.Client)
 	Unregister(clientID identifier.Client) (registryEmpty bool)
 
+	GetClientSlice() []*identifier.UserDetails
+	GetClientUserDetail(
+		clientID identifier.Client,
+	) *identifier.UserDetails
+
 	SendToSameHub(clientID identifier.Client, message []byte)
 	SendToCaller(clientID identifier.Client, message []byte)
 }
@@ -23,15 +28,37 @@ type Registry interface {
 // RegistryProvider will provide the actual registry functionality
 type RegistryProvider struct {
 	lookupLock sync.RWMutex
-	lookupMap  map[identifier.ClientUUIDStruct](chan []byte)
+	lookupMap  map[identifier.ClientUUIDStruct]UserDetails
+}
+
+type UserDetails struct {
+	send        (chan []byte)
+	userDetails *identifier.UserDetails
 }
 
 func GetRegistryProvider() *RegistryProvider {
 	return &RegistryProvider{
 		lookupMap: make(
-			map[identifier.ClientUUIDStruct](chan []byte),
+			map[identifier.ClientUUIDStruct]UserDetails,
 		),
 	}
+}
+
+func (r *RegistryProvider) GetClientUserDetail(
+	clientID identifier.Client,
+) *identifier.UserDetails {
+	r.lookupLock.RLock()
+	defer r.lookupLock.RUnlock()
+
+	return r.lookupMap[clientID.ClientUUID].userDetails
+}
+
+func (r *RegistryProvider) GetClientSlice() []*identifier.UserDetails {
+	var clients []*identifier.UserDetails
+	for _, userDetails := range r.lookupMap {
+		clients = append(clients, userDetails.userDetails)
+	}
+	return clients
 }
 
 // Register should take the send chan and fill in the lookupMap
@@ -54,7 +81,12 @@ func (r *RegistryProvider) Register(
 		return
 	}
 
-	r.lookupMap[clientID.ClientUUID] = send
+	r.lookupMap[clientID.ClientUUID] = UserDetails{
+		send: send,
+		userDetails: &identifier.UserDetails{
+			ClientUUID: clientID.ClientUUID,
+		},
+	}
 }
 
 func (r *RegistryProvider) Unregister(
@@ -78,8 +110,8 @@ func (r *RegistryProvider) SendToSameHub(
 	r.lookupLock.Lock()
 	defer r.lookupLock.Unlock()
 
-	for _, clientChannel := range r.lookupMap {
-		clientChannel <- message
+	for _, clientDetails := range r.lookupMap {
+		clientDetails.send <- message
 	}
 	return
 
@@ -92,11 +124,11 @@ func (r *RegistryProvider) SendToCaller(
 	r.lookupLock.Lock()
 	defer r.lookupLock.Unlock()
 
-	sendChannel, ok := r.lookupMap[clientID.ClientUUID]
+	clientDetails, ok := r.lookupMap[clientID.ClientUUID]
 	if ok != true {
 		log.Errorf("could not find channel for ID: %v", clientID)
 		return
 	}
 
-	sendChannel <- message
+	clientDetails.send <- message
 }

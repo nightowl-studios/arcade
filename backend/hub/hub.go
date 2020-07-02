@@ -6,6 +6,7 @@ import (
 
 	"github.com/bseto/arcade/backend/game"
 	"github.com/bseto/arcade/backend/game/gamefactory"
+	"github.com/bseto/arcade/backend/game/hubapi"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/bseto/arcade/backend/websocket/registry"
@@ -51,6 +52,7 @@ type hub struct {
 	// a hub, which game they'd like to play
 	gameFactory gamefactory.GameFactory
 	gameRouter  game.GameRouter
+	hubHandler  hubapi.Handler
 
 	reg registry.Registry
 }
@@ -140,6 +142,18 @@ func (h *hub) HandleMessage(
 	clientID identifier.Client,
 	messageErr error,
 ) {
+
+	isHubRequest := h.hubHandler.RouteMessage(
+		messageType,
+		message,
+		clientID,
+		messageErr,
+		h.reg,
+	)
+	if isHubRequest {
+		// do not need to route to the gameRouter
+		return
+	}
 
 	h.gameRouter.RouteMessage(
 		messageType,
