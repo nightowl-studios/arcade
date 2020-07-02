@@ -32,6 +32,31 @@ type HubAPIReply struct {
 	ConnectedClients []*identifier.UserDetails `json:"connectedClients,omitempty"`
 }
 
+func (r *Handler) SendLobbyDetails(
+	clientID identifier.Client,
+	reg registry.Registry,
+) {
+	var hubAPIReply HubAPIReply
+	hubAPIReply.ConnectedClients = reg.GetClientSlice()
+	b, err := json.Marshal(hubAPIReply)
+	if err != nil {
+		log.Errorf("unable to marshal response: %v", err)
+		return
+	}
+
+	reply := game.Message{
+		API:     name,
+		Payload: b,
+	}
+
+	replyBytes, err := json.Marshal(reply)
+	if err != nil {
+		log.Errorf("unable to marshal response: %v", err)
+	}
+
+	reg.SendToSameHub(clientID, replyBytes)
+}
+
 func (r *Handler) RouteMessage(
 	messageType int,
 	message []byte,

@@ -78,12 +78,16 @@ func GetHub(gameFactory gamefactory.GameFactory) Hub {
 
 func (h *hub) RegisterClient(clientID identifier.Client, send chan []byte) {
 	h.reg.Register(send, clientID)
+	h.hubHandler.SendLobbyDetails(clientID, h.reg)
 }
 
 func (h *hub) UnregisterClient(
 	clientID identifier.Client,
 ) (hubEmpty bool) {
 	hubEmpty = h.reg.Unregister(clientID)
+	if hubEmpty != true {
+		h.hubHandler.SendLobbyDetails(clientID, h.reg)
+	}
 	return
 }
 
