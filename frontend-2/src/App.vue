@@ -5,6 +5,7 @@
     <CreateButton @onCreateRoom="onCreateRoom"/>
     <b-button v-on:click="sendMessage('hello')">Send a Message</b-button>
     <JoinModal @onJoinRoom="onJoinRoom"/>
+    <Canvas/>
     <div>{{connectionState}} : {{hubId}}</div>
   </div>
 </template>
@@ -13,13 +14,15 @@
 import HelloWorld from './components/HelloWorld.vue'
 import CreateButton from './components/CreateButton.vue'
 import JoinModal from './components/JoinModal.vue'
+import Canvas from './components/Canvas.vue'
 
 export default {
   name: 'App',
   components: {
     HelloWorld,
     CreateButton,
-    JoinModal
+    JoinModal,
+    Canvas
   },
   data: function() {
     return {
