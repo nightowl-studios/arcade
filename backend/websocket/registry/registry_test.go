@@ -84,7 +84,7 @@ func TestSequentialRegister(t *testing.T) {
 
 			// now check to see if all the clients are in the map
 			for _, inputClientID := range testVal.inputClientIDs {
-				_, ok := reg.lookupMap[inputClientID.HubName][inputClientID.ClientUUID]
+				_, ok := reg.lookupMap[inputClientID.ClientUUID]
 				if !ok {
 					t.Errorf(
 						"unable to find: hubID: %v, clientID: %v",
@@ -130,7 +130,7 @@ func TestThreadedRegister(t *testing.T) {
 
 			// now check to see if all the clients are in the map
 			for _, inputClientID := range testVal.inputClientIDs {
-				_, ok := reg.lookupMap[inputClientID.HubName][inputClientID.ClientUUID]
+				_, ok := reg.lookupMap[inputClientID.ClientUUID]
 				if !ok {
 					t.Errorf(
 						"unable to find: hubID: %v, clientID: %v",
