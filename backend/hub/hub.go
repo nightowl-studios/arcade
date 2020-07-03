@@ -1,78 +1,169 @@
 package hub
 
 import (
-	"encoding/json"
+	"errors"
 	"net/http"
 
+	"github.com/bseto/arcade/backend/game"
+	"github.com/bseto/arcade/backend/game/gamefactory"
+	"github.com/bseto/arcade/backend/game/hubapi"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/bseto/arcade/backend/websocket/registry"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 )
 
-const (
-	// hubNameLength for now will just be 4 in length
-	hubNameLength int = 4
+var (
+	ErrHubIDNotDefined = errors.New("HubID not found in URL")
 )
 
-type Hub struct {
-	registry registry.Registry
+// Hub allows for different `GameRouters` to be used within a websocket
+// context. As long as these functions are defined, the Hub will
+// have access to reading (via HandleMessage) and writing (via `send chan []byte`)
+// to the websocket.
+type Hub interface {
+	// HandleMessage is where the WebsocketHandler should route the messages.
+	// Essentially, this function is to become the router for this Game / or API
+	HandleMessage(
+		messageType int,
+		message []byte,
+		clientID identifier.Client,
+		messageErr error,
+	)
+
+	HandleAuthentication(
+		w http.ResponseWriter,
+		r *http.Request,
+		conn *websocket.Conn,
+		send chan []byte,
+	) (identifier.Client, error)
+
+	// Upgrader allows the WebsocketHandler to decide the properties of the
+	// websocket upgrade
+	Upgrader() *websocket.Upgrader
+
+	RegisterClient(clientID identifier.Client, send chan []byte)
+	UnregisterClient(clientID identifier.Client) (hubEmpty bool)
 }
 
-type HubResponse struct {
-	Exists bool   `json:"exists"`
-	HubID  string `json:"hubID,omitempty"`
+type hub struct {
+	// we need the gameFactory since the user can choose after creating
+	// a hub, which game they'd like to play
+	gameFactory gamefactory.GameFactory
+	gameRouter  game.GameRouter
+	hubHandler  hubapi.Handler
+
+	reg registry.Registry
 }
 
-func GetHub(registry registry.Registry) *Hub {
-	return &Hub{
-		registry: registry,
+// hubClient should only store basic information about the client
+// and the send channel
+type hubClient struct {
+	send     (chan []byte)
+	nickname string
+}
+
+func GetEmptyHub() Hub {
+	return &hub{}
+}
+
+func GetHub(gameFactory gamefactory.GameFactory) Hub {
+	return &hub{
+		gameFactory: gameFactory,
+		reg:         registry.GetRegistryProvider(),
+		gameRouter:  gameFactory.GetGame("scribble"),
 	}
 }
 
-func (l *Hub) SetupRoutes(r *mux.Router) {
-	r.HandleFunc("/hub", l.GetNewHubName).Methods("GET")
-	r.HandleFunc("/hub/{hubID}", l.CheckIfExists).Methods("GET")
+func (h *hub) RegisterClient(clientID identifier.Client, send chan []byte) {
+	h.reg.Register(send, clientID)
+	h.hubHandler.SendLobbyDetails(clientID, h.reg)
 }
 
-// GetNewHubName will provide a name of a hub that does not already exist
-// in the registry. This function is intended to be used to respond to the
-// "Create" button from the front end
-func (l *Hub) GetNewHubName(w http.ResponseWriter, r *http.Request) {
-	// TODO: Need to add some context based cancel timeout later
-	var hubName string
-
-	for {
-		hubName = identifier.CreateHubName(hubNameLength)
-		if !l.registry.CheckIfHubExists(identifier.HubNameStruct{hubName}) {
-			// hub does not exist, we can exit
-			break
-		}
+func (h *hub) UnregisterClient(
+	clientID identifier.Client,
+) (hubEmpty bool) {
+	hubEmpty = h.reg.Unregister(clientID)
+	if hubEmpty != true {
+		h.hubHandler.SendLobbyDetails(clientID, h.reg)
 	}
-
-	respondWithJSON(w, http.StatusOK, HubResponse{HubID: hubName})
+	return
 }
 
-// CheckIfExists will provide a response on whether or not the provided
-// HubID exists within the registry. This function is intended to be used
-// to respond to the "Join" button from the front end
-func (l *Hub) CheckIfExists(w http.ResponseWriter, r *http.Request) {
+// HandleAuthentication is called during the websocket upgrade.
+// If there is any authentication handshake, it should be done here.
+// The `writePump` will be started prior to calling this function,
+// so sending messages via the send channel is the proper way to
+// send outgoing messages. As for incoming messages, the `readPump` will
+// not be started (to avoid calling the HandleMessage function prior to
+// proper authentication) so reading the incoming messages has to be done
+// manually
+// The WebsocketClient will abort if this function returns a non nil error
+func (h *hub) HandleAuthentication(
+	w http.ResponseWriter,
+	r *http.Request,
+	conn *websocket.Conn,
+	send chan []byte,
+) (client identifier.Client, err error) {
+	// no authentication
+
 	vars := mux.Vars(r)
 	hubID, ok := vars["hubID"]
 	if !ok {
-		log.Errorf("HubID not found in URL")
+		log.Errorf("%v", ErrHubIDNotDefined)
+		return identifier.Client{}, ErrHubIDNotDefined
+	}
+
+	// Create an ID
+	client = identifier.Client{
+		ClientUUID: identifier.ClientUUIDStruct{
+			UUID: identifier.CreateClientUUID(),
+		},
+		HubName: identifier.HubNameStruct{
+			HubName: hubID,
+		},
+	}
+
+	h.RegisterClient(client, send)
+	return
+}
+
+func (h *hub) Upgrader() *websocket.Upgrader {
+	return &websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		// Allow all origins to connect
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
+}
+
+func (h *hub) HandleMessage(
+	messageType int,
+	message []byte,
+	clientID identifier.Client,
+	messageErr error,
+) {
+
+	isHubRequest := h.hubHandler.RouteMessage(
+		messageType,
+		message,
+		clientID,
+		messageErr,
+		h.reg,
+	)
+	if isHubRequest {
+		// do not need to route to the gameRouter
 		return
 	}
 
-	exists := l.registry.CheckIfHubExists(identifier.HubNameStruct{hubID})
-
-	respondWithJSON(w, http.StatusOK, HubResponse{Exists: exists})
-}
-
-func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	response, _ := json.Marshal(payload)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	w.Write(response)
+	h.gameRouter.RouteMessage(
+		messageType,
+		message,
+		clientID,
+		messageErr,
+		h.reg,
+	)
 }

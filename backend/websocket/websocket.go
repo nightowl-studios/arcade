@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bseto/arcade/backend/hub"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/gorilla/websocket"
@@ -21,50 +22,13 @@ type WebsocketClient interface {
 
 	// Close will close the websocket connection and stop any internal processes
 	Close()
+
+	RegisterCloseListener(listener WebsocketCloseListener)
 }
 
-// WebsocketHandler allows for different API handlers to be used within a websocket
-// context. As long as these functions are defined, the WebsocketHandler will
-// have access to reading (via HandleMessage) and writing (via `send chan []byte`)
-// to the websocket.
-// Other functionality such as database references, or translations or anything
-// should be stored within the struct that implements this interface
-type WebsocketHandler interface {
-
-	// HandleMessage is where the WebsocketHandler should route the messages.
-	// Essentially, this function is to become the router for this Game / or API
-	HandleMessage(
-		messageType int,
-		message []byte,
-		clientID identifier.Client,
-		messageErr error,
-	)
-
-	// HandleAuthentication is called during the websocket upgrade.
-	// If there is any authentication handshake, it should be done here.
-	// The `writePump` will be started prior to calling this function,
-	// so sending messages via the send channel is the proper way to
-	// send outgoing messages. As for incoming messages, the `readPump` will
-	// not be started (to avoid calling the HandleMessage function prior to
-	// proper authentication) so reading the incoming messages has to be done
-	// manually
-	// The WebsocketClient will abort if this function returns a non nil error
-	HandleAuthentication(
-		w http.ResponseWriter,
-		r *http.Request,
-		conn *websocket.Conn,
-		send chan []byte,
-	) (identifier.Client, error)
-
-	// SignalClose is called by the WebsocketClient when the websocket
-	// client is about to close.
-	// Make sure to do all cleanup in this SignalClose - ie, cleaning up
-	// the send channel
-	SignalClose(caller identifier.Client)
-
-	// Upgrader allows the WebsocketHandler to decide the properties of the
-	// websocket upgrade
-	Upgrader() *websocket.Upgrader
+// WebsocketCloseListener are notified when the websocket is closed
+type WebsocketCloseListener interface {
+	WebsocketClose(clientID identifier.Client)
 }
 
 const (
@@ -92,13 +56,61 @@ type Client struct {
 	conn          *websocket.Conn
 	send          chan []byte
 
-	handler WebsocketHandler
+	hub hub.Hub
 
 	clientID identifier.Client
+
+	// closeState tracks whether or not this websocket client is
+	// already cleaning up.
+	// This is needed since either one of the read or write pump can trigger
+	// a close
+	closeState     bool
+	closeStateLock sync.RWMutex
+
+	// listeners
+	closeListenerLock sync.RWMutex
+	closeListener     []WebsocketCloseListener
+}
+
+func GetClient(
+	hubInstance hub.Hub,
+) Client {
+	return Client{
+		send:       make(chan []byte),
+		hub:        hubInstance,
+		closeState: false,
+	}
+}
+
+func (c *Client) RegisterCloseListener(listener WebsocketCloseListener) {
+	c.closeListenerLock.Lock()
+	defer c.closeListenerLock.Unlock()
+	c.closeListener = append(c.closeListener, listener)
+}
+
+func (c *Client) NotifyClose() {
+	c.closeListenerLock.RLock()
+	defer c.closeListenerLock.RUnlock()
+	for _, listener := range c.closeListener {
+		listener.WebsocketClose(c.clientID)
+	}
 }
 
 // Close will close the websocket connection and stop any internal processes
 func (c *Client) Close() {
+	c.closeStateLock.Lock()
+	if c.closeState == true {
+		// This websocket has already triggered a Close cleanup - exiting
+		c.closeStateLock.Unlock()
+		return
+	}
+	c.closeState = true
+	c.closeStateLock.Unlock()
+
+	// stop anyone from trying to use the websocket before we actually
+	// close the websocket
+	c.NotifyClose()
+
 	c.connWriteLock.Lock()
 	defer c.connWriteLock.Unlock()
 
@@ -107,7 +119,7 @@ func (c *Client) Close() {
 		"",
 	))
 
-	time.Sleep(writeWait)
+	time.Sleep(time.Second * 1)
 	c.conn.Close()
 
 	return
@@ -124,7 +136,7 @@ func (c *Client) Upgrade(
 	w http.ResponseWriter,
 	r *http.Request,
 ) error {
-	conn, err := c.handler.Upgrader().Upgrade(w, r, nil)
+	conn, err := c.hub.Upgrader().Upgrade(w, r, nil)
 	if err != nil {
 		return err
 	}
@@ -133,7 +145,7 @@ func (c *Client) Upgrade(
 
 	go c.writePump()
 
-	id, err := c.handler.HandleAuthentication(w, r, conn, c.send)
+	id, err := c.hub.HandleAuthentication(w, r, conn, c.send)
 	if err != nil {
 		log.Errorf("unable to handle auth, exiting: %v", err)
 		return err
@@ -161,12 +173,12 @@ func (c *Client) readPump() {
 	for {
 		messageType, message, err := c.conn.ReadMessage()
 		if err != nil {
-			log.Errorf("unable to read from websocket, closing socket: %v", err)
+			log.Infof("websocket has been closed from client: %v, %v", c.clientID, err)
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
-		c.handler.HandleMessage(
+		c.hub.HandleMessage(
 			messageType,
 			message,
 			c.clientID,
@@ -213,13 +225,4 @@ func (c *Client) sendMessages(message []byte) {
 	}
 
 	return
-}
-
-// Utility Functions
-
-func GetClient(handler WebsocketHandler) Client {
-	return Client{
-		send:    make(chan []byte),
-		handler: handler,
-	}
 }

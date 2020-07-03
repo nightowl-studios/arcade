@@ -17,6 +17,18 @@ type Message struct {
 	Payload json.RawMessage `json:"payload"`
 }
 
+type GameRouter interface {
+	RouteMessage(
+		messageType int,
+		message []byte,
+		clientID identifier.Client,
+		messageErr error,
+		reg registry.Registry,
+	)
+
+	RouterName() string
+}
+
 type GameHandler interface {
 
 	// HandleInteraction will be given the tools it needs to handle
@@ -32,7 +44,7 @@ type GameHandler interface {
 	Name() string
 }
 
-func CreateGameHandlers(handlers ...GameHandler) map[string]GameHandler {
+func CreateGameHandlersMap(handlers ...GameHandler) map[string]GameHandler {
 	handlerMap := make(map[string]GameHandler)
 	for _, handler := range handlers {
 		handlerMap[handler.Name()] = handler
