@@ -1,8 +1,19 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-    <b-button v-on:click="sendMessage('hello')">Button</b-button>
+    <div v-if="isConnected">
+      <img alt="Vue logo" src="./assets/logo.png">
+      <HelloWorld msg="Welcome to Your Vue.js App"/>
+      <b-button v-on:click="sendMessage('hello')">Button</b-button>
+    </div>
+    <div v-else>
+      <h1>Lobby</h1>
+      <ul>
+        <li v-for="player in players" :key="player.name">
+          {{ player.name }}
+        </li>
+      </ul>
+
+    </div>
   </div>
 </template>
 
@@ -16,7 +27,14 @@ export default {
   },
   data: function() {
     return {
-      connection: null
+      connection: null,
+      isConnected: false,
+      players: [
+        { name: "Gordon" },
+        { name: "Byron" },
+        { name: "Zach" },
+        { name: "Sam" }
+      ]
     }
   },
   methods: {
