@@ -2,6 +2,7 @@ package websocket
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -19,6 +20,8 @@ type WebsocketClient interface {
 	// function that the WebsocketHandler handleAuthentication function will
 	// be called
 	Upgrade(w http.ResponseWriter, r *http.Request) error
+
+	Dial(hostname string)
 
 	// Close will close the websocket connection and stop any internal processes
 	Close()
@@ -154,6 +157,26 @@ func (c *Client) Upgrade(
 
 	go c.readPump()
 	return err
+}
+
+func (c *Client) Dial(
+	hostname string,
+) {
+	origin := "http://localhost/"
+	url := "ws://localhost:12345/ws"
+	ws, err := websocket.Dial(url, "", origin)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err := ws.Write([]byte("hello, world!\n")); err != nil {
+		log.Fatal(err)
+	}
+	var msg = make([]byte, 512)
+	var n int
+	if n, err = ws.Read(msg); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Received: %s.\n", msg[:n])
 }
 
 // readPump is a function in charge of reading from the websocket. No other
