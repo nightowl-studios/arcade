@@ -7,33 +7,32 @@
     </div>
     <div v-else>
       <h1>Lobby</h1>
-      <ul>
-        <li v-for="player in players" :key="player.name">
-          {{ player.name }}
-        </li>
-      </ul>
-
+      <div v-for="player in players" :key="player">
+        <Player :name=player.name :id=player.id />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld.vue'
+import Player from './components/Player.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    HelloWorld,
+    Player
   },
   data: function() {
     return {
       connection: null,
       isConnected: false,
       players: [
-        { name: "Gordon" },
-        { name: "Byron" },
-        { name: "Zach" },
-        { name: "Sam" }
+        { name: "Gordon", id: "something"},
+        { name: "Byron", id: "something2"},
+        { name: "Zach", id: "something3" },
+        { name: "Sam", id: "something4" }
       ]
     }
   },
