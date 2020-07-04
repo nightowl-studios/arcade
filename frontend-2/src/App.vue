@@ -29,10 +29,10 @@ export default {
       connection: null,
       isConnected: false,
       players: [
-        { name: "Gordon", id: "something"},
-        { name: "Byron", id: "something2"},
-        { name: "Zach", id: "something3" },
-        { name: "Sam", id: "something4" }
+        { name: "Gordon", id: "ID12345"},
+        { name: "Byron", id: "ID12346"},
+        { name: "Zach", id: "ID12347" },
+        { name: "Sam", id: "ID12348" }
       ]
     }
   },
