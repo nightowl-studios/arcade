@@ -1,7 +1,8 @@
 <template>
   <div id="app">
     <div v-if="connectionState === 'CONNECTED'">
-      <Lobby/>
+      <Lobby :clients="clients"/>
+        <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
     </div>
     <div v-else>
       <img alt="Vue logo" src="./assets/logo.png">
@@ -32,12 +33,7 @@ export default {
     return {
       connection: null,
       isConnected: false,
-      players: [
-        { name: "Gordon", id: "ID12345"},
-        { name: "Byron", id: "ID12346"},
-        { name: "Zach", id: "ID12347" },
-        { name: "Sam", id: "ID12348" }
-      ],
+      clients: [],
       hubId: "",
       connectionState: "DISCONNECTED"
     }
@@ -51,8 +47,12 @@ export default {
       let webSocketUrl = this.$websocketURL + "/" + this.hubId;
       this.connection = new WebSocket(webSocketUrl);
 
-      this.connection.onmessage = function(event) {
-        console.log(event);
+      this.connection.onmessage = (event) => {
+        console.log(event.data);
+        let parseMsg = JSON.parse(event.data);
+        console.log(parseMsg);
+        this.clients = parseMsg.payload.connectedClients;
+        console.log(parseMsg.payload.connectedClients[0].clientUUID)
       }
 
       this.connection.onopen = (event) => {
@@ -61,6 +61,16 @@ export default {
         console.log(this);
         this.connectionState = "CONNECTED";
       }
+    },
+    sendPlayerMessage: function(){
+      let message = {
+        "api":"hub",
+        "payload":{
+          "requestLobbyDetails":true
+        }
+      }
+      let json = JSON.stringify(message);
+      this.connection.send(json);
     },
     sendMessage: function(message) {
       message = {

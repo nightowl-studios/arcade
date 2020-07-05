@@ -12,7 +12,7 @@ export default{
     name: 'Player',
     props: {
         name: String,
-        id: String
+        id: Object
     }
 }
 </script>
