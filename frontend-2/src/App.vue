@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <div v-if="isConnected">
+    <div v-if="connectionState === 'CONNECTED'">
+      <Lobby/>
+    </div>
+    <div v-else>
       <img alt="Vue logo" src="./assets/logo.png">
       <HelloWorld msg="Welcome to Your Vue.js App"/>
       <CreateButton @onCreateRoom="onCreateRoom"/>
@@ -8,18 +11,12 @@
       <JoinModal @onJoinRoom="onJoinRoom"/>
       <div>{{connectionState}} : {{hubId}}</div>
     </div>
-    <div v-else>
-      <h1>Lobby</h1>
-      <div v-for="player in players" :key="player">
-        <Player :name="player.name" :id="player.id" />
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld.vue'
-import Player from './components/Player.vue'
+import Lobby from './components/Lobby.vue'
 import CreateButton from './components/CreateButton.vue'
 import JoinModal from './components/JoinModal.vue'
 
@@ -27,7 +24,7 @@ export default {
   name: 'App',
   components: {
     HelloWorld,
-    Player,
+    Lobby,
     CreateButton,
     JoinModal
   },
