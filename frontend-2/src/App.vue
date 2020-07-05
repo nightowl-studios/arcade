@@ -11,7 +11,7 @@
     <div v-else>
       <h1>Lobby</h1>
       <div v-for="player in players" :key="player">
-        <Player :name=player.name :id=player.id />
+        <Player :name="player.name" :id="player.id" />
       </div>
     </div>
   </div>
@@ -27,7 +27,7 @@ export default {
   name: 'App',
   components: {
     HelloWorld,
-    Player
+    Player,
     CreateButton,
     JoinModal
   },
