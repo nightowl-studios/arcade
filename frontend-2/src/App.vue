@@ -1,16 +1,25 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-    <CreateButton @onCreateRoom="onCreateRoom"/>
-    <b-button v-on:click="sendMessage('hello')">Send a Message</b-button>
-    <JoinModal @onJoinRoom="onJoinRoom"/>
-    <div>{{connectionState}} : {{hubId}}</div>
+    <div v-if="isConnected">
+      <img alt="Vue logo" src="./assets/logo.png">
+      <HelloWorld msg="Welcome to Your Vue.js App"/>
+      <CreateButton @onCreateRoom="onCreateRoom"/>
+      <b-button v-on:click="sendMessage('hello')">Send a Message</b-button>
+      <JoinModal @onJoinRoom="onJoinRoom"/>
+      <div>{{connectionState}} : {{hubId}}</div>
+    </div>
+    <div v-else>
+      <h1>Lobby</h1>
+      <div v-for="player in players" :key="player">
+        <Player :name=player.name :id=player.id />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld.vue'
+import Player from './components/Player.vue'
 import CreateButton from './components/CreateButton.vue'
 import JoinModal from './components/JoinModal.vue'
 
@@ -18,12 +27,20 @@ export default {
   name: 'App',
   components: {
     HelloWorld,
+    Player
     CreateButton,
     JoinModal
   },
   data: function() {
     return {
       connection: null,
+      isConnected: false,
+      players: [
+        { name: "Gordon", id: "ID12345"},
+        { name: "Byron", id: "ID12346"},
+        { name: "Zach", id: "ID12347" },
+        { name: "Sam", id: "ID12348" }
+      ],
       hubId: "",
       connectionState: "DISCONNECTED"
     }
