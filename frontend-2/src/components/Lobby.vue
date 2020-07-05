@@ -1,8 +1,8 @@
 <template>
 <div id="lobby">
     <h1>Lobby</h1>
-    <div v-for="player in players" :key="player">
-        <Player :name="player.name" :id="player.id" />
+    <div v-for="player in clients" :key="player">
+        <Player :id="player.clientUUID.UUID" :name="player.nickname"/>
     </div>
 </div>
 </template>

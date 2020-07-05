@@ -13,6 +13,16 @@ export default{
     props: {
         name: String,
         id: String
+    },
+
+    methods: {
+        checkExistingID: function (id,name){
+            var existingID = [];
+            if (!existingID.includes(id)){
+                console.log( name + "have joined the lobby.")
+                existingID.push(id);
+            }
+        }
     }
 }
 </script>
@@ -26,7 +36,6 @@ export default{
     }
     h2{
         font-size: 12px;
- 
     }
     .name {
         color:black;

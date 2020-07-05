@@ -62,6 +62,20 @@ export default {
         this.connectionState = "CONNECTED";
       }
     },
+<<<<<<< Updated upstream
+=======
+    sendPlayerMessage: function(){
+      let message = {
+        "api":"hub",
+        "payload":{
+          "requestLobbyDetails":true
+        }
+      }
+      let json = JSON.stringify(message);
+      this.connection.send(json);
+    },
+    
+>>>>>>> Stashed changes
     sendMessage: function(message) {
       message = {
         "api":"echo",
