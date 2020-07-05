@@ -12,6 +12,10 @@ Vue.use(BootstrapVue)
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin)
 
+// Global Instance Properties
+Vue.prototype.$httpURL = "http://localhost:8081";
+Vue.prototype.$websocketURL = "ws://localhost:8081/ws";
+
 new Vue({
   render: h => h(App),
 }).$mount('#app')

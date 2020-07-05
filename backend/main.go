@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/bseto/arcade/backend/game/scribble"
-	"github.com/bseto/arcade/backend/hub"
+	"github.com/bseto/arcade/backend/game/gamefactory"
+	"github.com/bseto/arcade/backend/hub/hubmanager"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket"
-	"github.com/bseto/arcade/backend/websocket/registry"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
@@ -24,21 +23,31 @@ func main() {
 
 func initializeRoutes() {
 	r := mux.NewRouter()
-	reg := registry.GetRegistryProvider()
-	scribbleAPI := scribble.GetScribbleAPI(reg)
-	hub := hub.GetHub(reg)
-	hub.SetupRoutes(r)
+	//scribbleAPI := scribble.GetScribbleRouter(reg)
+	hubManager := hubmanager.GetHubManager()
+	hubManager.SetupRoutes(r)
+	gameFactory := gamefactory.GetGameFactory()
 
-	r.PathPrefix("/ws/{hubID}").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		wsClient := websocket.GetClient(scribbleAPI)
-		wsClient.Upgrade(w, r)
+	r.PathPrefix("/ws/{hubID}").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		hubInstance, err := hubManager.GetHub(req, gameFactory)
+		if err != nil {
+			log.Errorf("unable to ")
+		}
+
+		wsClient := websocket.GetClient(hubInstance)
+		err = wsClient.Upgrade(w, req)
+		if err != nil {
+			log.Errorf("unable to upgrade websocket: %v", err)
+			return
+		}
+		wsClient.RegisterCloseListener(hubManager)
 	})
 
 	address := fmt.Sprintf(":%v", *port)
 	log.Infof("starting server on: %v", address)
 
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{"localhost:8080"}) // we need to add our domain name here one day
+	originsOk := handlers.AllowedOrigins([]string{"http://localhost:8080"}) // we need to add our domain name here one day
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
 	err := http.ListenAndServe(address, handlers.CORS(originsOk, headersOk, methodsOk)(r))
