@@ -1,8 +1,8 @@
 <template>
 <div id="lobby">
     <h1>Lobby</h1>
-    <div v-for="player in players" :key="player">
-        <Player :name="player.name" :id="player.id" />
+    <div v-for="player in clients" :key="player">
+        <Player :id="player.clientUUID.UUID"/>
     </div>
 </div>
 </template>
@@ -12,18 +12,11 @@ import Player from './Player.vue'
 
 export default {
   name: 'Lobby',
-  components: {
-    Player
+  props: {
+    clients: Array
   },
-  data: function() {
-    return {
-      players: [
-        { name: "Gordon", id: "ID12345"},
-        { name: "Byron", id: "ID12346"},
-        { name: "Zach", id: "ID12347" },
-        { name: "Sam", id: "ID12348" }
-      ],
-    }
-  }
+  components: {
+    Player,
+  },
 }
 </script>
