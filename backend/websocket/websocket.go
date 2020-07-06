@@ -84,6 +84,30 @@ func GetClient(
 	}
 }
 
+// GetDialClient will return a client where it's meant for dialing
+// a websocket server. Not meant to be used for anything other than
+// testing purposes at the moment
+// This function will automatically start the writePump, but will not start
+// the read pump
+func DialClient(hostname string) (Client, chan []byte, *websocket.Conn, error) {
+	sendChan := make(chan []byte)
+
+	retClient := Client{
+		send:       sendChan,
+		closeState: false,
+	}
+
+	conn, _, err := websocket.DefaultDialer.Dial(hostname, nil)
+	if err != nil {
+		log.Errorf("unable to dial connection: %v", err)
+		return retClient, sendChan, conn, err
+	}
+	retClient.conn = conn
+	go retClient.writePump()
+
+	return retClient, sendChan, conn, nil
+}
+
 func (c *Client) RegisterCloseListener(listener WebsocketCloseListener) {
 	c.closeListenerLock.Lock()
 	defer c.closeListenerLock.Unlock()
@@ -156,16 +180,6 @@ func (c *Client) Upgrade(
 
 	go c.readPump()
 	return err
-}
-
-func (c *Client) Dial(
-	hostname string,
-) {
-	conn, _, err := websocket.DefaultDialer.Dial(hostname, nil)
-	if err != nil {
-
-	}
-	c.conn = conn
 }
 
 // readPump is a function in charge of reading from the websocket. No other
