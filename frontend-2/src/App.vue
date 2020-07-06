@@ -1,17 +1,24 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-    <CreateButton @onCreateRoom="onCreateRoom"/>
-    <b-button v-on:click="sendMessage('hello')">Send a Message</b-button>
-    <JoinModal @onJoinRoom="onJoinRoom"/>
-    <Canvas/>
-    <div>{{connectionState}} : {{hubId}}</div>
+    <div v-if="connectionState === 'CONNECTED'">
+      <Lobby :clients="clients"/>
+        <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
+    </div>
+    <div v-else>
+      <img alt="Vue logo" src="./assets/logo.png">
+      <HelloWorld msg="Welcome to Your Vue.js App"/>
+      <CreateButton @onCreateRoom="onCreateRoom"/>
+      <b-button v-on:click="sendMessage('hello')">Send a Message</b-button>
+      <JoinModal @onJoinRoom="onJoinRoom"/>
+      <div>{{connectionState}} : {{hubId}}</div>
+      <Canvas/>
+    </div>
   </div>
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld.vue'
+import Lobby from './components/Lobby.vue'
 import CreateButton from './components/CreateButton.vue'
 import JoinModal from './components/JoinModal.vue'
 import Canvas from './components/Canvas.vue'
@@ -20,6 +27,7 @@ export default {
   name: 'App',
   components: {
     HelloWorld,
+    Lobby,
     CreateButton,
     JoinModal,
     Canvas
@@ -27,6 +35,8 @@ export default {
   data: function() {
     return {
       connection: null,
+      isConnected: false,
+      clients: [],
       hubId: "",
       connectionState: "DISCONNECTED"
     }
@@ -40,8 +50,12 @@ export default {
       let webSocketUrl = this.$websocketURL + "/" + this.hubId;
       this.connection = new WebSocket(webSocketUrl);
 
-      this.connection.onmessage = function(event) {
-        console.log(event);
+      this.connection.onmessage = (event) => {
+        console.log(event.data);
+        let parseMsg = JSON.parse(event.data);
+        console.log(parseMsg);
+        this.clients = parseMsg.payload.connectedClients;
+        console.log(parseMsg.payload.connectedClients[0].clientUUID)
       }
 
       this.connection.onopen = (event) => {
@@ -50,6 +64,16 @@ export default {
         console.log(this);
         this.connectionState = "CONNECTED";
       }
+    },
+    sendPlayerMessage: function(){
+      let message = {
+        "api":"hub",
+        "payload":{
+          "requestLobbyDetails":true
+        }
+      }
+      let json = JSON.stringify(message);
+      this.connection.send(json);
     },
     sendMessage: function(message) {
       message = {

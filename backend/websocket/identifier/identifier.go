@@ -5,20 +5,46 @@ package identifier
 import (
 	"math/rand"
 	"strings"
+	"sync"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
 )
 
 // Client struct should contain all information about the client connected via
-// websocket
+// websocket - These details do not change. If the user connects to a different
+// websocket connection, they will be given a new Client detail
+// ClientUUID is a completely unique identifier
+// HubName is the name of the hub they are connected to
 type Client struct {
-	ClientUUID  ClientUUIDStruct // ClientUUID is a completely unique identifier
-	HubName     HubNameStruct    // HubName is the name of the hub they are connected to
-	DisplayName string           // DisplayName is the name the user chose
+	ClientUUID ClientUUIDStruct `json:"clientUUID"`
+	HubName    HubNameStruct    `json:"hubName"`
 
 	// this Client struct may also include things like a jwt token or something
 	// later so that we can code in some reconnect functionality
+}
+
+// UserDetails should only be held by the registry
+// These are details that can change and follow the "user"
+// with the exception of the ClientUUID which is needed so
+// the frontend can ID this user
+type UserDetails struct {
+	ClientUUID ClientUUIDStruct `json:"clientUUID"`
+
+	NickNameLock sync.RWMutex `json:"-"`
+	NickName     string       `json:"nickname"`
+}
+
+func (u *UserDetails) GetNickName() string {
+	u.NickNameLock.RLock()
+	defer u.NickNameLock.RUnlock()
+	return u.NickName
+}
+
+func (u *UserDetails) ChangeNickName(newName string) {
+	u.NickNameLock.Lock()
+	defer u.NickNameLock.Unlock()
+	u.NickName = newName
 }
 
 type ClientUUIDStruct struct {
