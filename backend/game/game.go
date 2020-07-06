@@ -26,6 +26,16 @@ type GameRouter interface {
 		reg registry.Registry,
 	)
 
+	NewClient(
+		clientID identifier.Client,
+		reg registry.Registry,
+	)
+
+	ClientQuit(
+		clientID identifier.Client,
+		reg registry.Registry,
+	)
+
 	RouterName() string
 }
 
@@ -37,6 +47,16 @@ type GameHandler interface {
 		message json.RawMessage,
 		caller identifier.Client,
 		registry registry.Registry,
+	)
+
+	NewClient(
+		clientID identifier.Client,
+		reg registry.Registry,
+	)
+
+	ClientQuit(
+		clientID identifier.Client,
+		reg registry.Registry,
 	)
 
 	// Name needs to return a unique name of this GameHandler

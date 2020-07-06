@@ -1,7 +1,5 @@
-// package registry will be in charge of handling the send channel.
-// this package should have no logic in regards to handling hub
-// related things. The hub is only used in this package for identifying
-// the channel
+// package registry will be used for two purposes
+// one purpose is to indirectly get access to the send channel
 package registry
 
 import (

@@ -13,7 +13,7 @@ const (
 	name string = "addition"
 )
 
-type Addition struct{}
+type Handler struct{}
 
 type AdditionMessage struct {
 	Num1 float64 `json: "num1"`
@@ -24,11 +24,11 @@ type AdditionResponse struct {
 	Result float64 `json: "result"`
 }
 
-func Get() *Addition {
-	return &Addition{}
+func Get() *Handler {
+	return &Handler{}
 }
 
-func (a *Addition) HandleInteraction(
+func (h *Handler) HandleInteraction(
 	message json.RawMessage,
 	caller identifier.Client,
 	registry registry.Registry,
@@ -66,6 +66,18 @@ func (a *Addition) HandleInteraction(
 	registry.SendToCaller(caller, responseMessage)
 }
 
-func (a *Addition) Name() string {
+func (h *Handler) Name() string {
 	return name
+}
+
+func (h *Handler) NewClient(
+	clientID identifier.Client,
+	reg registry.Registry,
+) {
+}
+
+func (h *Handler) ClientQuit(
+	clientID identifier.Client,
+	reg registry.Registry,
+) {
 }
