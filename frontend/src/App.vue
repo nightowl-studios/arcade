@@ -11,6 +11,7 @@
       <HelloWorld msg="Welcome to Your Vue.js App"/>
       <CreateButton @onCreateRoom="onCreateRoom"/>
       <JoinModal @onJoinRoom="onJoinRoom"/>
+      <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
       <Canvas/>
     </div>
   </div>
@@ -23,6 +24,7 @@ import CreateButton from './components/CreateButton.vue'
 import JoinModal from './components/JoinModal.vue'
 import Canvas from './components/Canvas.vue'
 import { EventBus } from './eventBus.js';
+import { ArcadeWebSocket } from './webSocket.js';
 
 export default {
   name: 'App',
@@ -37,40 +39,25 @@ export default {
     return {
       connection: null,
       clients: [],
-      hubId: "",
+      lobbyId: "",
       connectionState: "DISCONNECTED"
     }
   },
   methods: {
     onCreateRoom: function(lobbyId) {
-      console.log(lobbyId);
-      console.log("Connecting to websocket...");
-      this.connectionState = "CONNECTING";
-
       this.hubId = lobbyId;
-      EventBus.connect(lobbyId);
     },
-    onJoinRoom: function(event) {
-      console.log("Checking if hubId exists...");
-
-      if (event.response.data.exists) {
-        console.log("Connecting to websocket...");
-        this.connectionState = "CONNECTING";
-        this.hubId = event.hubId;
-        EventBus.connect(event.hubId);
-      } else {
-        console.log("HubId does not exist...");
-      }
+    onJoinRoom: function(lobbyId) {
+      this.hubId = lobbyId;
     },
-    sendPlayerMessage: function(){
+    sendPlayerMessage: function() {
       let message = {
         "api":"hub",
         "payload":{
           "requestLobbyDetails":true
         }
       }
-      let json = JSON.stringify(message);
-      this.connection.send(json);
+      ArcadeWebSocket.send(message);
     }
   },
   created() {
