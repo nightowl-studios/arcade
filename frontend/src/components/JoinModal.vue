@@ -1,9 +1,7 @@
 <template>
-  <div>
-    <b-button v-b-modal.modal-1>Launch demo modal</b-button>
-
+  <div id="joinModal">
+    <b-button variant="success" v-b-modal.modal-1>Join</b-button>
     <b-modal id="modal-1" @ok="onOKClicked" title="BootstrapVue">
-      <p class="my-4">Hello from modal!</p>
       <input v-model="hubId" placeholder="Enter room id">
     </b-modal>
   </div>
@@ -36,3 +34,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+#joinModal {
+  margin-top: 15px;
+}
+</style>
