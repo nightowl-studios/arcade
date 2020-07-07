@@ -2,21 +2,21 @@
   <div id="app">
     <div v-if="connectionState === 'CONNECTED'">
       <Lobby :clients="clients"/>
-        <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
+      <div>{{connectionState}}</div>
+      <div>Room Id: {{ hubId }}</div>
+      <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
     </div>
     <div v-else>
-      <img alt="Vue logo" src="./assets/logo.png">
+      <Title msg="Not ScribbleIO"/>
       <HelloWorld msg="Welcome to Your Vue.js App"/>
       <CreateButton @onCreateRoom="onCreateRoom"/>
-      <b-button v-on:click="sendMessage('hello')">Send a Message</b-button>
       <JoinModal @onJoinRoom="onJoinRoom"/>
-      <div>{{connectionState}} : {{hubId}}</div>
     </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Title from './components/Title.vue'
 import Lobby from './components/Lobby.vue'
 import CreateButton from './components/CreateButton.vue'
 import JoinModal from './components/JoinModal.vue'
@@ -24,7 +24,7 @@ import JoinModal from './components/JoinModal.vue'
 export default {
   name: 'App',
   components: {
-    HelloWorld,
+    Title,
     Lobby,
     CreateButton,
     JoinModal
@@ -32,7 +32,6 @@ export default {
   data: function() {
     return {
       connection: null,
-      isConnected: false,
       clients: [],
       hubId: "",
       connectionState: "DISCONNECTED"
@@ -72,18 +71,6 @@ export default {
       let json = JSON.stringify(message);
       this.connection.send(json);
     },
-    sendMessage: function(message) {
-      message = {
-        "api":"echo",
-        "payload":{
-          "message":"zacsdfsdfsdfsdfary"
-        }
-      }
-      let json = JSON.stringify(message);
-      console.log(json)
-      console.log(this.connection);
-      this.connection.send(json);
-    },
     onJoinRoom: function(event) {
       console.log("Checking if hubId exists...");
 
@@ -97,8 +84,12 @@ export default {
         let webSocketUrl = this.$websocketURL + "/" + this.hubId;
         this.connection = new WebSocket(webSocketUrl);
 
-        this.connection.onmessage = function(event) {
-          console.log(event);
+        this.connection.onmessage = (event) => {
+          console.log(event.data);
+          let parseMsg = JSON.parse(event.data);
+          console.log(parseMsg);
+          this.clients = parseMsg.payload.connectedClients;
+          console.log(parseMsg.payload.connectedClients[0].clientUUID)
         }
 
         this.connection.onopen = (event) => {
