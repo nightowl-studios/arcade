@@ -13,26 +13,28 @@ const (
 	name string = "hub"
 )
 
-type Handler struct{}
-
-func GetHubHandler() *Handler {
-	return &Handler{}
-}
-
-func (r *Handler) RouterName() string {
-	return name
-}
-
+// HubAPI is the struct that this handler expects as input
 type HubAPI struct {
 	RequestLobbyDetails bool   `json:"requestLobbyDetails"`
 	ChangeNameTo        string `json:"changeNameTo"`
 }
 
+// HubAPIReply is the struct that this handler will send to the clients
 type HubAPIReply struct {
 	ConnectedClients []*identifier.UserDetails `json:"connectedClients,omitempty"`
 }
 
-func (r *Handler) SendLobbyDetails(
+type Handler struct{}
+
+func Get() *Handler {
+	return &Handler{}
+}
+
+func (r *Handler) Name() string {
+	return name
+}
+
+func (h *Handler) SendLobbyDetails(
 	clientID identifier.Client,
 	reg registry.Registry,
 ) {
@@ -57,37 +59,17 @@ func (r *Handler) SendLobbyDetails(
 	reg.SendToSameHub(clientID, replyBytes)
 }
 
-func (r *Handler) RouteMessage(
-	messageType int,
-	message []byte,
+func (h *Handler) HandleInteraction(
+	message json.RawMessage,
 	clientID identifier.Client,
-	messageErr error,
 	reg registry.Registry,
-) (isHubRequest bool) {
-
-	/////////////////////
-	// CODE TO READ STUFF
-	var msg game.Message
-	err := json.Unmarshal(message, &msg)
-	if err != nil {
-		log.Errorf("unable to unmarshal into game.Message: %v", err)
-		return
-	}
-
-	if msg.API == name {
-		isHubRequest = true
-	} else {
-		return
-	}
-
+) {
 	var hubAPI HubAPI
-	err = json.Unmarshal(msg.Payload, &hubAPI)
+	err := json.Unmarshal(message, &hubAPI)
 	if err != nil {
 		log.Errorf("unable to unmarshal into hubAPI: %v", err)
 		return
 	}
-	// CODE TO READ STUFF
-	/////////////////////
 
 	var hubAPIReply HubAPIReply
 	sendToCallerOnly := true
@@ -104,8 +86,6 @@ func (r *Handler) RouteMessage(
 		hubAPIReply.ConnectedClients = reg.GetClientSlice()
 	}
 
-	/////////////////////
-	// CODE TO GENERATE RESPONSE BELOW HERE
 	b, err := json.Marshal(hubAPIReply)
 	if err != nil {
 		log.Errorf("unable to marshal response: %v", err)
@@ -127,8 +107,20 @@ func (r *Handler) RouteMessage(
 	} else {
 		reg.SendToSameHub(clientID, replyBytes)
 	}
-	// CODE TO GENERATE RESPONSE BELOW HERE
-	/////////////////////
 
 	return
+}
+
+func (h *Handler) NewClient(
+	clientID identifier.Client,
+	reg registry.Registry,
+) {
+	h.SendLobbyDetails(clientID, reg)
+}
+
+func (h *Handler) ClientQuit(
+	clientID identifier.Client,
+	reg registry.Registry,
+) {
+	h.SendLobbyDetails(clientID, reg)
 }

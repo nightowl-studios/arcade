@@ -23,7 +23,6 @@ func main() {
 
 func initializeRoutes() {
 	r := mux.NewRouter()
-	//scribbleAPI := scribble.GetScribbleRouter(reg)
 	hubManager := hubmanager.GetHubManager()
 	hubManager.SetupRoutes(r)
 	gameFactory := gamefactory.GetGameFactory()

@@ -29,10 +29,9 @@ type Client struct {
 // with the exception of the ClientUUID which is needed so
 // the frontend can ID this user
 type UserDetails struct {
-	ClientUUID ClientUUIDStruct `json:"clientUUID"`
-
-	NickNameLock sync.RWMutex `json:"-"`
-	NickName     string       `json:"nickname"`
+	ClientUUID   ClientUUIDStruct `json:"clientUUID"`
+	NickNameLock sync.RWMutex     `json:"-"`
+	NickName     string           `json:"nickname"`
 }
 
 func (u *UserDetails) GetNickName() string {

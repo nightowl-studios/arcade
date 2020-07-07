@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 
 	"github.com/bseto/arcade/backend/game"
+	"github.com/bseto/arcade/backend/game/generic/chat"
+	"github.com/bseto/arcade/backend/game/hubapi"
 	"github.com/bseto/arcade/backend/game/scribble/handler/addition"
 	"github.com/bseto/arcade/backend/game/scribble/handler/echo"
 	"github.com/bseto/arcade/backend/log"
@@ -21,10 +23,12 @@ type Router struct {
 	handlers map[string]game.GameHandler
 }
 
-func GetScribbleRouter() *Router {
+func GetScribbleRouter() game.GameRouter {
 	handlers := game.CreateGameHandlersMap(
 		echo.Get(),
 		addition.Get(),
+		hubapi.Get(),
+		chat.Get(),
 	)
 
 	return &Router{
@@ -65,4 +69,24 @@ func (r *Router) RouteMessage(
 	)
 
 	return
+}
+
+// NewClient will just tell any handler - if they care - that there is a new client
+func (r *Router) NewClient(
+	clientID identifier.Client,
+	reg registry.Registry,
+) {
+	for _, handler := range r.handlers {
+		handler.NewClient(clientID, reg)
+	}
+}
+
+// ClientQuit will just tell any handler - if they care - that a client quit
+func (r *Router) ClientQuit(
+	clientID identifier.Client,
+	reg registry.Registry,
+) {
+	for _, handler := range r.handlers {
+		handler.ClientQuit(clientID, reg)
+	}
 }
