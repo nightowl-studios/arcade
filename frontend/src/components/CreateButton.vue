@@ -6,6 +6,7 @@
 
 <script>
 import axios from 'axios';
+import { ArcadeWebSocket } from '../webSocket.js'
 
 export default {
   name: "CreateButton",
@@ -15,7 +16,11 @@ export default {
       let apiUrl = this.$httpURL + '/hub';
       axios
         .get(apiUrl)
-        .then(response => (this.$emit("onCreateRoom", response)));
+        .then(response => {
+          let lobbyId = response.data.hubID;
+          ArcadeWebSocket.connect(lobbyId);
+          this.$emit("onCreateRoom", lobbyId);
+        });
     }
   }
 }
