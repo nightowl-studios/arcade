@@ -88,29 +88,51 @@ func NewLogger(config Configuration, loggerInstance int) error {
 }
 
 func Debugf(format string, args ...interface{}) {
+	initIfEmpty()
 	log.Debugf(format, args...)
 }
 
 func Infof(format string, args ...interface{}) {
+	initIfEmpty()
 	log.Infof(format, args...)
 }
 
 func Warnf(format string, args ...interface{}) {
+	initIfEmpty()
 	log.Warnf(format, args...)
 }
 
 func Errorf(format string, args ...interface{}) {
+	initIfEmpty()
 	log.Errorf(format, args...)
 }
 
 func Fatalf(format string, args ...interface{}) {
+	initIfEmpty()
 	log.Fatalf(format, args...)
 }
 
 func Panicf(format string, args ...interface{}) {
+	initIfEmpty()
 	log.Panicf(format, args...)
 }
 
 func WithFields(keyValues Fields) Logger {
+	initIfEmpty()
 	return log.WithFields(keyValues)
+}
+
+func initIfEmpty() {
+	if log == nil {
+		NewLogger(
+			Configuration{
+				EnableConsole:     true,
+				ConsoleJSONFormat: false,
+				ConsoleLevel:      "info",
+				EnableFile:        false,
+				FileJSONFormat:    false,
+			},
+			InstanceLogrusLogger,
+		)
+	}
 }

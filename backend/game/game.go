@@ -4,6 +4,7 @@ package game
 import (
 	"encoding/json"
 
+	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/bseto/arcade/backend/websocket/registry"
 )
@@ -17,12 +18,44 @@ type Message struct {
 	Payload json.RawMessage `json:"payload"`
 }
 
+// MessageBuild will take the payload and api, and build the
+// message that can be sent back through to the websockets
+func MessageBuild(api string, payload interface{}) (json.RawMessage, error) {
+
+	bytePayload, err := json.Marshal(payload)
+	if err != nil {
+		log.Errorf("unable to marshal json: %v", err)
+		return nil, err
+	}
+
+	retJson, err := json.Marshal(Message{
+		API:     api,
+		Payload: bytePayload,
+	})
+	if err != nil {
+		log.Errorf("unable to marshal json: %v", err)
+		return nil, err
+	}
+
+	return retJson, nil
+}
+
 type GameRouter interface {
 	RouteMessage(
 		messageType int,
 		message []byte,
 		clientID identifier.Client,
 		messageErr error,
+		reg registry.Registry,
+	)
+
+	NewClient(
+		clientID identifier.Client,
+		reg registry.Registry,
+	)
+
+	ClientQuit(
+		clientID identifier.Client,
 		reg registry.Registry,
 	)
 
@@ -37,6 +70,16 @@ type GameHandler interface {
 		message json.RawMessage,
 		caller identifier.Client,
 		registry registry.Registry,
+	)
+
+	NewClient(
+		clientID identifier.Client,
+		reg registry.Registry,
+	)
+
+	ClientQuit(
+		clientID identifier.Client,
+		reg registry.Registry,
 	)
 
 	// Name needs to return a unique name of this GameHandler

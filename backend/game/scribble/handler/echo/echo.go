@@ -21,18 +21,18 @@ type EchoResponse struct {
 	Message string
 }
 
-type Echo struct {
+type Handler struct {
 	name string
 }
 
-func Get() *Echo {
-	return &Echo{
+func Get() *Handler {
+	return &Handler{
 		name: name,
 	}
 }
 
 // HandleInteraction will echo with a flavour :D
-func (e *Echo) HandleInteraction(
+func (h *Handler) HandleInteraction(
 	message json.RawMessage,
 	caller identifier.Client,
 	registry registry.Registry,
@@ -64,6 +64,18 @@ func (e *Echo) HandleInteraction(
 	registry.SendToSameHub(caller, responseMessage)
 }
 
-func (e *Echo) Name() string {
+func (h *Handler) Name() string {
 	return name
+}
+
+func (h *Handler) NewClient(
+	clientID identifier.Client,
+	reg registry.Registry,
+) {
+}
+
+func (h *Handler) ClientQuit(
+	clientID identifier.Client,
+	reg registry.Registry,
+) {
 }

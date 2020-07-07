@@ -12,7 +12,7 @@
       <HelloWorld msg="Welcome to Your Vue.js App"/>
       <CreateButton @onCreateRoom="onCreateRoom"/>
       <JoinModal @onJoinRoom="onJoinRoom"/>
-      <div>{{connectionState}} : {{hubId}}</div>
+      <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
       <Canvas/>
     </div>
   </div>
@@ -25,6 +25,8 @@ import CreateButton from './components/CreateButton.vue'
 import JoinModal from './components/JoinModal.vue'
 import Canvas from './components/Canvas.vue'
 import Nickname from './components/Nickname.vue'
+import { EventBus } from './eventBus.js';
+import { ArcadeWebSocket } from './webSocket.js';
 
 export default {
   name: 'App',
@@ -40,87 +42,34 @@ export default {
     return {
       connection: null,
       clients: [],
-      hubId: "",
+      lobbyId: "",
       connectionState: "DISCONNECTED"
     }
   },
   methods: {
-    onChangeNickname: function(event){
-
-      let message = {
-        "api":"hub",
-        "payload":{
-          "changeNameTo": event.nickname
-        }      
-      }
-      let json = JSON.stringify(message);
-      this.connection.send(json);
+    onCreateRoom: function(lobbyId) {
+      this.hubId = lobbyId;
     },
-
-    onCreateRoom: function(event) {
-      console.log("Connecting to websocket...");
-      this.connectionState = "CONNECTING";
-      this.hubId = event.data.hubID;
-
-      let webSocketUrl = this.$websocketURL + "/" + this.hubId;
-      this.connection = new WebSocket(webSocketUrl);
-
-      this.connection.onmessage = (event) => {
-        console.log(event.data);
-        let parseMsg = JSON.parse(event.data);
-        console.log(parseMsg);
-        this.clients = parseMsg.payload.connectedClients;
-        console.log(parseMsg.payload.connectedClients[0].clientUUID)
-      }
-
-      this.connection.onopen = (event) => {
-        console.log(event);
-        console.log("Successfully connected to the websocket...");
-        console.log(this);
-        this.connectionState = "CONNECTED";
-      }
+    onJoinRoom: function(lobbyId) {
+      this.hubId = lobbyId;
     },
-    sendPlayerMessage: function(){
+    sendPlayerMessage: function() {
       let message = {
         "api":"hub",
         "payload":{
           "requestLobbyDetails":true
         }
       }
-      let json = JSON.stringify(message);
-      this.connection.send(json);
-    },
-    onJoinRoom: function(event) {
-      console.log("Checking if hubId exists...");
-
-      console.log(event);
-      if (event.response.data.exists) {
-        console.log("Connecting to websocket...");
-        this.connectionState = "CONNECTING";
-        this.hubId = event.hubId;
-        console.log(event);
-
-        let webSocketUrl = this.$websocketURL + "/" + this.hubId;
-        this.connection = new WebSocket(webSocketUrl);
-
-        this.connection.onmessage = (event) => {
-          console.log(event.data);
-          let parseMsg = JSON.parse(event.data);
-          console.log(parseMsg);
-          this.clients = parseMsg.payload.connectedClients;
-          console.log(parseMsg.payload.connectedClients[0].clientUUID)
-        }
-
-        this.connection.onopen = (event) => {
-          console.log(event);
-          console.log("Successfully connected to the websocket...");
-          console.log(this);
-          this.connectionState = "CONNECTED";
-        }
-      } else {
-        console.log("HubId does not exist...");
-      }
+      ArcadeWebSocket.send(message);
     }
+  },
+  created() {
+    EventBus.$on('connected', () => {
+      this.connectionState = "CONNECTED";
+    }),
+    EventBus.$on(this.$hubAPI, (data) => {
+      this.clients = data.connectedClients;
+    }) 
   }
 }
 </script>

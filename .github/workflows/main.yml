@@ -25,10 +25,11 @@ jobs:
       with:
        go-version: '1.14.4'
 
-    - name: Build the Golang Binary
+    - name: Build and test the Golang Binary
       run: | 
         go version
         cd backend
         go build
+        go test ./...
       
       

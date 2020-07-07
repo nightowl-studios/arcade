@@ -20,6 +20,8 @@ type WebsocketClient interface {
 	// be called
 	Upgrade(w http.ResponseWriter, r *http.Request) error
 
+	Dial(hostname string)
+
 	// Close will close the websocket connection and stop any internal processes
 	Close()
 
@@ -80,6 +82,30 @@ func GetClient(
 		hub:        hubInstance,
 		closeState: false,
 	}
+}
+
+// GetDialClient will return a client where it's meant for dialing
+// a websocket server. Not meant to be used for anything other than
+// testing purposes at the moment
+// This function will automatically start the writePump, but will not start
+// the read pump
+func DialClient(hostname string) (Client, chan []byte, *websocket.Conn, error) {
+	sendChan := make(chan []byte)
+
+	retClient := Client{
+		send:       sendChan,
+		closeState: false,
+	}
+
+	conn, _, err := websocket.DefaultDialer.Dial(hostname, nil)
+	if err != nil {
+		log.Errorf("unable to dial connection: %v", err)
+		return retClient, sendChan, conn, err
+	}
+	retClient.conn = conn
+	go retClient.writePump()
+
+	return retClient, sendChan, conn, nil
 }
 
 func (c *Client) RegisterCloseListener(listener WebsocketCloseListener) {
