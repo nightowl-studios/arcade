@@ -12,7 +12,17 @@ export default{
     name: 'Player',
     props: {
         name: String,
-        id: Object
+        id: String
+    },
+
+    methods: {
+        checkExistingID: function (id,name){
+            var existingID = [];
+            if (!existingID.includes(id)){
+                console.log( name + "have joined the lobby.")
+                existingID.push(id);
+            }
+        }
     }
 }
 </script>
@@ -26,7 +36,6 @@ export default{
     }
     h2{
         font-size: 12px;
- 
     }
     .name {
         color:black;

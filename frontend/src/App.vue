@@ -11,6 +11,7 @@
       <HelloWorld msg="Welcome to Your Vue.js App"/>
       <CreateButton @onCreateRoom="onCreateRoom"/>
       <JoinModal @onJoinRoom="onJoinRoom"/>
+      <Canvas/>
     </div>
   </div>
 </template>
@@ -20,6 +21,7 @@ import Title from './components/Title.vue'
 import Lobby from './components/Lobby.vue'
 import CreateButton from './components/CreateButton.vue'
 import JoinModal from './components/JoinModal.vue'
+import Canvas from './components/Canvas.vue'
 
 export default {
   name: 'App',
@@ -27,7 +29,8 @@ export default {
     Title,
     Lobby,
     CreateButton,
-    JoinModal
+    JoinModal,
+    Canvas
   },
   data: function() {
     return {
