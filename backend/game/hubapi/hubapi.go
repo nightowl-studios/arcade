@@ -13,6 +13,17 @@ const (
 	name string = "hub"
 )
 
+// HubAPI is the struct that this handler expects as input
+type HubAPI struct {
+	RequestLobbyDetails bool   `json:"requestLobbyDetails"`
+	ChangeNameTo        string `json:"changeNameTo"`
+}
+
+// HubAPIReply is the struct that this handler will send to the clients
+type HubAPIReply struct {
+	ConnectedClients []*identifier.UserDetails `json:"connectedClients,omitempty"`
+}
+
 type Handler struct{}
 
 func Get() *Handler {
@@ -21,15 +32,6 @@ func Get() *Handler {
 
 func (r *Handler) Name() string {
 	return name
-}
-
-type HubAPI struct {
-	RequestLobbyDetails bool   `json:"requestLobbyDetails"`
-	ChangeNameTo        string `json:"changeNameTo"`
-}
-
-type HubAPIReply struct {
-	ConnectedClients []*identifier.UserDetails `json:"connectedClients,omitempty"`
 }
 
 func (h *Handler) SendLobbyDetails(

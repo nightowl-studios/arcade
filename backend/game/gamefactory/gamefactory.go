@@ -5,18 +5,22 @@ import (
 	"github.com/bseto/arcade/backend/game/scribble"
 )
 
+// GameFactory should give a new game router out to anyone who requests it
 type GameFactory interface {
 	GetAvailableGames() []string
 	GetGame(string) game.GameRouter
 }
 
 type gameFactory struct {
-	routers map[string]game.GameRouter
+	// the reason we have a map to functions that provide game routers
+	// is because we do not want to store the gamerouter here. We want to be
+	// able to grab a new instance and give it to a hub that requests it
+	routers map[string]func() game.GameRouter
 }
 
 func GetGameFactory() *gameFactory {
 	routersMap := CreateGameRoutersMap(
-		scribble.GetScribbleRouter(),
+		scribble.GetScribbleRouter,
 	)
 	return &gameFactory{
 		routers: routersMap,
@@ -32,13 +36,13 @@ func (g *gameFactory) GetAvailableGames() []string {
 }
 
 func (g *gameFactory) GetGame(gameName string) game.GameRouter {
-	return g.routers[gameName]
+	return g.routers[gameName]()
 }
 
-func CreateGameRoutersMap(routers ...game.GameRouter) map[string]game.GameRouter {
-	routerMap := make(map[string]game.GameRouter)
+func CreateGameRoutersMap(routers ...func() game.GameRouter) map[string]func() game.GameRouter {
+	routerMap := make(map[string]func() game.GameRouter)
 	for _, router := range routers {
-		routerMap[router.RouterName()] = router
+		routerMap[router().RouterName()] = router
 	}
 	return routerMap
 }

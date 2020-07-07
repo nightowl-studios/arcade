@@ -4,6 +4,7 @@ package game
 import (
 	"encoding/json"
 
+	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/bseto/arcade/backend/websocket/registry"
 )
@@ -15,6 +16,28 @@ import (
 type Message struct {
 	API     string          `json:"api"`
 	Payload json.RawMessage `json:"payload"`
+}
+
+// MessageBuild will take the payload and api, and build the
+// message that can be sent back through to the websockets
+func MessageBuild(api string, payload interface{}) (json.RawMessage, error) {
+
+	bytePayload, err := json.Marshal(payload)
+	if err != nil {
+		log.Errorf("unable to marshal json: %v", err)
+		return nil, err
+	}
+
+	retJson, err := json.Marshal(Message{
+		API:     api,
+		Payload: bytePayload,
+	})
+	if err != nil {
+		log.Errorf("unable to marshal json: %v", err)
+		return nil, err
+	}
+
+	return retJson, nil
 }
 
 type GameRouter interface {

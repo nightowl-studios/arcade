@@ -21,6 +21,7 @@ type Registry interface {
 
 	SendToSameHub(clientID identifier.Client, message []byte)
 	SendToCaller(clientID identifier.Client, message []byte)
+	SendToSameHubExceptCaller(clientID identifier.Client, message []byte)
 }
 
 // RegistryProvider will provide the actual registry functionality
@@ -105,8 +106,8 @@ func (r *RegistryProvider) SendToSameHub(
 	clientID identifier.Client,
 	message []byte,
 ) {
-	r.lookupLock.Lock()
-	defer r.lookupLock.Unlock()
+	r.lookupLock.RLock()
+	defer r.lookupLock.RUnlock()
 
 	for _, clientDetails := range r.lookupMap {
 		clientDetails.send <- message
@@ -119,8 +120,8 @@ func (r *RegistryProvider) SendToCaller(
 	clientID identifier.Client,
 	message []byte,
 ) {
-	r.lookupLock.Lock()
-	defer r.lookupLock.Unlock()
+	r.lookupLock.RLock()
+	defer r.lookupLock.RUnlock()
 
 	clientDetails, ok := r.lookupMap[clientID.ClientUUID]
 	if ok != true {
@@ -129,4 +130,23 @@ func (r *RegistryProvider) SendToCaller(
 	}
 
 	clientDetails.send <- message
+}
+
+// SendToSameHubExceptCaller will send to everyone in the hub, except for the caller
+func (r *RegistryProvider) SendToSameHubExceptCaller(
+	clientID identifier.Client,
+	message []byte,
+) {
+	r.lookupLock.RLock()
+	defer r.lookupLock.RUnlock()
+
+	for _, clientDetails := range r.lookupMap {
+		if clientDetails.userDetails.ClientUUID == clientID.ClientUUID {
+			// don't send if the clientUUID match the caller
+			continue
+		}
+		clientDetails.send <- message
+	}
+
+	return
 }

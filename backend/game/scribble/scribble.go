@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 
 	"github.com/bseto/arcade/backend/game"
+	"github.com/bseto/arcade/backend/game/generic/chat"
 	"github.com/bseto/arcade/backend/game/hubapi"
 	"github.com/bseto/arcade/backend/game/scribble/handler/addition"
 	"github.com/bseto/arcade/backend/game/scribble/handler/echo"
@@ -22,11 +23,12 @@ type Router struct {
 	handlers map[string]game.GameHandler
 }
 
-func GetScribbleRouter() *Router {
+func GetScribbleRouter() game.GameRouter {
 	handlers := game.CreateGameHandlersMap(
 		echo.Get(),
 		addition.Get(),
 		hubapi.Get(),
+		chat.Get(),
 	)
 
 	return &Router{
