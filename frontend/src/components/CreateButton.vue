@@ -15,7 +15,10 @@ export default {
       let apiUrl = this.$httpURL + '/hub';
       axios
         .get(apiUrl)
-        .then(response => (this.$emit("onCreateRoom", response)));
+        .then(response => {
+          let lobbyId = response.data.hubID;
+          this.$emit("onCreateRoom", lobbyId);
+        });
     }
   }
 }
