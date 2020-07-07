@@ -2,7 +2,7 @@
 <div id="lobby">
     <h1>Lobby</h1>
     <div v-for="player in clients" :key="player">
-        <Player :id="player.clientUUID.UUID"/>
+        <Player :id="player.clientUUID.UUID" :name="player.nickname"/>
     </div>
 </div>
 </template>

@@ -2,7 +2,6 @@
   <div id="app">
     <div v-if="connectionState === 'CONNECTED'">
       <Lobby :clients="clients"/>
-        <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
     </div>
     <div v-else>
       <img alt="Vue logo" src="./assets/logo.png">
@@ -11,6 +10,7 @@
       <b-button v-on:click="sendMessage('hello')">Send a Message</b-button>
       <JoinModal @onJoinRoom="onJoinRoom"/>
       <div>{{connectionState}} : {{hubId}}</div>
+      <Canvas/>
     </div>
   </div>
 </template>
@@ -20,6 +20,7 @@ import HelloWorld from './components/HelloWorld.vue'
 import Lobby from './components/Lobby.vue'
 import CreateButton from './components/CreateButton.vue'
 import JoinModal from './components/JoinModal.vue'
+import Canvas from './components/Canvas.vue'
 
 export default {
   name: 'App',
@@ -27,7 +28,8 @@ export default {
     HelloWorld,
     Lobby,
     CreateButton,
-    JoinModal
+    JoinModal,
+    Canvas
   },
   data: function() {
     return {
