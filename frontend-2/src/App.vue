@@ -2,7 +2,6 @@
   <div id="app">
     <div v-if="connectionState === 'CONNECTED'">
       <Lobby :clients="clients"/>
-        <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
     </div>
     <div v-else>
       <img alt="Vue logo" src="./assets/logo.png">
