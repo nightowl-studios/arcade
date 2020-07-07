@@ -6,11 +6,12 @@
 
 <script>
 export default {
+  name: "Canvas",
   data: function() {
     return {
       mouseDown: false,
       previousPosition: { x: 0, y: 0 },
-      lineStyle: { strokeStyle: "black", lineWidth: 2 },
+      brushStyle: { brushColor: "black", brushSize: 2 },
       canvas: null,
       context: null
     };
@@ -40,7 +41,7 @@ export default {
           x: event.clientX - this.canvas.offsetLeft,
           y: event.clientY - this.canvas.offsetTop
         };
-        this.draw(this.previousPosition, currentPosition, this.lineStyle);
+        this.draw(this.previousPosition, currentPosition, this.brushStyle);
         this.previousPosition = currentPosition;
       }
     },
@@ -65,12 +66,17 @@ export default {
       }
     },
 
-    draw: function(from, to, lineStyle) {
+    setBrushStyle: function(brushStyle) {
+      this.brushStyle = brushStyle;
+    },
+
+    draw: function(from, to, brushStyle) {
       this.context.beginPath();
       this.context.moveTo(from.x, from.y);
       this.context.lineTo(to.x, to.y);
-      this.context.strokeStyle = lineStyle.strokeStyle;
-      this.context.lineWidth = lineStyle.lineWidth;
+      this.context.strokeStyle = brushStyle.brushColor;
+      this.context.lineWidth = brushStyle.brushSize;
+      this.context.lineCap = "round"
       this.context.stroke();
       this.context.closePath();
     }

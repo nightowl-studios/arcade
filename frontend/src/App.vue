@@ -1,47 +1,49 @@
 <template>
   <div id="app">
     <div v-if="connectionState === 'CONNECTED'">
-      <Lobby :clients="clients"/>
+      <Lobby :clients="clients" />
       <div>{{connectionState}}</div>
       <div>Room Id: {{ hubId }}</div>
       <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
     </div>
     <div v-else>
-      <Title msg="Not ScribbleIO"/>
-      <HelloWorld msg="Welcome to Your Vue.js App"/>
-      <CreateButton @onCreateRoom="onCreateRoom"/>
-      <JoinModal @onJoinRoom="onJoinRoom"/>
+      <Title msg="Not ScribbleIO" />
+      <HelloWorld msg="Welcome to Your Vue.js App" />
+      <CreateButton @onCreateRoom="onCreateRoom" />
+      <JoinModal @onJoinRoom="onJoinRoom" />
       <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
-      <Canvas/>
+      <CanvasPanel :colors="colors" :sizes="sizes" />
     </div>
   </div>
 </template>
 
 <script>
-import Title from './components/Title.vue'
-import Lobby from './components/Lobby.vue'
-import CreateButton from './components/CreateButton.vue'
-import JoinModal from './components/JoinModal.vue'
-import Canvas from './components/Canvas.vue'
-import { EventBus } from './eventBus.js';
-import { ArcadeWebSocket } from './webSocket.js';
+import Title from "./components/Title.vue";
+import Lobby from "./components/Lobby.vue";
+import CreateButton from "./components/CreateButton.vue";
+import JoinModal from "./components/JoinModal.vue";
+import CanvasPanel from "./components/CanvasPanel.vue";
+import { EventBus } from "./eventBus.js";
+import { ArcadeWebSocket } from "./webSocket.js";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     Title,
     Lobby,
     CreateButton,
     JoinModal,
-    Canvas
+    CanvasPanel
   },
   data: function() {
     return {
       connection: null,
       clients: [],
       lobbyId: "",
-      connectionState: "DISCONNECTED"
-    }
+      connectionState: "DISCONNECTED",
+      colors: ["#000000", "#4287f5", "#da42f5", "#7ef542"],
+      sizes: [8, 16, 32, 64]
+    };
   },
   methods: {
     onCreateRoom: function(lobbyId) {
@@ -52,23 +54,23 @@ export default {
     },
     sendPlayerMessage: function() {
       let message = {
-        "api":"hub",
-        "payload":{
-          "requestLobbyDetails":true
+        api: "hub",
+        payload: {
+          requestLobbyDetails: true
         }
-      }
+      };
       ArcadeWebSocket.send(message);
     }
   },
   created() {
-    EventBus.$on('connected', () => {
+    EventBus.$on("connected", () => {
       this.connectionState = "CONNECTED";
     }),
-    EventBus.$on(this.$hubAPI, (data) => {
-      this.clients = data.connectedClients;
-    }) 
+      EventBus.$on(this.$hubAPI, data => {
+        this.clients = data.connectedClients;
+      });
   }
-}
+};
 </script>
 
 <style>
