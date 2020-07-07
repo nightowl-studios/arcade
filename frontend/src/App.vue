@@ -4,6 +4,7 @@
       <Lobby :clients="clients"/>
       <div>{{connectionState}}</div>
       <div>Room Id: {{ hubId }}</div>
+      <Nickname @onChangeNickname="onChangeNickname"/>
       <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
     </div>
     <div v-else>
@@ -11,6 +12,7 @@
       <HelloWorld msg="Welcome to Your Vue.js App"/>
       <CreateButton @onCreateRoom="onCreateRoom"/>
       <JoinModal @onJoinRoom="onJoinRoom"/>
+      <div>{{connectionState}} : {{hubId}}</div>
       <Canvas/>
     </div>
   </div>
@@ -22,6 +24,7 @@ import Lobby from './components/Lobby.vue'
 import CreateButton from './components/CreateButton.vue'
 import JoinModal from './components/JoinModal.vue'
 import Canvas from './components/Canvas.vue'
+import Nickname from './components/Nickname.vue'
 
 export default {
   name: 'App',
@@ -30,7 +33,8 @@ export default {
     Lobby,
     CreateButton,
     JoinModal,
-    Canvas
+    Canvas,
+    Nickname
   },
   data: function() {
     return {
@@ -41,6 +45,18 @@ export default {
     }
   },
   methods: {
+    onChangeNickname: function(event){
+
+      let message = {
+        "api":"hub",
+        "payload":{
+          "changeNameTo": event.nickname
+        }      
+      }
+      let json = JSON.stringify(message);
+      this.connection.send(json);
+    },
+
     onCreateRoom: function(event) {
       console.log("Connecting to websocket...");
       this.connectionState = "CONNECTING";
