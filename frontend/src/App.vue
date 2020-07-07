@@ -47,6 +47,15 @@ export default {
     }
   },
   methods: {
+    onChangeNickname: function(event) {
+      let message = {
+        "api":"hub",
+        "payload":{
+          "changeNameTo": event.nickname
+        }
+      }
+      ArcadeWebSocket.send(message);
+    },
     onCreateRoom: function(lobbyId) {
       this.hubId = lobbyId;
     },
