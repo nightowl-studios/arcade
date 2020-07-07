@@ -4,6 +4,7 @@
       <Lobby :clients="clients"/>
       <div>{{connectionState}}</div>
       <div>Room Id: {{ hubId }}</div>
+      <Nickname @onChangeNickname="onChangeNickname"/>
       <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
     </div>
     <div v-else>
@@ -23,6 +24,7 @@ import Lobby from './components/Lobby.vue'
 import CreateButton from './components/CreateButton.vue'
 import JoinModal from './components/JoinModal.vue'
 import Canvas from './components/Canvas.vue'
+import Nickname from './components/Nickname.vue'
 import { EventBus } from './eventBus.js';
 import { ArcadeWebSocket } from './webSocket.js';
 
@@ -33,7 +35,8 @@ export default {
     Lobby,
     CreateButton,
     JoinModal,
-    Canvas
+    Canvas,
+    Nickname
   },
   data: function() {
     return {
@@ -44,6 +47,15 @@ export default {
     }
   },
   methods: {
+    onChangeNickname: function(event) {
+      let message = {
+        "api":"hub",
+        "payload":{
+          "changeNameTo": event.nickname
+        }
+      }
+      ArcadeWebSocket.send(message);
+    },
     onCreateRoom: function(lobbyId) {
       this.hubId = lobbyId;
     },
