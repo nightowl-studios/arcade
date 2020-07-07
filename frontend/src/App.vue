@@ -77,8 +77,8 @@ export default {
     EventBus.$on('connected', () => {
       this.connectionState = "CONNECTED";
     }),
-    EventBus.$on('clientConnected', (clients) => {
-      this.clients = clients;
+    EventBus.$on(this.$hubAPI, (data) => {
+      this.clients = data.connectedClients;
     }) 
   }
 }

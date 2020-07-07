@@ -19,9 +19,10 @@ export const EventBus = new Vue({
 
             webSocket.onmessage = (event) => {
                 console.log("connection onMessage Triggered");
-                let parseMsg = JSON.parse(event.data);
-                let clients = parseMsg.payload.connectedClients;
-                this.$emit('clientConnected', clients);
+                let json = JSON.parse(event.data);
+                let apiName = json.api;
+
+                this.$emit(apiName, json.payload);
             }
         }
     }
