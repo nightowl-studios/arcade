@@ -13,7 +13,7 @@ import LobbyText from '../components/LobbyText.vue'
 import Nickname from '../components/Nickname.vue'
 import { EventBus } from '../eventBus.js';
 import { ArcadeWebSocket } from '../webSocket.js';
-
+import axios from 'axios';
 
 export default {
   name: 'Lobby',
@@ -50,12 +50,24 @@ export default {
   },
   created() {
     this.lobbyId = this.$router.currentRoute.params.lobbyId;
-    if (ArcadeWebSocket.isConnected()) {
+
+    if (!ArcadeWebSocket.isConnected()) {
+      let apiUrl = this.$httpURL + '/hub' + '/' + this.lobbyId;
+      axios
+        .get(apiUrl)
+        .then(response => {
+          if (response.data.exists) {
+            ArcadeWebSocket.connect(this.lobbyId);
+          } else {
+            console.log("HubId does not exist...");
+            // TODO display error here
+            this.$router.push({ path: '/' })
+          }
+        });
+    } else {
       this.connectionState = "CONNECTED";
     }
-    console.log(this.$router.currentRoute.params.lobbyId);
     
-    // TODO connect to websocket here
     EventBus.$on('connected', () => {
       this.connectionState = "CONNECTED";
     }),
