@@ -18,7 +18,8 @@ const (
 
 // RecieveChat is the struct that this handler expects as input
 type ReceiveChat struct {
-	Message string `json:"message"`
+	Message        string `json:"message"`
+	RequestHistory bool   `json:"requestHistory"`
 }
 
 // ChatReply is the struct that this handler will send to the clients
@@ -65,10 +66,61 @@ func (h *Handler) HandleInteraction(
 		return
 	}
 
+	if msg.RequestHistory == true {
+		h.SendHistory(caller, registry)
+	} else {
+		h.EchoMessage(msg.Message, caller, registry)
+	}
+
+	return
+}
+
+func (h *Handler) NewClient(
+	clientID identifier.Client,
+	reg registry.Registry,
+) {
+	// we don't need to send history on a new connection
+	//h.SendHistory(clientID, reg)
+}
+
+func (h *Handler) ClientQuit(
+	clientID identifier.Client,
+	reg registry.Registry,
+) {
+	// stub
+}
+
+// Name needs to return a unique name of this GameHandler
+// This return will be used for routing
+func (h *Handler) Name() string {
+	return name
+}
+
+func (h *Handler) SendHistory(
+	clientID identifier.Client,
+	reg registry.Registry,
+) {
+	h.chatHistoryLock.RLock()
+	defer h.chatHistoryLock.RUnlock()
+
+	historyBytes, err := game.MessageBuild(name, h.chatHistory)
+	if err != nil {
+		log.Errorf("unable to build message: %v", err)
+		return
+	}
+
+	reg.SendToCaller(clientID, historyBytes)
+}
+
+func (h *Handler) EchoMessage(
+	message string,
+	caller identifier.Client,
+	registry registry.Registry,
+) {
 	newChatMessage := ChatMessage{
 		Timestamp: ChatTime(time.Now()),
 		Sender:    registry.GetClientUserDetail(caller),
-		Message:   msg.Message,
+		Message:   message,
 	}
 
 	chatReply := ChatReply{Message: newChatMessage}
@@ -87,33 +139,4 @@ func (h *Handler) HandleInteraction(
 	h.chatHistory.History = append(h.chatHistory.History, newChatMessage)
 
 	return
-}
-
-func (h *Handler) NewClient(
-	clientID identifier.Client,
-	reg registry.Registry,
-) {
-	h.chatHistoryLock.RLock()
-	defer h.chatHistoryLock.RUnlock()
-
-	historyBytes, err := game.MessageBuild(name, h.chatHistory)
-	if err != nil {
-		log.Errorf("unable to build message: %v", err)
-		return
-	}
-
-	reg.SendToCaller(clientID, historyBytes)
-}
-
-func (h *Handler) ClientQuit(
-	clientID identifier.Client,
-	reg registry.Registry,
-) {
-	// stub
-}
-
-// Name needs to return a unique name of this GameHandler
-// This return will be used for routing
-func (h *Handler) Name() string {
-	return name
 }
