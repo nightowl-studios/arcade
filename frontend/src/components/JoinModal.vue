@@ -9,7 +9,6 @@
 
 <script>
 import axios from 'axios';
-import { ArcadeWebSocket } from '../webSocket.js'
 
 export default {
   name: "JoinModal",
@@ -26,7 +25,6 @@ export default {
         .get(apiUrl)
         .then(response => {
           if (response.data.exists) {
-            ArcadeWebSocket.connect(this.lobbyId);
             this.$emit('onJoinRoom', this.lobbyId);
           } else {
             console.log("HubId does not exist...");

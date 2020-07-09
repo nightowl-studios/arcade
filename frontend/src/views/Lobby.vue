@@ -50,12 +50,8 @@ export default {
   },
   created() {
     this.lobbyId = this.$router.currentRoute.params.lobbyId;
-    if (ArcadeWebSocket.isConnected()) {
-      this.connectionState = "CONNECTED";
-    }
-    console.log(this.$router.currentRoute.params.lobbyId);
+    ArcadeWebSocket.connect(this.lobbyId);
     
-    // TODO connect to websocket here
     EventBus.$on('connected', () => {
       this.connectionState = "CONNECTED";
     }),
