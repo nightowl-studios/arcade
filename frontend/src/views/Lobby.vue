@@ -50,30 +50,25 @@ export default {
   },
   created() {
     this.lobbyId = this.$router.currentRoute.params.lobbyId;
+    let lobbyExistsApiUrl = this.$httpURL + '/hub' + '/' + this.lobbyId;
+    axios
+      .get(lobbyExistsApiUrl)
+      .then(response => {
+        if (!response.data.exists) {
+          this.$router.push({ name: "404" });
+        }
+        else
+        {
+          ArcadeWebSocket.connect(this.lobbyId);
 
-    if (!ArcadeWebSocket.isConnected()) {
-      let apiUrl = this.$httpURL + '/hub' + '/' + this.lobbyId;
-      axios
-        .get(apiUrl)
-        .then(response => {
-          if (response.data.exists) {
-            ArcadeWebSocket.connect(this.lobbyId);
-          } else {
-            console.log("HubId does not exist...");
-            // TODO display error here
-            this.$router.push({ path: '/' })
-          }
-        });
-    } else {
-      this.connectionState = "CONNECTED";
-    }
-    
-    EventBus.$on('connected', () => {
-      this.connectionState = "CONNECTED";
-    }),
-    EventBus.$on(this.$hubAPI, (data) => {
-      this.clients = data.connectedClients;
-    }) 
+          EventBus.$on('connected', () => {
+            this.connectionState = "CONNECTED";
+          }),
+          EventBus.$on(this.$hubAPI, (data) => {
+            this.clients = data.connectedClients;
+          })
+        }
+      });
   }
 }
 </script>
