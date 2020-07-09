@@ -13,7 +13,7 @@ import Player from './Player.vue'
 export default {
   name: 'Lobby',
   props: {
-    clients: Array
+    clients: Array,
   },
   components: {
     Player,

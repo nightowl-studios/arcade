@@ -2,10 +2,14 @@
   <div id="app">
     <div v-if="connectionState === 'CONNECTED'">
       <Lobby :clients="clients"/>
+      <div id="footer">
       <div>{{connectionState}}</div>
       <div>Room Id: {{ hubId }}</div>
-      <Nickname @onChangeNickname="onChangeNickname"/>
+      </div>
       <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
+      <Nickname @onChangeNickname="onChangeNickname"/>
+      <Gameroom :clients="clients"/>
+
     </div>
     <div v-else>
       <Title msg="Not ScribbleIO"/>
@@ -25,8 +29,10 @@ import CreateButton from './components/CreateButton.vue'
 import JoinModal from './components/JoinModal.vue'
 import Canvas from './components/Canvas.vue'
 import Nickname from './components/Nickname.vue'
+import Gameroom from './components/Gameroom.vue'
 import { EventBus } from './eventBus.js';
 import { ArcadeWebSocket } from './webSocket.js';
+
 
 export default {
   name: 'App',
@@ -36,7 +42,9 @@ export default {
     CreateButton,
     JoinModal,
     Canvas,
-    Nickname
+    Nickname,
+    Gameroom,
+
   },
   data: function() {
     return {
@@ -78,7 +86,7 @@ export default {
     }),
     EventBus.$on(this.$hubAPI, (data) => {
       this.clients = data.connectedClients;
-    }) 
+    })
   }
 }
 </script>
@@ -91,5 +99,14 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+#footer {
+  display:flex;
+  flex-direction: column;
+  text-align: center;
+  width: 100%;
+  bottom: 0;
+  position:fixed;
 }
 </style>
