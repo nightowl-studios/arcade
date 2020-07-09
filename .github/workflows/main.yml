@@ -37,9 +37,6 @@ jobs:
         
     - name: Setup Node.js environment
       run: |
-        npm -v
-        ls
         cd frontend
-        ls
         npm install
-        npm run serve
+        npm run build
