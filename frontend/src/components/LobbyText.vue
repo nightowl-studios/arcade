@@ -11,7 +11,7 @@
 import Player from './Player.vue'
 
 export default {
-  name: 'Lobby',
+  name: 'LobbyText',
   props: {
     clients: Array
   },
