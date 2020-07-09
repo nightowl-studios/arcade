@@ -10,7 +10,7 @@ export default {
     return {
       mouseDown: false,
       previousPosition: { x: 0, y: 0 },
-      lineStyle: { strokeStyle: "black", lineWidth: 2 },
+      lineStyle: { strokeStyle: "#000000", lineWidth: 2 },
       canvas: null,
       context: null
     };

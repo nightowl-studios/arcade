@@ -38,11 +38,11 @@ export default{
         font-size: 12px;
     }
     .name {
-        color:black;
+        color: #000000;
         padding-right: 20%;
     }
     .id {
-        color: black;
+        color: #000000;
     }
     .player {
         display:flex;
@@ -52,6 +52,6 @@ export default{
         margin-left: 20%;
         margin-right: 20%;
         margin-bottom: 5px;
-        border :2px solid black;
+        border :2px solid #000000;
     }
 </style>
