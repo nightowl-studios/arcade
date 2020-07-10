@@ -5,12 +5,14 @@
     <div>Room Id: {{ lobbyId }}</div>
     <Nickname @onChangeNickname="onChangeNickname"/>
     <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
+    <Gameroom :clients="clients"/>
 </div>
 </template>
 
 <script>
 import LobbyText from '../components/LobbyText.vue'
 import Nickname from '../components/Nickname.vue'
+import Gameroom from '../components/Gameroom.vue'
 import { EventBus } from '../eventBus.js';
 import { ArcadeWebSocket } from '../webSocket.js';
 import axios from 'axios';
@@ -19,7 +21,8 @@ export default {
   name: 'Lobby',
   components: {
     LobbyText,
-    Nickname
+    Nickname,
+    Gameroom
   },
   data: function() {
     return {
@@ -49,26 +52,26 @@ export default {
     }
   },
   created() {
+    EventBus.$on('connected', () => {
+      this.connectionState = "CONNECTED";
+    }),
+    EventBus.$on(this.$hubAPI, (data) => {
+      this.clients = data.connectedClients;
+    })
+
     this.lobbyId = this.$router.currentRoute.params.lobbyId;
     let lobbyExistsApiUrl = this.$httpURL + '/hub' + '/' + this.lobbyId;
-    axios
+    if (!ArcadeWebSocket.isConnected()) {
+      axios
       .get(lobbyExistsApiUrl)
       .then(response => {
         if (!response.data.exists) {
           this.$router.push({ name: "404" });
-        }
-        else
-        {
+        } else {
           ArcadeWebSocket.connect(this.lobbyId);
-
-          EventBus.$on('connected', () => {
-            this.connectionState = "CONNECTED";
-          }),
-          EventBus.$on(this.$hubAPI, (data) => {
-            this.clients = data.connectedClients;
-          })
         }
       });
+    }
   }
 }
 </script>
