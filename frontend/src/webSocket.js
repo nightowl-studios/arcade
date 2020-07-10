@@ -15,8 +15,8 @@ export const ArcadeWebSocket = new Vue({
             webSocket = new WebSocket(webSocketURL)
 
             webSocket.onopen = () => {
-                console.log("Successfully connected to the websocket...");
-                EventBus.$emit('connected');
+                console.log("Successfully connected to the websocket. ID: " + lobbyId);
+                EventBus.$emit('connected', lobbyId);
             }
 
             webSocket.onmessage = (event) => {
@@ -32,6 +32,9 @@ export const ArcadeWebSocket = new Vue({
             } else {
                 console.error("NOT CONNECTED");
             }
+        },
+        isConnected: function() {
+            return webSocket != null && webSocket.readyState === WebSocket.OPEN;
         }
     }
 });
