@@ -1,17 +1,26 @@
 <template>
   <div>
-    <canvas ref="canvas" width="400" height="400"></canvas>
+    <canvas ref="canvas" :width="width" :height="height"></canvas>
   </div>
 </template>
 
 <script>
+import { EventBus } from "../eventBus.js";
+
 export default {
   name: "Canvas",
+
+  props: {
+    width: Number,
+    height: Number,
+    defaultBrushStyle: Object
+  },
+
   data: function() {
     return {
       mouseDown: false,
       previousPosition: { x: 0, y: 0 },
-      brushStyle: { brushColor: "black", brushSize: 2 },
+      brushStyle: this.defaultBrushStyle,
       canvas: null,
       context: null
     };
@@ -24,6 +33,7 @@ export default {
     this.canvas.addEventListener("mousedown", this.onMouseDown, false);
     this.canvas.addEventListener("mouseup", this.onMouseUp, false);
     this.canvas.addEventListener("mouseover", this.onMouseOver, false);
+    EventBus.$on("brushUpdated", this.setBrushStyle);
   },
 
   methods: {
@@ -76,7 +86,7 @@ export default {
       this.context.lineTo(to.x, to.y);
       this.context.strokeStyle = brushStyle.brushColor;
       this.context.lineWidth = brushStyle.brushSize;
-      this.context.lineCap = "round"
+      this.context.lineCap = "round";
       this.context.stroke();
       this.context.closePath();
     }

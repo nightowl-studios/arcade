@@ -15,24 +15,32 @@
 
 <script>
 import BrushSizeTile from "./BrushSizeTile.vue";
+import BrushStyleFactory from "../mixins/BrushStyleFactory";
 import BrushColorTile from "./BrushColorTile.vue";
+import { EventBus } from "../eventBus.js";
 
 export default {
   name: "BrushSelector",
+
   components: {
     BrushSizeTile,
     BrushColorTile
   },
+
   props: {
     colors: Array,
     sizes: Array
   },
+
   data: function() {
     return {
       currentSize: this.sizes[0],
       currentColor: this.colors[0]
     };
   },
+
+  mixins: [BrushStyleFactory],
+
   methods: {
     onSizeSelected: function(size) {
       this.currentSize = size;
@@ -43,10 +51,10 @@ export default {
       this.emitUpdatedBrush();
     },
     emitUpdatedBrush: function() {
-      this.$emit("brushUpdated", {
-        brushSize: this.currentSize,
-        brushColor: this.currentColor
-      });
+      EventBus.$emit(
+        "brushUpdated",
+        this.createBrushStyle(this.currentSize, this.currentColor)
+      );
     }
   }
 };
