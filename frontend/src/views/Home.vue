@@ -3,7 +3,6 @@
   <Title msg="Not ScribbleIO"/>
   <CreateButton @onCreateRoom="onCreateRoom"/>
   <JoinModal @onJoinRoom="onJoinRoom"/>
-  <Canvas/>
 </div>
 </template>
 
@@ -11,23 +10,28 @@
 import Title from '../components/Title.vue'
 import CreateButton from '../components/CreateButton.vue'
 import JoinModal from '../components/JoinModal.vue'
-import Canvas from '../components/Canvas.vue'
+import { ArcadeWebSocket } from '../webSocket.js'
+import { EventBus } from '../eventBus.js'
 
 export default {
   name: 'Home',
   components: {
     Title,
     CreateButton,
-    JoinModal,
-    Canvas,
+    JoinModal
   },
   methods: {
     onCreateRoom: function(lobbyId) {
-      this.$router.push({ name: 'lobby', params: { lobbyId: lobbyId }});
+      ArcadeWebSocket.connect(lobbyId);
     },
     onJoinRoom: function(lobbyId) {
-      this.$router.push({ name: 'lobby', params: { lobbyId: lobbyId }});
+      ArcadeWebSocket.connect(lobbyId);
     }
+  },
+  created() {
+    EventBus.$on('connected', (lobbyId) => {
+      this.$router.push({ name: 'lobby', params: { lobbyId: lobbyId }});
+    });
   }
 }
 </script>

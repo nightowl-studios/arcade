@@ -49,26 +49,26 @@ export default {
     }
   },
   created() {
+    EventBus.$on('connected', () => {
+      this.connectionState = "CONNECTED";
+    }),
+    EventBus.$on(this.$hubAPI, (data) => {
+      this.clients = data.connectedClients;
+    })
+
     this.lobbyId = this.$router.currentRoute.params.lobbyId;
     let lobbyExistsApiUrl = this.$httpURL + '/hub' + '/' + this.lobbyId;
-    axios
+    if (!ArcadeWebSocket.isConnected()) {
+      axios
       .get(lobbyExistsApiUrl)
       .then(response => {
         if (!response.data.exists) {
           this.$router.push({ name: "404" });
-        }
-        else
-        {
+        } else {
           ArcadeWebSocket.connect(this.lobbyId);
-
-          EventBus.$on('connected', () => {
-            this.connectionState = "CONNECTED";
-          }),
-          EventBus.$on(this.$hubAPI, (data) => {
-            this.clients = data.connectedClients;
-          })
         }
       });
+    }
   }
 }
 </script>

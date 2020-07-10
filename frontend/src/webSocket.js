@@ -34,7 +34,7 @@ export const ArcadeWebSocket = new Vue({
             }
         },
         isConnected: function() {
-            return webSocket.readyState === WebSocket.OPEN;
+            return webSocket != null && webSocket.readyState === WebSocket.OPEN;
         }
     }
 });
