@@ -5,14 +5,13 @@
     <div>Room Id: {{ lobbyId }}</div>
     <Nickname @onChangeNickname="onChangeNickname"/>
     <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
-    <Gameroom :clients="clients"/>
+    <b-button v-on:click="goToScribble()">Go to Scribble</b-button>
 </div>
 </template>
 
 <script>
 import LobbyText from '../components/LobbyText.vue'
 import Nickname from '../components/Nickname.vue'
-import Gameroom from '../components/Gameroom.vue'
 import { EventBus } from '../eventBus.js';
 import { ArcadeWebSocket } from '../webSocket.js';
 import axios from 'axios';
@@ -21,8 +20,7 @@ export default {
   name: 'Lobby',
   components: {
     LobbyText,
-    Nickname,
-    Gameroom
+    Nickname
   },
   data: function() {
     return {
@@ -49,6 +47,9 @@ export default {
         }
       }
       ArcadeWebSocket.send(message);
+    },
+    goToScribble: function() {
+      this.$router.push({ path: '/scribble' });
     }
   },
   created() {
