@@ -5,6 +5,7 @@
     <div>Room Id: {{ lobbyId }}</div>
     <Nickname @onChangeNickname="onChangeNickname"/>
     <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
+    <b-button v-on:click="goToScribble()">Go to Scribble</b-button>
 </div>
 </template>
 
@@ -13,7 +14,7 @@ import LobbyText from '../components/LobbyText.vue'
 import Nickname from '../components/Nickname.vue'
 import { EventBus } from '../eventBus.js';
 import { ArcadeWebSocket } from '../webSocket.js';
-
+import axios from 'axios';
 
 export default {
   name: 'Lobby',
@@ -46,18 +47,32 @@ export default {
         }
       }
       ArcadeWebSocket.send(message);
+    },
+    goToScribble: function() {
+      this.$router.push({ path: '/scribble' });
     }
   },
   created() {
-    this.lobbyId = this.$router.currentRoute.params.lobbyId;
-    ArcadeWebSocket.connect(this.lobbyId);
-    
     EventBus.$on('connected', () => {
       this.connectionState = "CONNECTED";
     }),
     EventBus.$on(this.$hubAPI, (data) => {
       this.clients = data.connectedClients;
-    }) 
+    })
+
+    this.lobbyId = this.$router.currentRoute.params.lobbyId;
+    let lobbyExistsApiUrl = this.$httpURL + '/hub' + '/' + this.lobbyId;
+    if (!ArcadeWebSocket.isConnected()) {
+      axios
+      .get(lobbyExistsApiUrl)
+      .then(response => {
+        if (!response.data.exists) {
+          this.$router.push({ name: "404" });
+        } else {
+          ArcadeWebSocket.connect(this.lobbyId);
+        }
+      });
+    }
   }
 }
 </script>

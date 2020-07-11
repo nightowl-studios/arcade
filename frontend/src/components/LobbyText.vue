@@ -13,7 +13,7 @@ import Player from './Player.vue'
 export default {
   name: 'LobbyText',
   props: {
-    clients: Array
+    clients: Array,
   },
   components: {
     Player,
