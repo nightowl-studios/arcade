@@ -9,4 +9,10 @@
     },
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[vue]": {
+        "editor.defaultFormatter": "octref.vetur"
+    },
 }
