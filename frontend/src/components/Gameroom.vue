@@ -32,7 +32,9 @@ export default {
   components: {
       Chat
   },
-  data: function(){},
+  data: function(){
+      return {}
+  },
 
 }
 </script>
