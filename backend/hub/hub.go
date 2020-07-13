@@ -136,6 +136,7 @@ func (h *hub) HandleAuthentication(
 		if err == nil {
 			// if no error, we can return the client
 			// if there is an error, continue and create a new client
+			h.RegisterClient(client, send)
 			return client, nil
 		}
 	}
