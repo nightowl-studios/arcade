@@ -13,6 +13,7 @@ import CreateButton from '../components/CreateButton.vue'
 import JoinModal from '../components/JoinModal.vue'
 import { ArcadeWebSocket } from '../webSocket.js'
 import { EventBus } from '../eventBus.js'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Home',
@@ -22,9 +23,9 @@ export default {
     JoinModal
   },
   computed: {
-    message() {
-      return this.$store.state.message;
-    }
+    ...mapState({
+      message: state => state.application.message
+    })
   },
   methods: {
     onCreateRoom: function(lobbyId) {
