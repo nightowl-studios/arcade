@@ -8,7 +8,10 @@
 <script>
 import Canvas from "./Canvas.vue";
 import BrushSelector from "./BrushSelector.vue";
-import BrushStyleFactory from "../mixins/BrushStyleFactory";
+import { createBrushStyle } from "../utility/BrushStyleUtils";
+import { createBrushStrokeMessage } from "../utility/WebSocketMessageUtils";
+import { ArcadeWebSocket } from "../webSocket";
+import { EventBus } from "../eventBus.js";
 
 export default {
   name: "CanvasPanel",
@@ -23,11 +26,20 @@ export default {
     BrushSelector
   },
 
-  mixins: [BrushStyleFactory],
+  mounted: function() {
+    EventBus.$on("brushStroke", this.onBrushStroke);
+  },
 
   computed: {
     defaultBrushStyle() {
-      return this.createBrushStyle(this.sizes[0], this.colors[0]);
+      return createBrushStyle(this.sizes[0], this.colors[0]);
+    }
+  },
+
+  methods: {
+    onBrushStroke: function(brushStroke) {
+      let message = createBrushStrokeMessage(brushStroke);
+      ArcadeWebSocket.send(message);
     }
   }
 };

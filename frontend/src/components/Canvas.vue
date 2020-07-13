@@ -89,6 +89,13 @@ export default {
       this.context.lineCap = "round";
       this.context.stroke();
       this.context.closePath();
+
+      EventBus.$emit("brushStroke", {
+        from: from,
+        to: to,
+        brushStyle: brushStyle,
+        lineCap: this.context.lineCap
+      });
     }
   }
 };
