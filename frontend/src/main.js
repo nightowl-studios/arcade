@@ -5,6 +5,7 @@ import router from "./router";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 import "./index.scss";
+import store from './store/store'
 
 Vue.config.productionTip = false;
 
@@ -19,6 +20,7 @@ Vue.prototype.$websocketURL = "ws://localhost:8081/ws";
 Vue.prototype.$hubAPI = "hub";
 
 new Vue({
+  store,
   router,
   render: (h) => h(App),
 }).$mount("#app");

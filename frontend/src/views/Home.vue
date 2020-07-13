@@ -3,6 +3,7 @@
   <Title msg="Not ScribbleIO"/>
   <CreateButton @onCreateRoom="onCreateRoom"/>
   <JoinModal @onJoinRoom="onJoinRoom"/>
+  <div>{{ message }}</div>
 </div>
 </template>
 
@@ -19,6 +20,11 @@ export default {
     Title,
     CreateButton,
     JoinModal
+  },
+  computed: {
+    message() {
+      return this.$store.state.message;
+    }
   },
   methods: {
     onCreateRoom: function(lobbyId) {
