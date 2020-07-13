@@ -1,23 +1,23 @@
 <template>
-<div>
-    <LobbyText :clients="clients"/>
+  <div>
+    <LobbyText :clients="clients" />
     <div>{{connectionState}}</div>
     <div>Room Id: {{ lobbyId }}</div>
-    <Nickname @onChangeNickname="onChangeNickname"/>
+    <Nickname @onChangeNickname="onChangeNickname" />
     <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
     <b-button v-on:click="goToScribble()">Go to Scribble</b-button>
-</div>
+  </div>
 </template>
 
 <script>
-import LobbyText from '../components/LobbyText.vue'
-import Nickname from '../components/Nickname.vue'
-import { EventBus } from '../eventBus.js';
-import { ArcadeWebSocket } from '../webSocket.js';
-import axios from 'axios';
+import LobbyText from "../components/LobbyText.vue";
+import Nickname from "../components/Nickname.vue";
+import { EventBus } from "../eventBus.js";
+import { ArcadeWebSocket } from "../webSocket.js";
+import axios from "axios";
 
 export default {
-  name: 'Lobby',
+  name: "Lobby",
   components: {
     LobbyText,
     Nickname
@@ -27,45 +27,43 @@ export default {
       clients: [],
       lobbyId: "",
       connectionState: "DISCONNECTED"
-    }
+    };
   },
   methods: {
     onChangeNickname: function(event) {
       let message = {
-        "api":"hub",
-        "payload":{
-          "changeNameTo": event.nickname
+        api: "hub",
+        payload: {
+          changeNameTo: event.nickname
         }
-      }
+      };
       ArcadeWebSocket.send(message);
     },
     sendPlayerMessage: function() {
       let message = {
-        "api":"hub",
-        "payload":{
-          "requestLobbyDetails":true
+        api: "hub",
+        payload: {
+          requestLobbyDetails: true
         }
-      }
+      };
       ArcadeWebSocket.send(message);
     },
     goToScribble: function() {
-      this.$router.push({ path: '/scribble' });
+      this.$router.push({ path: "/scribble" });
     }
   },
   created() {
-    EventBus.$on('connected', () => {
+    EventBus.$on("connected", () => {
       this.connectionState = "CONNECTED";
     }),
-    EventBus.$on(this.$hubAPI, (data) => {
-      this.clients = data.connectedClients;
-    })
+      EventBus.$on(this.$hubAPI, data => {
+        this.clients = data.connectedClients;
+      });
 
     this.lobbyId = this.$router.currentRoute.params.lobbyId;
-    let lobbyExistsApiUrl = this.$httpURL + '/hub' + '/' + this.lobbyId;
+    let lobbyExistsApiUrl = this.$httpURL + "/hub" + "/" + this.lobbyId;
     if (!ArcadeWebSocket.isConnected()) {
-      axios
-      .get(lobbyExistsApiUrl)
-      .then(response => {
+      axios.get(lobbyExistsApiUrl).then(response => {
         if (!response.data.exists) {
           this.$router.push({ name: "404" });
         } else {
@@ -74,5 +72,5 @@ export default {
       });
     }
   }
-}
+};
 </script>

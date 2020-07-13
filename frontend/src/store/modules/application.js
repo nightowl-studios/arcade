@@ -1,25 +1,21 @@
 const state = () => ({
-    message: "Hello from vuex"
-})
+  message: "Hello from vuex",
+});
 
 const getters = {
-    getMessage: (state) => {
-        return state.message;
-    }
-}
+  getMessage: (state) => {
+    return state.message;
+  },
+};
 
-const actions = {
+const actions = {};
 
-}
-
-const mutations = {
-
-}
+const mutations = {};
 
 export default {
-    namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations
-}
+  namespaced: true,
+  state,
+  getters,
+  actions,
+  mutations,
+};
