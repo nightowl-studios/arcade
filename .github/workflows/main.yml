@@ -29,14 +29,15 @@ jobs:
         node-version: '12.18.1'
 
     - name: Build and test the Golang Binary
-      run: | 
+      run: |
         go version
         cd backend
         go build
         go test ./...
-        
+
     - name: Setup Node.js environment
       run: |
         cd frontend
         npm install
         npm run build
+        npm test
