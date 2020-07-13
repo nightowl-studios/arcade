@@ -130,32 +130,39 @@ func (h *hub) HandleAuthentication(
 	if err != nil {
 		return
 	}
+
 	if tokenMessage.ContainsToken {
 		client, err := ParseToken(tokenMessage, h.tokenSecret)
 		if err == nil {
+			// if no error, we can return the client
+			// if there is an error, continue and create a new client
 			return client, nil
 		}
 	}
 
 	// no authentication
-	vars := mux.Vars(r)
-	hubID, ok := vars["hubID"]
-	if !ok {
-		log.Errorf("%v", ErrHubIDNotDefined)
-		return identifier.Client{}, ErrHubIDNotDefined
+	client, err = CreateClient(r)
+
+	claims := JSONWebToken{
+		Client: client,
 	}
 
-	// Create an ID
-	client = identifier.Client{
-		ClientUUID: identifier.ClientUUIDStruct{
-			UUID: identifier.CreateClientUUID(),
-		},
-		HubName: identifier.HubNameStruct{
-			HubName: hubID,
-		},
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedString, err := token.SignedString(h.tokenSecret)
+	tokenMessage = JSONWebTokenMessage{
+		Token:         signedString,
+		ContainsToken: true,
 	}
+
+	message, err = game.MessageBuild("auth", tokenMessage)
+	if err != nil {
+		log.Errorf("unable to build message: %v", err)
+		// continue? I guess they won't be able to re-connect
+	}
+	send <- message
 
 	h.RegisterClient(client, send)
+
 	return
 }
 
@@ -205,4 +212,26 @@ func ParseToken(
 	}
 
 	return identifier.Client{}, ErrNotValidToken
+}
+
+func CreateClient(
+	r *http.Request,
+) (client identifier.Client, err error) {
+	vars := mux.Vars(r)
+	hubID, ok := vars["hubID"]
+	if !ok {
+		log.Errorf("%v", ErrHubIDNotDefined)
+		return identifier.Client{}, ErrHubIDNotDefined
+	}
+
+	// Create an ID
+	client = identifier.Client{
+		ClientUUID: identifier.ClientUUIDStruct{
+			UUID: identifier.CreateClientUUID(),
+		},
+		HubName: identifier.HubNameStruct{
+			HubName: hubID,
+		},
+	}
+	return
 }

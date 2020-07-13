@@ -62,8 +62,9 @@ func TestParseToken(t *testing.T) {
 			}
 			client, err := ParseToken(tokenMessage, parseSecret)
 
-			//if errors.Is(err, testVal.ExpectedErr) != true {
 			if err != nil {
+				// for some reason jwt doesn't wrap errors or something?
+				//if errors.Is(err, testVal.ExpectedErr) != true {
 				if err.Error() != testVal.ExpectedErr.Error() {
 					t.Errorf("expected err: %v, got: %v", testVal.ExpectedErr, err)
 				}
