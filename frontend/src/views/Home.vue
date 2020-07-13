@@ -3,6 +3,7 @@
   <Title msg="Not ScribbleIO"/>
   <CreateButton @onCreateRoom="onCreateRoom"/>
   <JoinModal @onJoinRoom="onJoinRoom"/>
+  <div>{{ message }}</div>
 </div>
 </template>
 
@@ -12,6 +13,7 @@ import CreateButton from '../components/CreateButton.vue'
 import JoinModal from '../components/JoinModal.vue'
 import { ArcadeWebSocket } from '../webSocket.js'
 import { EventBus } from '../eventBus.js'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Home',
@@ -19,6 +21,11 @@ export default {
     Title,
     CreateButton,
     JoinModal
+  },
+  computed: {
+    ...mapState({
+      message: state => state.application.message
+    })
   },
   methods: {
     onCreateRoom: function(lobbyId) {
