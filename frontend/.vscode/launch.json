@@ -4,7 +4,7 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "vuejs: chrome",
+            "name": "Debug App",
             "url": "http://localhost:8080",
             "webRoot": "${workspaceFolder}/src",
             "breakOnLoad": true,
@@ -15,5 +15,31 @@
                 "webpack:///./~/*": "${webRoot}/node_modules/*"
             }
         },
+        {
+            "name": "Debug Jest Tests (windows)",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "--runInBand"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "port": 9229
+        },
+        {
+            "name": "Debug Jest Tests (unix)",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/.bin/jest",
+                "--runInBand"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "port": 9229
+        }
     ]
 }
