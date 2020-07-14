@@ -7,7 +7,6 @@
 </template>
 
 <script>
-import { ArcadeWebSocket } from '../webSocket'
 import { EventBus } from '../eventBus';
 
 export default {
@@ -36,7 +35,7 @@ export default {
                 "requestHistory": true
             }
         }
-        ArcadeWebSocket.send(request)
+        this.$webSocketService.send(request)
     }
 }
 </script>
