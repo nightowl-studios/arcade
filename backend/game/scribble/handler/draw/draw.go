@@ -16,10 +16,10 @@ const (
 type Handler struct {
 }
 
-type lineCap string
+type LineCap string
 
 const (
-	Round lineCap = "round"
+	Round LineCap = "round"
 )
 
 type BrushStyle struct {
@@ -36,7 +36,7 @@ type DrawMessage struct {
 	From       DrawPosition `json:"from"`
 	To         DrawPosition `json:"to"`
 	BrushStyle BrushStyle   `json:"brushStyle"`
-	LineCap    lineCap      `json:"lineCap"`
+	LineCap    LineCap      `json:"lineCap"`
 }
 
 func Get() *Handler {
