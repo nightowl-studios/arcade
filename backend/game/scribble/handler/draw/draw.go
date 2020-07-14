@@ -65,7 +65,8 @@ func (h *Handler) HandleInteraction(
 func (h *Handler) forwardDrawMessage(
 	drawMessage DrawMessage,
 	clientID identifier.Client,
-	reg registry.Registry) {
+	reg registry.Registry,
+) {
 
 	drawBytes, err := game.MessageBuild(name, drawMessage)
 	if err != nil {
