@@ -8,8 +8,6 @@
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
   name: "JoinModal",
   data: function() {
@@ -18,18 +16,14 @@ export default {
     }
   },
   methods: {
-    onOKClicked: function() {
+    onOKClicked: async function() {
       console.log("Joining room " + this.lobbyId + "...")
-      let apiUrl = this.$httpURL + '/hub' + '/' + this.lobbyId;
-      axios
-        .get(apiUrl)
-        .then(response => {
-          if (response.data.exists) {
-            this.$emit('onJoinRoom', this.lobbyId);
-          } else {
-            console.log("HubId does not exist...");
-          }
-        });
+      let lobbyExists = await this.$hubApiService.checkLobbyExists(this.lobbyId);
+      if (lobbyExists) {
+        this.$emit('onJoinRoom', this.lobbyId);
+      } else {
+        console.log("HubId does not exist...");
+      }
     }
   }
 }

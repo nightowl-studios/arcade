@@ -8,6 +8,7 @@ import "./index.scss";
 import store from './store/index'
 import WebSocketService from './services/webSocketService'
 import CookieService from "./services/cookieService";
+import HubApiService from "./services/hubApiService";
 
 Vue.config.productionTip = false;
 
@@ -17,12 +18,13 @@ Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 
 // Global Instance Properties
-Vue.prototype.$httpURL = "http://" + document.location.hostname +":8081";
 Vue.prototype.$hubAPI = "hub";
 
 let webSocketURL = "ws://" + document.location.hostname +":8081/ws";
+let httpURL = "http://" + document.location.hostname +":8081";
 Vue.prototype.$cookieService = new CookieService();
 Vue.prototype.$webSocketService = new WebSocketService(webSocketURL, Vue.prototype.$cookieService);
+Vue.prototype.$hubApiService = new HubApiService(httpURL);
 
 new Vue({
   store,
