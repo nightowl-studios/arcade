@@ -1,9 +1,10 @@
 import { EventBus } from '../eventBus.js';
 
 export default class WebSocketService {
-    constructor(webSocketURL) {
+    constructor(webSocketURL, cookieService) {
         this.webSocketURL = webSocketURL;
         this.webSocket = null;
+        this.cookieService = cookieService;
     }
 
     getWebSocketURL() {
