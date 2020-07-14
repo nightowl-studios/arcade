@@ -18,7 +18,6 @@ Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 
 // Global Instance Properties
-Vue.prototype.$httpURL = "http://" + document.location.hostname +":8081";
 Vue.prototype.$hubAPI = "hub";
 
 let webSocketURL = "ws://" + document.location.hostname +":8081/ws";
