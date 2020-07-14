@@ -1,6 +1,8 @@
 package hub
 
 import (
+	"crypto/rand"
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -9,12 +11,14 @@ import (
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/bseto/arcade/backend/websocket/registry"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
 var (
-	ErrHubIDNotDefined = errors.New("HubID not found in URL")
+	ErrHubIDNotDefined = errors.New("hubID not found in URL")
+	ErrNotValidToken   = errors.New("token is not valid")
 )
 
 // Hub allows for different `GameRouters` to be used within a websocket
@@ -52,26 +56,27 @@ type hub struct {
 	gameFactory gamefactory.GameFactory
 	gameRouter  game.GameRouter
 
-	reg registry.Registry
-}
-
-// hubClient should only store basic information about the client
-// and the send channel
-type hubClient struct {
-	send     (chan []byte)
-	nickname string
+	reg         registry.Registry
+	tokenSecret []byte
 }
 
 func GetEmptyHub() Hub {
 	return &hub{}
 }
 
-func GetHub(gameFactory gamefactory.GameFactory) Hub {
+func GetHub(gameFactory gamefactory.GameFactory) (Hub, error) {
+	secret := make([]byte, 60)
+	_, err := rand.Read(secret)
+	if err != nil {
+		return nil, err
+	}
+
 	return &hub{
 		gameFactory: gameFactory,
 		reg:         registry.GetRegistryProvider(),
 		gameRouter:  gameFactory.GetGame("scribble"),
-	}
+		tokenSecret: secret,
+	}, nil
 }
 
 func (h *hub) RegisterClient(clientID identifier.Client, send chan []byte) {
@@ -89,6 +94,16 @@ func (h *hub) UnregisterClient(
 	return
 }
 
+type JSONWebTokenMessage struct {
+	ContainsToken bool   `json:"containsToken"`
+	Token         string `json:"token"`
+}
+
+type JSONWebToken struct {
+	identifier.Client
+	jwt.StandardClaims
+}
+
 // HandleAuthentication is called during the websocket upgrade.
 // If there is any authentication handshake, it should be done here.
 // The `writePump` will be started prior to calling this function,
@@ -104,26 +119,51 @@ func (h *hub) HandleAuthentication(
 	conn *websocket.Conn,
 	send chan []byte,
 ) (client identifier.Client, err error) {
+
+	_, message, err := conn.ReadMessage()
+	if err != nil {
+		return
+	}
+
+	var tokenMessage JSONWebTokenMessage
+	err = json.Unmarshal(message, &tokenMessage)
+	if err != nil {
+		return
+	}
+
+	if tokenMessage.ContainsToken {
+		client, err := ParseToken(tokenMessage, h.tokenSecret)
+		if err == nil {
+			// if no error, we can return the client
+			// if there is an error, continue and create a new client
+			h.RegisterClient(client, send)
+			return client, nil
+		}
+	}
+
 	// no authentication
+	client, err = CreateClient(r)
 
-	vars := mux.Vars(r)
-	hubID, ok := vars["hubID"]
-	if !ok {
-		log.Errorf("%v", ErrHubIDNotDefined)
-		return identifier.Client{}, ErrHubIDNotDefined
+	claims := JSONWebToken{
+		Client: client,
 	}
 
-	// Create an ID
-	client = identifier.Client{
-		ClientUUID: identifier.ClientUUIDStruct{
-			UUID: identifier.CreateClientUUID(),
-		},
-		HubName: identifier.HubNameStruct{
-			HubName: hubID,
-		},
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedString, err := token.SignedString(h.tokenSecret)
+	tokenMessage = JSONWebTokenMessage{
+		Token:         signedString,
+		ContainsToken: true,
 	}
+
+	message, err = game.MessageBuild("auth", tokenMessage)
+	if err != nil {
+		log.Errorf("unable to build message: %v", err)
+		// continue? I guess they won't be able to re-connect
+	}
+	send <- message
 
 	h.RegisterClient(client, send)
+
 	return
 }
 
@@ -151,4 +191,48 @@ func (h *hub) HandleMessage(
 		messageErr,
 		h.reg,
 	)
+}
+
+func ParseToken(
+	tokenMessage JSONWebTokenMessage,
+	tokenSecret []byte,
+) (identifier.Client, error) {
+	token, err := jwt.ParseWithClaims(
+		tokenMessage.Token,
+		&JSONWebToken{},
+		func(token *jwt.Token) (interface{}, error) {
+			return tokenSecret, nil
+		},
+	)
+	if err != nil {
+		return identifier.Client{}, err
+	}
+
+	if claims, ok := token.Claims.(*JSONWebToken); ok && token.Valid {
+		return claims.Client, nil
+	}
+
+	return identifier.Client{}, ErrNotValidToken
+}
+
+func CreateClient(
+	r *http.Request,
+) (client identifier.Client, err error) {
+	vars := mux.Vars(r)
+	hubID, ok := vars["hubID"]
+	if !ok {
+		log.Errorf("%v", ErrHubIDNotDefined)
+		return identifier.Client{}, ErrHubIDNotDefined
+	}
+
+	// Create an ID
+	client = identifier.Client{
+		ClientUUID: identifier.ClientUUIDStruct{
+			UUID: identifier.CreateClientUUID(),
+		},
+		HubName: identifier.HubNameStruct{
+			HubName: hubID,
+		},
+	}
+	return
 }

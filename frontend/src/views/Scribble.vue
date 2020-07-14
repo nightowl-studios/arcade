@@ -9,7 +9,6 @@
 import CanvasPanel from "../components/CanvasPanel.vue";
 import Gameroom from "../components/Gameroom.vue";
 import { EventBus } from "../eventBus.js";
-import { ArcadeWebSocket } from "../webSocket.js";
 
 export default {
   name: "Scribble",
@@ -35,7 +34,7 @@ export default {
         requestLobbyDetails: true
       }
     };
-    ArcadeWebSocket.send(message);
+    this.$webSocketService.send(message);
   }
 };
 </script>

@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test": "jest"
+    "test": "jest",
+    "coverage": "jest --coverage"
   },
   "dependencies": {
     "axios": "^0.19.2",
@@ -14,6 +15,7 @@
     "bootstrap-vue": "^2.15.0",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
+    "vue-cookies": "^1.7.2",
     "vue-router": "^3.3.4",
     "vuex": "^3.5.1"
   },

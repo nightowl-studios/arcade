@@ -7,7 +7,6 @@
 </template>
 
 <script>
-import { ArcadeWebSocket } from "../webSocket";
 import { createChatMessage } from "../utility/WebSocketMessageUtils";
 import ChatLog from "./ChatLog";
 
@@ -27,7 +26,7 @@ export default {
   methods: {
     onSendMessage: function() {
       let messageToSend = createChatMessage(this.message);
-      ArcadeWebSocket.send(messageToSend);
+      this.$webSocketService.send(messageToSend);
     }
   }
 };
