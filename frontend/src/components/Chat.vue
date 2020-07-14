@@ -1,37 +1,37 @@
 <template>
-<div>
-    <input type="text" v-model="message" placeholder="Enter message">
+  <div>
+    <input type="text" v-model="message" placeholder="Enter message" />
     <button v-on:click="onSendMessage">Send</button>
-    <ChatLog/>
-</div>
+    <ChatLog />
+  </div>
 </template>
 
 <script>
-import ChatLog from './ChatLog'
+import ChatLog from "./ChatLog";
 
 export default {
-    name: 'Chat',
+  name: "Chat",
 
-    components: {
-        ChatLog
-    },
-    data: function(){
-        return{
-            newMessage: '',
-            chatLog: [],
-            message: ''
+  components: {
+    ChatLog
+  },
+  data: function() {
+    return {
+      newMessage: "",
+      chatLog: [],
+      message: ""
+    };
+  },
+  methods: {
+    onSendMessage: function() {
+      let messageToSend = {
+        api: "chat",
+        payload: {
+          message: this.message
         }
-    },
-    methods: {
-      onSendMessage: function() {
-          let messageToSend = {
-              "api":"chat",
-              "payload":{
-                  "message": this.message
-              }
-          }
-          this.$webSocketService.send(messageToSend);
-    },
-}
-}
+      };
+      this.$webSocketService.send(messageToSend);
+    }
+  }
+};
 </script>
