@@ -19,6 +19,20 @@ export default class WebSocketService {
 
     initWebSocket(webSocket, lobbyId) {
         webSocket.onopen = () => {
+            let arcadeSession = this.cookieService.getArcadeCookie();
+            if (arcadeSession != null &&
+                arcadeSession.ContainsToken != false) {
+                this.send(arcadeSession);
+            } else {
+                let noToken = {
+                    "api":"auth",
+                    "payload":{
+                        "ContainsToken": false
+                    }
+                }
+                this.send(noToken);
+            }
+
             console.log("Successfully connected to the websocket. ID: " + lobbyId);
             EventBus.$emit('connected', lobbyId);
         }
@@ -26,6 +40,10 @@ export default class WebSocketService {
         webSocket.onmessage = (event) => {
             let json = JSON.parse(event.data);
             let apiName = json.api;
+
+            if (apiName == "auth") {
+                this.cookieService.setArcadeCookie(json.payload);
+            }
             EventBus.$emit(apiName, json.payload);
         }
     }
