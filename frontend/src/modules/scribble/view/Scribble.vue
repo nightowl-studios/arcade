@@ -8,7 +8,7 @@
 <script>
 import CanvasPanel from "../components/CanvasPanel.vue";
 import Gameroom from "../components/Gameroom.vue";
-import { EventBus } from "../eventBus.js";
+import { EventBus } from "@/eventBus.js";
 
 export default {
   name: "Scribble",
