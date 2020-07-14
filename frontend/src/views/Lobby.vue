@@ -13,7 +13,6 @@
 import LobbyText from '../components/LobbyText.vue'
 import Nickname from '../components/Nickname.vue'
 import { EventBus } from '../eventBus.js';
-import axios from 'axios';
 
 export default {
   name: 'Lobby',
@@ -51,7 +50,7 @@ export default {
       this.$router.push({ path: '/scribble' });
     }
   },
-  created() {
+  async created() {
     EventBus.$on('connected', () => {
       this.connectionState = "CONNECTED";
     }),
@@ -60,17 +59,13 @@ export default {
     })
 
     this.lobbyId = this.$router.currentRoute.params.lobbyId;
-    let lobbyExistsApiUrl = this.$httpURL + '/hub' + '/' + this.lobbyId;
     if (!this.$webSocketService.isConnected()) {
-      axios
-      .get(lobbyExistsApiUrl)
-      .then(response => {
-        if (!response.data.exists) {
-          this.$router.push({ name: "404" });
-        } else {
-          this.$webSocketService.connect(this.lobbyId);
-        }
-      });
+      let lobbyExists = await this.$hubApiService.checkLobbyExists(this.lobbyId);
+      if (!lobbyExists) {
+        this.$router.push({ name: "404" });
+      } else {
+        this.$webSocketService.connect(this.lobbyId);
+      }
     }
   }
 }
