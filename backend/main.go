@@ -46,7 +46,7 @@ func initializeRoutes() {
 	log.Infof("starting server on: %v", address)
 
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{"http://localhost:8080", "http://localhost:8082"}) // we need to add our domain name here one day
+	originsOk := handlers.AllowedOrigins([]string{"*"}) // we need to add our domain name here one day
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
 	err := http.ListenAndServe(address, handlers.CORS(originsOk, headersOk, methodsOk)(r))
