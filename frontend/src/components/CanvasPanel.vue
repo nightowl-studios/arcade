@@ -10,7 +10,6 @@ import Canvas from "./Canvas.vue";
 import BrushSelector from "./BrushSelector.vue";
 import { createBrushStyle } from "../utility/BrushStyleUtils";
 import { createBrushStrokeMessage } from "../utility/WebSocketMessageUtils";
-import { ArcadeWebSocket } from "../webSocket";
 import { EventBus } from "../eventBus.js";
 
 export default {
@@ -39,7 +38,7 @@ export default {
   methods: {
     onBrushStroke: function(brushStroke) {
       let message = createBrushStrokeMessage(brushStroke);
-      ArcadeWebSocket.send(message);
+      this.$webSocketService.send(message);
     }
   }
 };
