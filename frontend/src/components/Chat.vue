@@ -7,7 +7,6 @@
 </template>
 
 <script>
-import { ArcadeWebSocket } from '../webSocket'
 import ChatLog from './ChatLog'
 
 export default {
@@ -31,7 +30,7 @@ export default {
                   "message": this.message
               }
           }
-          ArcadeWebSocket.send(messageToSend);
+          this.$webSocketService.send(messageToSend);
     },
 }
 }

@@ -13,7 +13,6 @@
 import LobbyText from '../components/LobbyText.vue'
 import Nickname from '../components/Nickname.vue'
 import { EventBus } from '../eventBus.js';
-import { ArcadeWebSocket } from '../webSocket.js';
 import axios from 'axios';
 
 export default {
@@ -37,7 +36,7 @@ export default {
           "changeNameTo": event.nickname
         }
       }
-      ArcadeWebSocket.send(message);
+      this.$webSocketService.send(message);
     },
     sendPlayerMessage: function() {
       let message = {
@@ -46,7 +45,7 @@ export default {
           "requestLobbyDetails":true
         }
       }
-      ArcadeWebSocket.send(message);
+      this.$webSocketService.send(message);
     },
     goToScribble: function() {
       this.$router.push({ path: '/scribble' });
@@ -62,14 +61,14 @@ export default {
 
     this.lobbyId = this.$router.currentRoute.params.lobbyId;
     let lobbyExistsApiUrl = this.$httpURL + '/hub' + '/' + this.lobbyId;
-    if (!ArcadeWebSocket.isConnected()) {
+    if (!this.$webSocketService.isConnected()) {
       axios
       .get(lobbyExistsApiUrl)
       .then(response => {
         if (!response.data.exists) {
           this.$router.push({ name: "404" });
         } else {
-          ArcadeWebSocket.connect(this.lobbyId);
+          this.$webSocketService.connect(this.lobbyId);
         }
       });
     }
