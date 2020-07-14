@@ -21,6 +21,17 @@ const (
 	name string = "scribble"
 )
 
+type State uint32
+
+// States
+const (
+	Lobby State = iota
+	PlayerSelectTopic
+	PlayTime
+	ScoreTime
+	Results
+)
+
 type Router struct {
 	// a simple ad-hoc pub/sub structure
 	handlers map[string][]game.GameHandler
