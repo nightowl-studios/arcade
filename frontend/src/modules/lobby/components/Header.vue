@@ -14,4 +14,8 @@ export default {
 </script>
 
 <style scoped>
+.header {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
 </style>

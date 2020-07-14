@@ -1,17 +1,12 @@
 <template>
   <div id="lobby">
     <Header title="Welcome to Not Scribble" />
+    <Header class="lobby-header-room-id" :title="lobbyId" />
     <div class="lobby-buttons">
-      <b-button class="lobby-button" variant="success">Start game</b-button>
-      <b-button class="lobby-button" variant="primary">Change nickname</b-button>
+      <b-button class="lobby-button" variant="success" v-on:click="goToScribble">Start game</b-button>
+      <Nickname @onChangeNickname="onChangeNickname" />
     </div>
-    <Header :title="lobbyId" />
     <PlayerList :players="players" />
-    <div>{{connectionState}}</div>
-    <div>Room Id: {{ lobbyId }}</div>
-    <Nickname @onChangeNickname="onChangeNickname" />
-    <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
-    <b-button v-on:click="goToScribble()">Go to Scribble</b-button>
   </div>
 </template>
 
@@ -19,7 +14,7 @@
 import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
 import Nickname from "../components/Nickname.vue";
-//import { EventBus } from "@/eventBus.js";
+import { EventBus } from "@/eventBus.js";
 
 export default {
   name: "Lobby",
@@ -30,17 +25,7 @@ export default {
   },
   data: function() {
     return {
-      players: [
-        {
-          nickname: "Gordon"
-        },
-        {
-          nickname: "Sam"
-        },
-        {
-          nickname: "Byron"
-        }
-      ],
+      players: [],
       lobbyId: "",
       connectionState: "DISCONNECTED"
     };
@@ -69,23 +54,23 @@ export default {
     }
   },
   async created() {
-    // EventBus.$on("connected", () => {
-    //   this.connectionState = "CONNECTED";
-    // }),
-    //   EventBus.$on(this.$hubAPI, data => {
-    //     this.players = data.connectedClients;
-    //   });
-    // this.lobbyId = this.$router.currentRoute.params.lobbyId;
-    // if (!this.$webSocketService.isConnected()) {
-    //   let lobbyExists = await this.$hubApiService.checkLobbyExists(
-    //     this.lobbyId
-    //   );
-    //   if (!lobbyExists) {
-    //     this.$router.push({ name: "404" });
-    //   } else {
-    //     this.$webSocketService.connect(this.lobbyId);
-    //   }
-    // }
+    EventBus.$on("connected", () => {
+      this.connectionState = "CONNECTED";
+    }),
+      EventBus.$on(this.$hubAPI, data => {
+        this.players = data.connectedClients;
+      });
+    this.lobbyId = this.$router.currentRoute.params.lobbyId;
+    if (!this.$webSocketService.isConnected()) {
+      let lobbyExists = await this.$hubApiService.checkLobbyExists(
+        this.lobbyId
+      );
+      if (!lobbyExists) {
+        this.$router.push({ name: "404" });
+      } else {
+        this.$webSocketService.connect(this.lobbyId);
+      }
+    }
   }
 };
 </script>
@@ -98,5 +83,9 @@ export default {
 .lobby-button {
   margin-left: 2px;
   margin-right: 2px;
+}
+
+.lobby-header-room-id {
+  color: orange;
 }
 </style>
