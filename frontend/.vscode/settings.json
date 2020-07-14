@@ -9,4 +9,5 @@
     },
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
+    "editor.defaultFormatter": "octref.vetur",
 }
