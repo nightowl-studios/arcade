@@ -11,7 +11,6 @@
 import Title from '../components/Title.vue'
 import CreateButton from '../components/CreateButton.vue'
 import JoinModal from '../components/JoinModal.vue'
-import { ArcadeWebSocket } from '../webSocket.js'
 import { EventBus } from '../eventBus.js'
 import { mapState } from 'vuex'
 
@@ -29,10 +28,10 @@ export default {
   },
   methods: {
     onCreateRoom: function(lobbyId) {
-      ArcadeWebSocket.connect(lobbyId);
+      this.$webSocketService.connect(lobbyId)
     },
     onJoinRoom: function(lobbyId) {
-      ArcadeWebSocket.connect(lobbyId);
+      this.$webSocketService.connect(lobbyId)
     }
   },
   created() {
