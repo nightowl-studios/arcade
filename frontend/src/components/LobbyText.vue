@@ -1,22 +1,22 @@
 <template>
-<div id="lobby">
+  <div id="lobby">
     <h1>Lobby</h1>
     <div v-for="player in clients" :key="player">
-        <Player :id="player.clientUUID.UUID" :name="player.nickname"/>
+      <Player :id="player.clientUUID.UUID" :name="player.nickname" />
     </div>
-</div>
+  </div>
 </template>
 
 <script>
-import Player from './Player.vue'
+import Player from "./Player.vue";
 
 export default {
-  name: 'LobbyText',
+  name: "LobbyText",
   props: {
-    clients: Array,
+    clients: Array
   },
   components: {
-    Player,
-  },
-}
+    Player
+  }
+};
 </script>

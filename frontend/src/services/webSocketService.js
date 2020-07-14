@@ -26,8 +26,8 @@ export default class WebSocketService {
                 this.send(arcadeSession);
             } else {
                 let noToken = {
-                    "api":"auth",
-                    "payload":{
+                    "api": "auth",
+                    "payload": {
                         "ContainsToken": false
                     }
                 }

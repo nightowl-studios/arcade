@@ -1,14 +1,14 @@
-import Vue from "vue";
 import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
-import App from "./App.vue";
-import router from "./router";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Vue from "vue";
+import App from "./App.vue";
 import "./index.scss";
-import store from './store/index'
-import WebSocketService from './services/webSocketService'
+import router from "./router";
 import CookieService from "./services/cookieService";
 import HubApiService from "./services/hubApiService";
+import WebSocketService from './services/webSocketService';
+import store from './store/index';
 
 Vue.config.productionTip = false;
 
@@ -20,8 +20,8 @@ Vue.use(IconsPlugin);
 // Global Instance Properties
 Vue.prototype.$hubAPI = "hub";
 
-let webSocketURL = "ws://" + document.location.hostname +":8081/ws";
-let httpURL = "http://" + document.location.hostname +":8081";
+let webSocketURL = "ws://" + document.location.hostname + ":8081/ws";
+let httpURL = "http://" + document.location.hostname + ":8081";
 Vue.prototype.$cookieService = new CookieService();
 Vue.prototype.$webSocketService = new WebSocketService(webSocketURL, Vue.prototype.$cookieService);
 Vue.prototype.$hubApiService = new HubApiService(httpURL);
