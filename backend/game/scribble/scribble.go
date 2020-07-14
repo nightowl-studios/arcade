@@ -9,6 +9,7 @@ import (
 	"github.com/bseto/arcade/backend/game/generic/chat"
 	"github.com/bseto/arcade/backend/game/hubapi"
 	"github.com/bseto/arcade/backend/game/scribble/handler/addition"
+	"github.com/bseto/arcade/backend/game/scribble/handler/draw"
 	"github.com/bseto/arcade/backend/game/scribble/handler/echo"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
@@ -29,6 +30,7 @@ func GetScribbleRouter() game.GameRouter {
 		addition.Get(),
 		hubapi.Get(),
 		chat.Get(),
+		draw.Get(),
 	)
 
 	return &Router{
