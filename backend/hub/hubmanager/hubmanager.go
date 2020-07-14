@@ -65,7 +65,12 @@ func (h *hubManager) GetHub(
 
 	hubInstance, ok := h.hubs[hubStruct]
 	if !ok {
-		hubInstance = hub.GetHub(gameFactory)
+		var err error
+		hubInstance, err = hub.GetHub(gameFactory)
+		if err != nil {
+			log.Errorf("unable to get hub: %v", err)
+			return hubInstance, err
+		}
 		h.hubs[hubStruct] = hubInstance
 	}
 

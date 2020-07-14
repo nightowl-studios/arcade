@@ -26,8 +26,9 @@ type Registry interface {
 
 // RegistryProvider will provide the actual registry functionality
 type RegistryProvider struct {
-	lookupLock sync.RWMutex
-	lookupMap  map[identifier.ClientUUIDStruct]UserDetails
+	lookupLock   sync.RWMutex
+	lookupMap    map[identifier.ClientUUIDStruct]UserDetails
+	unregistered map[identifier.ClientUUIDStruct]UserDetails
 }
 
 type UserDetails struct {
@@ -37,9 +38,8 @@ type UserDetails struct {
 
 func GetRegistryProvider() *RegistryProvider {
 	return &RegistryProvider{
-		lookupMap: make(
-			map[identifier.ClientUUIDStruct]UserDetails,
-		),
+		lookupMap:    make(map[identifier.ClientUUIDStruct]UserDetails),
+		unregistered: make(map[identifier.ClientUUIDStruct]UserDetails),
 	}
 }
 
@@ -62,6 +62,8 @@ func (r *RegistryProvider) GetClientSlice() []*identifier.UserDetails {
 
 // Register should take the send chan and fill in the lookupMap
 // This function should be threadsafe
+// This function will look for the client in the unregistered map
+// if it exists, it means this user is trying to reconnect
 func (r *RegistryProvider) Register(
 	send chan []byte,
 	clientID identifier.Client,
@@ -80,20 +82,39 @@ func (r *RegistryProvider) Register(
 		return
 	}
 
-	r.lookupMap[clientID.ClientUUID] = UserDetails{
-		send: send,
-		userDetails: &identifier.UserDetails{
-			ClientUUID: clientID.ClientUUID,
-		},
+	userDetails, ok := r.unregistered[clientID.ClientUUID]
+	if ok == true {
+		// someone is reconnecting. Move them from the unregistered map to the
+		// lookupMap
+		userDetails.send = send
+		delete(r.unregistered, userDetails.userDetails.ClientUUID)
+	} else {
+		// create a new user
+		userDetails = UserDetails{
+			send: send,
+			userDetails: &identifier.UserDetails{
+				ClientUUID: clientID.ClientUUID,
+			},
+		}
 	}
+
+	r.lookupMap[clientID.ClientUUID] = userDetails
 }
 
+// Unregister will take the client and move it to the unregistered map
+// if the main lookupMap is empty, it'll return true
 func (r *RegistryProvider) Unregister(
 	clientID identifier.Client,
 ) (registryEmpty bool) {
 	r.lookupLock.Lock()
 	defer r.lookupLock.Unlock()
 	log.Infof("unregistering: %v", clientID)
+
+	userDetails, ok := r.lookupMap[clientID.ClientUUID]
+	if ok {
+		userDetails.send = nil
+		r.unregistered[clientID.ClientUUID] = userDetails
+	}
 
 	delete(r.lookupMap, clientID.ClientUUID)
 	if len(r.lookupMap) == 0 {
