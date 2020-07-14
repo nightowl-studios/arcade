@@ -20,8 +20,21 @@ const (
 	name string = "scribble"
 )
 
+type State uint32
+
+// States
+const (
+	Lobby State = iota
+	PlayerSelectTopic
+	PlayTime
+	ScoreTime
+	Results
+)
+
 type Router struct {
 	handlers map[string]game.GameHandler
+
+	gameState State
 }
 
 func GetScribbleRouter() game.GameRouter {
