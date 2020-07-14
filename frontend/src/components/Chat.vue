@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import { createChatMessage } from "../utility/WebSocketMessageUtils";
 import ChatLog from "./ChatLog";
 
 export default {
@@ -24,12 +25,7 @@ export default {
   },
   methods: {
     onSendMessage: function() {
-      let messageToSend = {
-        api: "chat",
-        payload: {
-          message: this.message
-        }
-      };
+      let messageToSend = createChatMessage(this.message);
       this.$webSocketService.send(messageToSend);
     }
   }
