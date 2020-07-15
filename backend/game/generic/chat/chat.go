@@ -92,8 +92,8 @@ func (h *Handler) ClientQuit(
 
 // Name needs to return a unique name of this GameHandler
 // This return will be used for routing
-func (h *Handler) Name() string {
-	return name
+func (h *Handler) Names() []string {
+	return []string{name}
 }
 
 func (h *Handler) SendHistory(

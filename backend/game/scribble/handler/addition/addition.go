@@ -66,8 +66,8 @@ func (h *Handler) HandleInteraction(
 	registry.SendToCaller(caller, responseMessage)
 }
 
-func (h *Handler) Name() string {
-	return name
+func (h *Handler) Names() []string {
+	return []string{name}
 }
 
 func (h *Handler) NewClient(
