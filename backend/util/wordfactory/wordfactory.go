@@ -1,4 +1,4 @@
-package nullable
+package wordfactory
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func wordGenerator() {
+func WordGenerator() string {
 	b, err := ioutil.ReadFile("wordbank.txt")
 
 	if err != nil {
@@ -19,5 +19,5 @@ func wordGenerator() {
 
 	words := strings.Split(wordList[0], ",")
 	pickWord := rand.Intn(len(words))
-	fmt.Println(words[pickWord])
+	return words[pickWord]
 }
