@@ -15,7 +15,7 @@ const (
 	PlayerSelectTopic State = iota
 	PlayTime
 	ScoreTime
-	Results
+	ShowResults
 )
 
 var (
@@ -63,4 +63,26 @@ func (h *Handler) ClientQuit(
 // This return will be used for routing
 func (h *Handler) Names() []string {
 	return names
+}
+
+// Run is the function that should be called as a thread
+// It will handle the state machine which is affected by a timer, and probably
+// by the chat input
+// notes: Might need to add some sort of channel to get chat input into the Run
+func (h *Handler) Run() {
+
+}
+
+func (h *Handler) playerSelectTopic() {
+
+}
+func (h *Handler) playTime() {
+
+}
+
+func (h *Handler) scoreTime() {
+
+}
+func (h *Handler) showResults() {
+
 }
