@@ -3,28 +3,24 @@ package wordfactory
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"os"
-	"strings"
+	"testing"
 )
 
-func WordGenerator() string {
-	b, err := ioutil.ReadFile("wordbank.txt")
-
-	if err != nil {
-		fmt.Println("There is an error in reading file.", err)
+func BenchmarkWordGenerator1(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		WordGenerator()
 	}
-
-	allWords := string(b[:])
-	wordList := []string{allWords}
-
-	words := strings.Split(wordList[0], "\r\n")
-	pickWord := rand.Intn(len(words))
-	return words[pickWord]
 }
 
-func WordGenerator2() string {
+func BenchmarkWordGenerator2(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		WordGenerator2()
+	}
+}
+
+func TestYourFunction(t *testing.T) {
 	file, err := os.Open("wordbank.txt")
 	if err != nil {
 		fmt.Println("file could not be read", err)
@@ -36,12 +32,14 @@ func WordGenerator2() string {
 
 	var fileSize int = int(fileInfo.Size())
 	randomLocation := rand.Intn(fileSize)
+	t.Error(fileSize)
+	t.Error(randomLocation)
 	reader := bufio.NewReader(file)
 
 	reader.Discard(randomLocation)
 
 	data, _, _ := reader.ReadLine()
 	data, _, _ = reader.ReadLine()
+	t.Error(string(data))
 	file.Close()
-	return (string(data))
 }
