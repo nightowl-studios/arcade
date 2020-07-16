@@ -28,10 +28,18 @@ var (
 
 type Handler struct {
 	GameState State
+	Round     int
+	MaxRounds int
 }
 
 func Get() *Handler {
-	return &Handler{}
+	handler := &Handler{
+		MaxRounds: 3,
+		Round:     0,
+		GameState: PlayerSelectTopic,
+	}
+	go handler.run()
+	return handler
 }
 
 // HandleInteraction will be given the tools it needs to handle
@@ -65,12 +73,35 @@ func (h *Handler) Names() []string {
 	return names
 }
 
-// Run is the function that should be called as a thread
+// run is the function that should be called as a thread
 // It will handle the state machine which is affected by a timer, and probably
 // by the chat input
-// notes: Might need to add some sort of channel to get chat input into the Run
-func (h *Handler) Run() {
+// notes: Might need to add some sort of channel to get chat input into the run
+func (h *Handler) run() {
 
+	for {
+		switch h.GameState {
+		case PlayerSelectTopic:
+			h.playerSelectTopic()
+			h.GameState = PlayTime
+		case PlayTime:
+			h.playTime()
+			h.GameState = ScoreTime
+		case ScoreTime:
+			h.scoreTime()
+			// now we increment the round after showing score for
+			// the current round
+			h.Round++
+			if h.Round == h.MaxRounds {
+				h.GameState = ShowResults
+			} else {
+				h.GameState = PlayerSelectTopic
+			}
+		case ShowResults:
+			h.showResults()
+			break
+		}
+	}
 }
 
 func (h *Handler) playerSelectTopic() {
