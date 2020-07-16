@@ -19,7 +19,9 @@ export default class WebSocketService {
     }
 
     disconnect() {
-        this.webSocket.close()
+        if (this.isConnected()) {
+            this.webSocket.close()
+        }
     }
 
     initWebSocket(webSocket, lobbyId) {
