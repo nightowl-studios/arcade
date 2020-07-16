@@ -63,7 +63,7 @@ func (h *Handler) HandleInteraction(
 		return
 	}
 
-	registry.SendToCaller(caller, responseMessage)
+	registry.SendToCaller(caller.ClientUUID, responseMessage)
 }
 
 func (h *Handler) Names() []string {

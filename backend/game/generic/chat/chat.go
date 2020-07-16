@@ -109,7 +109,7 @@ func (h *Handler) SendHistory(
 		return
 	}
 
-	reg.SendToCaller(clientID, historyBytes)
+	reg.SendToCaller(clientID.ClientUUID, historyBytes)
 }
 
 func (h *Handler) EchoMessage(
@@ -119,7 +119,7 @@ func (h *Handler) EchoMessage(
 ) {
 	newChatMessage := ChatMessage{
 		Timestamp: ChatTime(time.Now()),
-		Sender:    registry.GetClientUserDetail(caller),
+		Sender:    registry.GetClientUserDetail(caller.ClientUUID),
 		Message:   message,
 	}
 
@@ -132,7 +132,7 @@ func (h *Handler) EchoMessage(
 		return
 	}
 
-	go registry.SendToSameHub(caller, byteMessage)
+	go registry.SendToSameHub(caller.ClientUUID, byteMessage)
 
 	h.chatHistoryLock.Lock()
 	defer h.chatHistoryLock.Unlock()

@@ -71,10 +71,12 @@ func GetHub(gameFactory gamefactory.GameFactory) (Hub, error) {
 		return nil, err
 	}
 
+	reg := registry.GetRegistryProvider()
+
 	return &hub{
 		gameFactory: gameFactory,
-		reg:         registry.GetRegistryProvider(),
-		gameRouter:  gameFactory.GetGame("scribble"),
+		reg:         reg,
+		gameRouter:  gameFactory.GetGame("scribble", reg),
 		tokenSecret: secret,
 	}, nil
 }

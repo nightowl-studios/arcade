@@ -61,7 +61,7 @@ func (h *Handler) HandleInteraction(
 		return
 	}
 
-	registry.SendToSameHub(caller, responseMessage)
+	registry.SendToSameHub(caller.ClientUUID, responseMessage)
 }
 
 func (h *Handler) Names() []string {

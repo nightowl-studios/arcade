@@ -26,14 +26,14 @@ type Router struct {
 	handlers map[string][]game.GameHandler
 }
 
-func GetScribbleRouter() game.GameRouter {
+func GetScribbleRouter(reg registry.Registry) game.GameRouter {
 	handlers := game.CreateGameHandlersMap(
 		echo.Get(),
 		addition.Get(),
 		hubapi.Get(),
 		chat.Get(),
 		draw.Get(),
-		gamemaster.Get(),
+		gamemaster.Get(reg),
 	)
 
 	return &Router{

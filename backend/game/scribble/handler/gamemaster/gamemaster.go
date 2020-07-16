@@ -2,6 +2,7 @@ package gamemaster
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
@@ -16,6 +17,7 @@ const (
 	PlayTime
 	ScoreTime
 	ShowResults
+	EndGame
 )
 
 var (
@@ -26,17 +28,33 @@ var (
 	}
 )
 
-type Handler struct {
-	GameState State
-	Round     int
-	MaxRounds int
+type GameMasterSend struct {
+	PlayerSend PlayerSelectSend `json:"PlayerSelectSend"`
 }
 
-func Get() *Handler {
+type ClientList struct {
+	initialized      bool
+	nextToBeSelected int
+	clients          []identifier.ClientUUIDStruct
+}
+
+type Handler struct {
+	reg       registry.Registry
+	gameState State
+	round     int
+	maxRounds int
+
+	selectTopicTimer time.Duration
+	clientList       ClientList
+}
+
+func Get(reg registry.Registry) *Handler {
+	// hardcoded values
 	handler := &Handler{
-		MaxRounds: 3,
-		Round:     0,
-		GameState: PlayerSelectTopic,
+		maxRounds:        3,
+		round:            0,
+		gameState:        PlayerSelectTopic,
+		selectTopicTimer: 5 * time.Second,
 	}
 	go handler.run()
 	return handler
@@ -56,8 +74,9 @@ func (h *Handler) NewClient(
 	clientID identifier.Client,
 	reg registry.Registry,
 ) {
-	// we don't need to send history on a new connection
-	//h.SendHistory(clientID, reg)
+	// if a user joins halfway, they'll be appended to the end of the
+	// clientList
+	h.clientList.clients = append(h.clientList.clients, clientID.ClientUUID)
 }
 
 func (h *Handler) ClientQuit(
@@ -80,33 +99,62 @@ func (h *Handler) Names() []string {
 func (h *Handler) run() {
 
 	for {
-		switch h.GameState {
+		switch h.gameState {
 		case PlayerSelectTopic:
 			h.playerSelectTopic()
-			h.GameState = PlayTime
+			h.gameState = PlayTime
 		case PlayTime:
 			h.playTime()
-			h.GameState = ScoreTime
+			h.gameState = ScoreTime
 		case ScoreTime:
 			h.scoreTime()
 			// now we increment the round after showing score for
 			// the current round
-			h.Round++
-			if h.Round == h.MaxRounds {
-				h.GameState = ShowResults
+			h.round++
+			if h.round >= h.maxRounds {
+				h.gameState = ShowResults
 			} else {
-				h.GameState = PlayerSelectTopic
+				h.gameState = PlayerSelectTopic
 			}
 		case ShowResults:
 			h.showResults()
+			h.gameState = EndGame
+			break
+		}
+
+		if h.gameState == EndGame {
 			break
 		}
 	}
 }
 
-func (h *Handler) playerSelectTopic() {
-	// test
+type PlayerSelectSend struct {
+	ChosenUUID string   `json:"chosenUUID"`
+	Choices    []string `json:"choices,omitempty"`
 }
+
+type PlayerSelectReceive struct {
+	Choice int `json:"choice"`
+}
+
+func (h *Handler) playerSelectTopic() {
+
+	if h.clientList.initialized == false {
+		clients := h.reg.GetClientSlice()
+		for _, client := range clients {
+			h.clientList.clients = append(
+				h.clientList.clients,
+				client.ClientUUID,
+			)
+		}
+		h.clientList.initialized = true
+		h.clientList.nextToBeSelected = 0
+	}
+
+	selectedClient := h.clientList.clients[h.clientList.nextToBeSelected]
+
+}
+
 func (h *Handler) playTime() {
 
 }
