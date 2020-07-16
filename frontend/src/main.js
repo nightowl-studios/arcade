@@ -4,11 +4,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Vue from "vue";
 import App from "./App.vue";
 import "./index.scss";
+import store from './modules/common/store/globalstore/index';
 import router from "./router";
 import CookieService from "./services/cookieService";
 import HubApiService from "./services/hubApiService";
 import WebSocketService from './services/webSocketService';
-import store from './store/index';
 
 Vue.config.productionTip = false;
 
