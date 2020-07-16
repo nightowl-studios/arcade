@@ -38,5 +38,6 @@ func TestYourFunction(t *testing.T) {
 
 	data, _, _ := reader.ReadLine()
 	data, _, _ = reader.ReadLine()
+	fmt.Println(string(data))
 	file.Close()
 }
