@@ -5,6 +5,7 @@
     <div class="lobby-buttons">
       <b-button class="lobby-button" variant="success" v-on:click="goToScribble">Start game</b-button>
       <Nickname @onChangeNickname="onChangeNickname" />
+      <b-button class="exit-button" variant="danger" v-on:click="exitToHome">Exit Lobby</b-button>
     </div>
     <PlayerList :players="players" />
   </div>
@@ -51,6 +52,10 @@ export default {
     },
     goToScribble: function() {
       this.$router.push({ path: "/scribble" });
+    },
+    exitToHome: function() {
+      this.$webSocketService.disconnect();
+      this.$router.push({ name: "home" });
     }
   },
   async created() {
@@ -80,7 +85,7 @@ export default {
   padding-right: 100px;
 }
 
-.lobby-button {
+.lobby-button, .exit-button {
   margin-left: 2px;
   margin-right: 2px;
 }

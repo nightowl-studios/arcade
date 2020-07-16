@@ -18,6 +18,10 @@ export default class WebSocketService {
         this.initWebSocket(this.webSocket, lobbyId);
     }
 
+    disconnect() {
+        this.webSocket.close()
+    }
+
     initWebSocket(webSocket, lobbyId) {
         webSocket.onopen = () => {
             let arcadeSession = this.cookieService.getArcadeCookie();
