@@ -11,7 +11,7 @@
 import Title from "../components/Title.vue";
 import CreateButton from "../components/CreateButton.vue";
 import JoinModal from "../components/JoinModal.vue";
-import { EventBus } from "../eventBus.js";
+import { EventBus } from "@/eventBus.js";
 import { mapState } from "vuex";
 
 export default {
