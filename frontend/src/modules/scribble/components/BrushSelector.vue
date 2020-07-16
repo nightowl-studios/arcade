@@ -16,7 +16,7 @@
 <script>
 import BrushSizeTile from "./BrushSizeTile.vue";
 import BrushColorTile from "./BrushColorTile.vue";
-import { EventBus } from "../eventBus.js";
+import { EventBus } from "@/eventBus.js";
 import { createBrushStyle } from "../utility/BrushStyleUtils";
 
 export default {
