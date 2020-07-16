@@ -32,14 +32,11 @@ func TestYourFunction(t *testing.T) {
 
 	var fileSize int = int(fileInfo.Size())
 	randomLocation := rand.Intn(fileSize)
-	t.Error(fileSize)
-	t.Error(randomLocation)
 	reader := bufio.NewReader(file)
 
 	reader.Discard(randomLocation)
 
 	data, _, _ := reader.ReadLine()
 	data, _, _ = reader.ReadLine()
-	t.Error(string(data))
 	file.Close()
 }
