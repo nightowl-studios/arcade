@@ -1,28 +1,31 @@
 <template>
-  <div>
-    <LobbyText :clients="clients" />
-    <div>{{connectionState}}</div>
-    <div>Room Id: {{ lobbyId }}</div>
-    <Nickname @onChangeNickname="onChangeNickname" />
-    <b-button v-on:click="sendPlayerMessage()">Send a Message</b-button>
-    <b-button v-on:click="goToScribble()">Go to Scribble</b-button>
+  <div id="lobby">
+    <Header title="Welcome to Not Scribble" />
+    <Header class="lobby-header-room-id" :title="lobbyId" />
+    <div class="lobby-buttons">
+      <b-button class="lobby-button" variant="success" v-on:click="goToScribble">Start game</b-button>
+      <Nickname @onChangeNickname="onChangeNickname" />
+    </div>
+    <PlayerList :players="players" />
   </div>
 </template>
 
 <script>
-import LobbyText from "../components/LobbyText.vue";
+import Header from "../components/Header.vue";
+import PlayerList from "../components/PlayerList.vue";
 import Nickname from "../components/Nickname.vue";
-import { EventBus } from "../eventBus.js";
+import { EventBus } from "@/eventBus.js";
 
 export default {
   name: "Lobby",
   components: {
-    LobbyText,
+    Header,
+    PlayerList,
     Nickname
   },
   data: function() {
     return {
-      clients: [],
+      players: [],
       lobbyId: "",
       connectionState: "DISCONNECTED"
     };
@@ -55,9 +58,8 @@ export default {
       this.connectionState = "CONNECTED";
     }),
       EventBus.$on(this.$hubAPI, data => {
-        this.clients = data.connectedClients;
+        this.players = data.connectedClients;
       });
-
     this.lobbyId = this.$router.currentRoute.params.lobbyId;
     if (!this.$webSocketService.isConnected()) {
       let lobbyExists = await this.$hubApiService.checkLobbyExists(
@@ -72,3 +74,18 @@ export default {
   }
 };
 </script>
+<style scoped>
+#lobby {
+  padding-left: 100px;
+  padding-right: 100px;
+}
+
+.lobby-button {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+.lobby-header-room-id {
+  color: orange;
+}
+</style>

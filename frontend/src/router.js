@@ -1,9 +1,9 @@
 import Vue from "vue";
 import Router from "vue-router";
-import Home from "./views/Home.vue";
-import Lobby from "./views/Lobby.vue";
-import PageNotFound from "./views/PageNotFound.vue";
-import Scribble from "./views/Scribble.vue";
+import PageNotFound from "./modules/common/view/PageNotFound.vue";
+import Home from "./modules/home/view/Home.vue";
+import Lobby from "./modules/lobby/view/Lobby.vue";
+import Scribble from "./modules/scribble/view/Scribble.vue";
 
 Vue.use(Router);
 

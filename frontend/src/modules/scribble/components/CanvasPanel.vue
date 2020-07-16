@@ -10,7 +10,7 @@ import Canvas from "./Canvas.vue";
 import BrushSelector from "./BrushSelector.vue";
 import { createBrushStyle } from "../utility/BrushStyleUtils";
 import { createBrushStrokeMessage } from "../utility/WebSocketMessageUtils";
-import { EventBus } from "../eventBus.js";
+import { EventBus } from "@/eventBus.js";
 
 export default {
   name: "CanvasPanel",

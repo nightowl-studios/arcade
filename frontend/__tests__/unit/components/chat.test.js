@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import Chat from '../../../src/components/Chat.vue';
+import Chat from '../../../src/modules/scribble/components/Chat.vue';
 
 describe('Chat', () => {
     const wrapper = shallowMount(Chat)
