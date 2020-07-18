@@ -11,7 +11,7 @@ import (
 
 // Registry defines an interface in which `Registry`'s should provide
 type Registry interface {
-	Register(send chan []byte, clientID identifier.Client)
+	Register(send chan []byte, clientID identifier.ClientUUIDStruct)
 	Unregister(clientID identifier.ClientUUIDStruct) (registryEmpty bool)
 
 	GetClientSlice() []*identifier.UserDetails
