@@ -1,10 +1,11 @@
 import { EventBus } from '../eventBus.js';
 
 export default class WebSocketService {
-    constructor(webSocketURL, cookieService) {
+    constructor(webSocketURL, cookieService, eventHandlerService) {
         this.webSocketURL = webSocketURL;
         this.webSocket = null;
         this.cookieService = cookieService;
+        this.eventHandlerService = eventHandlerService;
     }
 
     getWebSocketURL() {
@@ -46,12 +47,14 @@ export default class WebSocketService {
 
         webSocket.onmessage = (event) => {
             let json = JSON.parse(event.data);
-            let apiName = json.api;
+            let api = json.api;
+            let payload = json.payload;
 
-            if (apiName == "auth") {
+            if (api === "auth") {
                 this.cookieService.setArcadeCookie(json.payload);
             }
-            EventBus.$emit(apiName, json.payload);
+
+            this.eventHandlerService.handle(api, payload);
         }
     }
 

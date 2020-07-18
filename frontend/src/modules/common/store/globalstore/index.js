@@ -1,25 +1,11 @@
-const state = () => ({
-    message: "Hello from vuex"
+import Vue from 'vue'
+import Vuex from 'vuex'
+import global from './modules/global'
+
+Vue.use(Vuex)
+
+export const store = new Vuex.Store({
+  modules: {
+    global
+  }
 })
-
-const getters = {
-    getMessage: (state) => {
-        return state.message;
-    }
-}
-
-const actions = {
-
-}
-
-const mutations = {
-
-}
-
-export default {
-    namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations
-}

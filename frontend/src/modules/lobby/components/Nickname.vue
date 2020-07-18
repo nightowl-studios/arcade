@@ -20,10 +20,15 @@ export default {
       this.$refs["nicknameModal"].show();
     },
     onOKClicked: function() {
-      let setNickname = {
-        nickname: this.nickname
+      let message = {
+        api: "hub",
+        payload: {
+          changeNameTo: this.nickname
+        }
       };
-      this.$emit("onChangeNickname", setNickname);
+      console.log("Sending msg");
+      console.log(this.$webSocketService);
+      this.$webSocketService.send(message);
     }
   },
   mounted() {
