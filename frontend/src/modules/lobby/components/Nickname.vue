@@ -26,8 +26,6 @@ export default {
           changeNameTo: this.nickname
         }
       };
-      console.log("Sending msg");
-      console.log(this.$webSocketService);
       this.$webSocketService.send(message);
     }
   },
