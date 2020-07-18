@@ -15,7 +15,6 @@
 import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
 import Nickname from "../components/Nickname.vue";
-//import { EventBus } from "@/eventBus.js";
 import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 
 export default {
@@ -28,8 +27,7 @@ export default {
   },
   data: function() {
     return {
-      lobbyId: "",
-      connectionState: "DISCONNECTED"
+      lobbyId: ""
     };
   },
   methods: {

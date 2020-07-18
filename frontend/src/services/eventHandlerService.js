@@ -1,4 +1,4 @@
-import { store } from '@/modules/common/store/globalstore/index';
+import { GlobalStore } from '@/modules/common/store/globalstore/index';
 import { EventBus } from '../eventBus.js';
 
 export default class EventHandlerService {
@@ -17,9 +17,9 @@ export default class EventHandlerService {
     }
 
     handleHubEvent(payload) {
-        console.log(payload);
-        console.log("store");
-        console.log(store);
-        console.log(store.getters.getMessage);
+        console.log(payload)
+        if (payload.connectedClients != null) {
+            GlobalStore.commit('setPlayers', payload.connectedClients);
+        }
     }
 }

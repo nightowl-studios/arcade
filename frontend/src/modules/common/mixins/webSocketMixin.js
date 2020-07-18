@@ -1,20 +1,12 @@
-import { EventBus } from "@/eventBus.js";
+import { GlobalStore } from '../store/globalstore/index';
 
 export default {
-  data: function() {
-    return {
-      players: []
-    };
+  computed: {
+    players () {
+      return GlobalStore.getters.getPlayers
+    }
   },
   created: async function() {
-    EventBus.$on("connected", () => {
-      this.connectionState = "CONNECTED";
-    }),
-
-    EventBus.$on(this.$hubAPI, data => {
-      this.players = data.connectedClients;
-    });
-
     this.lobbyId = this.$router.currentRoute.params.lobbyId;
     if (!this.$webSocketService.isConnected()) {
       let lobbyExists = await this.$hubApiService.checkLobbyExists(

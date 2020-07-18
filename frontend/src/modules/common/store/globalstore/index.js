@@ -4,8 +4,11 @@ import global from './modules/global'
 
 Vue.use(Vuex)
 
-export const store = new Vuex.Store({
+const debug = process.env.NODE_ENV !== 'production'
+
+export const GlobalStore = new Vuex.Store({
   modules: {
     global
-  }
+  },
+  strict: debug
 })

@@ -1,14 +1,21 @@
 const state = {
-    message: "Hello from vuex"
+    players: []
 }
 
 const getters = {
-    getMessage: (state) => {
-        return state.message;
+    getPlayers: (state) => {
+        return state.players;
     }
 }
 
+const mutations = {
+    setPlayers: (state, payload) => {
+      state.players = payload
+    }
+  }
+
 export default {
     state,
-    getters
+    getters,
+    mutations
 }
