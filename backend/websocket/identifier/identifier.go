@@ -92,5 +92,5 @@ func RandStringBytesMaskImprSrcSB(n int) string {
 		remain--
 	}
 
-	return sb.String()
+	return strings.ToUpper(sb.String())
 }

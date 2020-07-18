@@ -6,6 +6,7 @@
 
 <script>
 import { EventBus } from "@/eventBus.js";
+import { createDrawActionMessage } from "../utility/WebSocketMessageUtils";
 
 export default {
   name: "Canvas",
@@ -34,6 +35,7 @@ export default {
     this.canvas.addEventListener("mouseup", this.onMouseUp, false);
     this.canvas.addEventListener("mouseover", this.onMouseOver, false);
     EventBus.$on("brushUpdated", this.setBrushStyle);
+    EventBus.$on("draw", this.onDrawAction);
   },
 
   methods: {
@@ -81,21 +83,26 @@ export default {
     },
 
     draw: function(from, to, brushStyle) {
-      this.context.beginPath();
-      this.context.moveTo(from.x, from.y);
-      this.context.lineTo(to.x, to.y);
-      this.context.strokeStyle = brushStyle.brushColor;
-      this.context.lineWidth = brushStyle.brushSize;
-      this.context.lineCap = "round";
-      this.context.stroke();
-      this.context.closePath();
-
-      EventBus.$emit("brushStroke", {
+      let drawActionMessage = createDrawActionMessage({
         from: from,
         to: to,
         brushStyle: brushStyle,
         lineCap: this.context.lineCap
       });
+      this.$webSocketService.send(drawActionMessage);
+    },
+
+    onDrawAction: function(action) {
+      let drawAction = action.action
+      this.context.beginPath();
+      this.context.moveTo(drawAction.from.x, drawAction.from.y);
+      this.context.lineTo(drawAction.to.x, drawAction.to.y);
+      this.context.strokeStyle = drawAction.brushStyle.brushColor;
+      this.context.lineWidth = drawAction.brushStyle.brushSize;
+      this.context.lineCap = "round";
+      this.context.stroke();
+      this.context.closePath();
+
     }
   }
 };
