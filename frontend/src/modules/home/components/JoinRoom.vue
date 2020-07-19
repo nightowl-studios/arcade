@@ -1,22 +1,20 @@
 <template>
-  <div id="joinModal">
-    <b-button variant="success" v-b-modal.modal-1>Join</b-button>
-    <b-modal id="modal-1" @ok="onOKClicked" title="BootstrapVue">
-      <input v-model="lobbyId" placeholder="Enter lobby id" />
-    </b-modal>
+  <div id="joinRoom">
+    <b-form-input id="lobbyIdInput" v-model="lobbyId" placeholder="Lobby ID"></b-form-input>
+    <b-button id="joinButton" variant="success" v-on:click="onJoin">Join</b-button>
   </div>
 </template>
 
 <script>
 export default {
-  name: "JoinModal",
+  name: "joinRoom",
   data: function() {
     return {
       lobbyId: ""
     };
   },
   methods: {
-    onOKClicked: async function() {
+    onJoin: async function() {
       console.log("Joining room " + this.lobbyId + "...");
       let lobbyExists = await this.$hubApiService.checkLobbyExists(
         this.lobbyId
@@ -32,7 +30,13 @@ export default {
 </script>
 
 <style scoped>
-#joinModal {
-  margin-top: 15px;
+#joinRoom {
+  display: flex;
 }
+
+#lobbyIdInput {
+  margin-right: 10px;
+  width: 90px;
+}
+
 </style>
