@@ -48,19 +48,19 @@ export default {
 
 #players {
   flex: 1;
-  padding-bottom: 100%;
+
 
   background-color: lightblue;
 }
 #drawing {
   flex: 2;
-  padding-bottom: 100%;
+
 
   background-color: white;
 }
 #chatroom {
   flex: 1;
-  padding-bottom: 100%;
+
   background-color: lightblue;
 }
 </style>
