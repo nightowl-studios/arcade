@@ -32,8 +32,11 @@ export default {
       this.$webSocketService.send(message);
     },
     onEnter: function(){
-      let setNickname = {
-        nickname: this.nickname
+      let message = {
+        api: "hub",
+        payload: {
+          changeNameTo: this.nickname
+        }
       };
       this.$webSocketService.send(message);
       this.hideModal();
