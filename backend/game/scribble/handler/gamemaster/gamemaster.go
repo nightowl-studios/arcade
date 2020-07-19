@@ -37,6 +37,7 @@ var (
 type GameMasterSend struct {
 	GameMasterAPI    State            `json:"gameMasterAPI"`
 	PlayerSelectSend PlayerSelectSend `json:"playerSelect,omitempty"`
+	ScoreTimeSend    ScoreTimeSend    `json:"scoreTime,omitempty"`
 }
 
 type GameMasterReceive struct {
@@ -159,17 +160,8 @@ func (h *Handler) run() {
 			// nothing is defined
 			return
 			h.playTime()
-			h.changeGameStateTo(ScoreTime)
 		case ScoreTime:
 			h.scoreTime()
-			// now we increment the round after showing score for
-			// the current round
-			h.round++
-			if h.round >= h.maxRounds {
-				h.gameState = ShowResults
-			} else {
-				h.gameState = PlayerSelect
-			}
 		case ShowResults:
 			h.showResults()
 			h.gameState = EndGame
@@ -250,6 +242,7 @@ func (h *Handler) playerSelectTopic() {
 
 	selectedClient := h.clientList.clients[h.clientList.nextToBeSelected]
 	selectedPlayerMsg := GameMasterSend{
+		GameMasterAPI: PlayerSelect,
 		PlayerSelectSend: PlayerSelectSend{
 			ChosenUUID: selectedClient.UUID,
 		},
@@ -329,9 +322,32 @@ func (h *Handler) handlePlayMessages() {
 	// if everyone guessed right, then send to channel
 }
 
-func (h *Handler) scoreTime() {
-
+type ScoreTimeSend struct {
+	Round int `json:"round"`
 }
+
+func (h *Handler) scoreTime() {
+	h.round++
+	if h.round >= h.maxRounds {
+		h.gameState = ShowResults
+	} else {
+		h.gameState = PlayerSelect
+	}
+	selectedClient := h.clientList.clients[h.clientList.nextToBeSelected]
+	scoreTimeMsg := GameMasterSend{
+		GameMasterAPI: ScoreTime,
+		ScoreTimeSend: ScoreTimeSend{
+			Round: h.round,
+		},
+	}
+	scoreTimeBytes, err := game.MessageBuild("game", scoreTimeMsg)
+	if err != nil {
+		log.Fatalf("unable to marshal: %v", err)
+		return
+	}
+	h.reg.SendToSameHub(selectedClient, scoreTimeBytes)
+}
+
 func (h *Handler) showResults() {
 
 }
