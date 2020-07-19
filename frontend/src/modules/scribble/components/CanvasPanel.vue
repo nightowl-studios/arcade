@@ -17,7 +17,7 @@ import Canvas from "./Canvas.vue";
 import BrushSelector from "./BrushSelector.vue";
 import { createBrushStyle } from "../utility/BrushStyleUtils";
 import { EventBus } from "@/eventBus.js";
-import { createWebSocketMessage } from "../utility/WebSocketMessageUtils";
+import { createDrawMessage } from "../utility/WebSocketMessageUtils";
 
 export default {
   name: "CanvasPanel",
@@ -45,7 +45,7 @@ export default {
 
   methods: {
     sendDrawAction(drawAction) {
-      let drawMsg = createWebSocketMessage("draw", {
+      let drawMsg = createDrawMessage({
         action: drawAction,
         requestHistory: false
       });
@@ -53,7 +53,7 @@ export default {
     },
 
     sendRequestHistory() {
-      let requestHistoryMsg = createWebSocketMessage("draw", {
+      let requestHistoryMsg = createDrawMessage({
         requestHistory: true
       });
       this.$webSocketService.send(requestHistoryMsg);
@@ -65,7 +65,9 @@ export default {
           this.$refs["canvas"].draw(action);
         }
       }
-      this.$refs["canvas"].draw(drawMessage.action);
+      if (drawMessage.action != undefined) {
+        this.$refs["canvas"].draw(drawMessage.action);
+      }
     }
   }
 };
