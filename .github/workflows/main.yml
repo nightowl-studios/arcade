@@ -33,7 +33,7 @@ jobs:
         go version
         cd backend
         go build
-        go test ./...
+        go test -v -coverprofile cover.out ./...
 
     - name: Setup Node.js environment
       run: |
