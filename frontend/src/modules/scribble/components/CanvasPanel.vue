@@ -47,7 +47,7 @@ export default {
     },
 
     handleDrawMessage(drawMessage) {
-      this.$ref["canvas"].draw(drawMessage.action);
+      this.$refs["canvas"].draw(drawMessage.action);
     }
   }
 };
