@@ -95,6 +95,10 @@ export default {
       this.$emit("drawAction", drawAction);
     },
 
+    requestHistory: function() {
+      this.$emit("requestHistory");
+    },
+
     draw: function(drawAction) {
       this.context.beginPath();
       this.context.moveTo(drawAction.from.x, drawAction.from.y);
