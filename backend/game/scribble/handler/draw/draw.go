@@ -149,7 +149,7 @@ func (h *Handler) ForwardAction(
 		return
 	}
 
-	go registry.SendToSameHub(caller.ClientUUID, byteMessage)
+	go registry.SendToSameHubExceptCaller(caller.ClientUUID, byteMessage)
 
 	h.drawHistoryLock.Lock()
 	defer h.drawHistoryLock.Unlock()
