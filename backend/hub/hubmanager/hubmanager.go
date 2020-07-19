@@ -41,7 +41,10 @@ func GetHubManager() *hubManager {
 }
 
 func (h *hubManager) WebsocketClose(clientID identifier.Client) {
-	hubInstance := h.hubs[clientID.HubName]
+	hubInstance, ok := h.hubs[clientID.HubName]
+	if !ok {
+		return
+	}
 	hubEmpty := hubInstance.UnregisterClient(clientID)
 	if hubEmpty {
 		delete(h.hubs, clientID.HubName)
