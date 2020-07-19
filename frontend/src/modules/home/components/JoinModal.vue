@@ -30,9 +30,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-#joinModal {
-  margin-top: 15px;
-}
-</style>
