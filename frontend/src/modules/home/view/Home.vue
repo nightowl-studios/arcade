@@ -1,15 +1,15 @@
 <template>
   <div id="home">
-    <Title msg="Not ScribbleIO" />
-    <CreateButton @onCreateRoom="onCreateRoom" />
-    <JoinModal @onJoinRoom="onJoinRoom" />
+    <Title id="title" msg="Not ScribbleIO" />
+    <CreateButton id="createButton" @onCreateRoom="onCreateRoom" />
+    <JoinRoom id="joinRoom" @onJoinRoom="onJoinRoom" />
   </div>
 </template>
 
 <script>
 import Title from "../components/Title.vue";
 import CreateButton from "../components/CreateButton.vue";
-import JoinModal from "../components/JoinModal.vue";
+import JoinRoom from "../components/JoinRoom.vue";
 import { EventBus } from "@/eventBus.js";
 
 export default {
@@ -17,7 +17,7 @@ export default {
   components: {
     Title,
     CreateButton,
-    JoinModal
+    JoinRoom
   },
   methods: {
     onCreateRoom: function(lobbyId) {
@@ -34,3 +34,20 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+#home {
+  display: grid;
+  grid-template-rows: auto;
+  justify-items: center;
+}
+
+#createButton {
+  margin: 10px;
+}
+
+#joinRoom {
+  margin: 10px;
+}
+
+</style>
