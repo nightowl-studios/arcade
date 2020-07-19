@@ -1,3 +1,12 @@
+// Package gamemaster defines the scribble gamemaster
+// The objective of the gamemaster is to control and advance the states
+// that the game can have.
+//
+// For example, in scribble, when the leader of the lobby presses "start",
+// all of the other players should also proceed to the scribble game page.
+//
+// It is up to the gamemaster to define these states and messages. More details
+// can be found in the below documentation
 package gamemaster
 
 import (
@@ -18,12 +27,66 @@ type State string
 
 // States
 const (
+	// WaitForStart State is a state where the gamemaster is waiting for the
+	// leader to click start.
+	// Once the leader clicks start, refer to function `waitForStart()` for
+	// the behaviour.
+	// This state ends when:
+	// 1) The leader presses on the start button
+	// The next state is:
+	// "playerSelect"
 	WaitForStart State = "waitForStart"
+
+	// PlayerSelect State is a state where the gamemaster will - in no particular
+	// order, but will be consistent - choose a player and offer the player 3
+	// words to choose from. At the same time, the gamemaster will notify all
+	// other players which player they are currently waiting on.
+	// All canvases should be cleared at this point and if a player is not
+	// chosen, their canvas should be locked.
+	// This state ends when:
+	// 1) The user selects a word from the word choices
+	// 2) The user runs out of time
+	// The next state is:
+	// If 1), the next game state will be "playTime"
+	// if 2), the next game state will be "playerSelect"
 	PlayerSelect State = "playerSelect"
-	PlayTime     State = "playTime"
-	ScoreTime    State = "scoreTime"
-	ShowResults  State = "showResults"
-	EndGame      State = "endGame"
+
+	// PlayTime State is a state where the gamemaster will notify all players
+	// that the game has started and there should be the "hint" displayed
+	// at the top of the page. During this state, the gamemaster will listen
+	// in on the chat and determine which players have guessed the right words
+	// and reward them appropriately with points. If any user guesses the
+	// right words, all users will be notified which user guessed right, and
+	// the points they were rewarded.
+	// This state ends when:
+	// 1) All users have guessed the correct word
+	// 2) The timer runs out
+	// The next state:
+	// regardless of 1) or 2) will be "scoreTime"
+	PlayTime State = "playTime"
+
+	// ScoreTime State is a state where the gamemaster will notify all players
+	// that the round has ended and give out the score again + say what round
+	// the game is currently on.
+	// This state ends when:
+	// 1) After a timeout - no message required from frontend for this
+	// The next state is:
+	// 1) If the rounds < maxRounds, "playerSelect"
+	// 2) If the rounds == maxRounds, "showResults"
+	ScoreTime State = "scoreTime"
+
+	// ShowResults State is a state where the gamemaster will notify all players
+	// to show a fancy results page. This page can be anything we want
+	// This state ends when:
+	// 1) The leader clicks exit
+	// The next state is:
+	// "endGame"
+	ShowResults State = "showResults"
+
+	// EndGame State is a state where the gamemaster will notify all players that
+	// the game has officially ended. The frontend can use this event however
+	// they'd like. Maybe redirect to a new lobby, or back to the landing page.
+	EndGame State = "endGame"
 )
 
 var (
@@ -34,18 +97,34 @@ var (
 	}
 )
 
-type GameMasterSend struct {
+// Send is a struct that defines what the gamemaster can send to the frontend
+// All possible messages (from every state) is defined in this Send struct.
+//
+// omitempty will make sure that states that are not sending things, won't have
+// some empty field in the Send struct.
+//
+// To further make things easier, whenever a state sends messages to the front-end
+// the GameMasterAPI will be filled out with the State name.
+// For example, if "playerSelect" was sending a message with the "playerSelect"
+// field, the "gameMasterAPI" field will be "playerSelect"
+type Send struct {
 	GameMasterAPI    State            `json:"gameMasterAPI"`
 	PlayerSelectSend PlayerSelectSend `json:"playerSelect,omitempty"`
 	ScoreTimeSend    ScoreTimeSend    `json:"scoreTime,omitempty"`
 }
 
-type GameMasterReceive struct {
+// Receive is a struct that defines what the gamemaster expected to
+// receive from the frontend
+// All possible messages (from every state) is defined in this Receive struct.
+// The "GameMasterAPI" field should be used the same way as the Send struct
+type Receive struct {
 	GameMasterAPI       State               `json:"gameMasterAPI"`
 	WaitForStartRecieve WaitForStartRecieve `json:"waitForStart"`
 	PlayerSelectRecieve PlayerSelectReceive `json:"playerSelect"`
 }
 
+// ClientList is a struct used internally to track what users are available
+// to select from, and their points
 type ClientList struct {
 	initialized          bool
 	nextToBeSelected     int
@@ -98,7 +177,7 @@ func (h *Handler) HandleInteraction(
 	caller identifier.Client,
 	registry registry.Registry,
 ) {
-	var receive GameMasterReceive
+	var receive Receive
 	err := json.Unmarshal(message, &receive)
 	if err != nil {
 		log.Fatalf("unable to unmarshal message: %v", err)
@@ -143,8 +222,7 @@ func (h *Handler) Names() []string {
 }
 
 // run is the function that should be called as a thread
-// It will handle the state machine which is affected by a timer, and probably
-// by the chat input
+// It will handle the state machine
 func (h *Handler) run() {
 	// don't need to RLock for h.gameState in run() because run() is the only
 	// thread that writes to it
@@ -178,6 +256,10 @@ type WaitForStartRecieve struct {
 	StartGame bool `json:"startGame"`
 }
 
+// waitForStart will wait for the leader to press the start button.
+// when the leader has pressed the start button, there should be a
+// incoming message on the h.waitForStartChan in which we can
+// continue onto the next gamestate
 func (h *Handler) waitForStart() {
 	select {
 	case msg := <-h.waitForStartChan:
@@ -187,14 +269,25 @@ func (h *Handler) waitForStart() {
 	}
 }
 
+// PlayerSelectSend defines the message that the "playerSelect" state
+// will send to the front end
 type PlayerSelectSend struct {
-	ChosenUUID string   `json:"chosenUUID"`
-	Choices    []string `json:"choices,omitempty"`
+	// ChosenUUID is the UUID of the client that was chosen
+	// to pick a word
+	ChosenUUID string `json:"chosenUUID"`
+	// Choices is a slice of strings that the Chosen client is allowed to choose
+	// from. This Choices field is only sent to the Chosen client
+	Choices []string `json:"choices,omitempty"`
 }
 
 type PlayerSelectReceive struct {
+	// If the user chose a word, set this bool to true
+	// If the user did not choose a word and timed out, then set this bool to false
 	WordChosen bool `json:"wordChosen"`
-	Choice     int  `json:"choice"`
+	// Choice is given back to the gamemaster as an int. If the user selected
+	// the first option, give this back in terms of slice (list) indices - So
+	// the front end should give 0.
+	Choice int `json:"choice"`
 }
 
 func getClientList(userDetails []*identifier.UserDetails) ClientList {
@@ -241,7 +334,7 @@ func (h *Handler) playerSelectTopic() {
 	}
 
 	selectedClient := h.clientList.clients[h.clientList.nextToBeSelected]
-	selectedPlayerMsg := GameMasterSend{
+	selectedPlayerMsg := Send{
 		GameMasterAPI: PlayerSelect,
 		PlayerSelectSend: PlayerSelectSend{
 			ChosenUUID: selectedClient.UUID,
@@ -334,7 +427,7 @@ func (h *Handler) scoreTime() {
 		h.gameState = PlayerSelect
 	}
 	selectedClient := h.clientList.clients[h.clientList.nextToBeSelected]
-	scoreTimeMsg := GameMasterSend{
+	scoreTimeMsg := Send{
 		GameMasterAPI: ScoreTime,
 		ScoreTimeSend: ScoreTimeSend{
 			Round: h.round,
