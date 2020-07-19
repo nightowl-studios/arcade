@@ -12,12 +12,12 @@ func randInt2(min int, max int) int {
 }
 func BenchmarkWordGenerator1(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		WordGenerator(filename)
+		WordGenerator(File)
 	}
 }
 
 func BenchmarkWordGenerator2(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		WordGenerator2(filename)
+		WordGenerator2(File)
 	}
 }
