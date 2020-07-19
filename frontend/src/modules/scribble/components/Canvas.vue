@@ -6,7 +6,6 @@
 
 <script>
 import { EventBus } from "@/eventBus.js";
-import { createDrawActionMessage } from "../utility/WebSocketMessageUtils";
 
 export default {
   name: "Canvas",
@@ -35,7 +34,6 @@ export default {
     this.canvas.addEventListener("mouseup", this.onMouseUp, false);
     this.canvas.addEventListener("mouseover", this.onMouseOver, false);
     EventBus.$on("brushUpdated", this.setBrushStyle);
-    EventBus.$on("draw", this.onDrawAction);
   },
 
   methods: {
@@ -53,7 +51,11 @@ export default {
           x: event.clientX - this.canvas.offsetLeft,
           y: event.clientY - this.canvas.offsetTop
         };
-        this.draw(this.previousPosition, currentPosition, this.brushStyle);
+        this.handleDrawInput(
+          this.previousPosition,
+          currentPosition,
+          this.brushStyle
+        );
         this.previousPosition = currentPosition;
       }
     },
@@ -82,18 +84,18 @@ export default {
       this.brushStyle = brushStyle;
     },
 
-    draw: function(from, to, brushStyle) {
-      let drawActionMessage = createDrawActionMessage({
+    handleDrawInput: function(from, to, brushStyle) {
+      let drawAction = {
         from: from,
         to: to,
         brushStyle: brushStyle,
         lineCap: this.context.lineCap
-      });
-      this.$webSocketService.send(drawActionMessage);
+      };
+      this.draw(drawAction);
+      this.$emit("drawAction", drawAction);
     },
 
-    onDrawAction: function(action) {
-      let drawAction = action.action
+    draw: function(drawAction) {
       this.context.beginPath();
       this.context.moveTo(drawAction.from.x, drawAction.from.y);
       this.context.lineTo(drawAction.to.x, drawAction.to.y);
@@ -102,7 +104,6 @@ export default {
       this.context.lineCap = "round";
       this.context.stroke();
       this.context.closePath();
-
     }
   }
 };

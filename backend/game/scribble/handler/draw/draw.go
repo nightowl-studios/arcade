@@ -95,7 +95,7 @@ func (h *Handler) forwardAction(
 		return
 	}
 
-	reg.SendToSameHubExceptCaller(clientID, drawBytes)
+	reg.SendToSameHubExceptCaller(clientID.ClientUUID, drawBytes)
 }
 
 func (h *Handler) NewClient(
@@ -115,8 +115,8 @@ func (h *Handler) ClientQuit(
 
 // Name needs to return a unique name of this GameHandler
 // This return will be used for routing
-func (h *Handler) Name() string {
-	return name
+func (h *Handler) Names() []string {
+	return []string{name}
 }
 
 func (h *Handler) SendHistory(
@@ -132,7 +132,7 @@ func (h *Handler) SendHistory(
 		return
 	}
 
-	reg.SendToCaller(clientID, historyBytes)
+	reg.SendToCaller(clientID.ClientUUID, historyBytes)
 }
 
 func (h *Handler) ForwardAction(
@@ -149,7 +149,7 @@ func (h *Handler) ForwardAction(
 		return
 	}
 
-	go registry.SendToSameHub(caller, byteMessage)
+	go registry.SendToSameHubExceptCaller(caller.ClientUUID, byteMessage)
 
 	h.drawHistoryLock.Lock()
 	defer h.drawHistoryLock.Unlock()

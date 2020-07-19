@@ -15,9 +15,10 @@
 import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
 import Nickname from "../components/Nickname.vue";
-import { EventBus } from "@/eventBus.js";
+import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 
 export default {
+  mixins: [WebSocketMixin],
   name: "Lobby",
   components: {
     Header,
@@ -26,9 +27,7 @@ export default {
   },
   data: function() {
     return {
-      players: [],
-      lobbyId: "",
-      connectionState: "DISCONNECTED"
+      lobbyId: ""
     };
   },
   methods: {
@@ -51,30 +50,21 @@ export default {
       this.$webSocketService.send(message);
     },
     goToScribble: function() {
-      this.$router.push({ path: "/scribble" });
+      let message = {
+        api: "game",
+        payload: {
+          gameMasterAPI: "waitForStart",
+          waitForStart: {
+            startGame: true
+          }
+        }
+      };
+      this.$webSocketService.send(message);
+      this.$router.push({ path: "/scribble/"  + this.lobbyId });
     },
     exitToHome: function() {
       this.$webSocketService.disconnect();
       this.$router.push({ name: "home" });
-    }
-  },
-  async created() {
-    EventBus.$on("connected", () => {
-      this.connectionState = "CONNECTED";
-    }),
-      EventBus.$on(this.$hubAPI, data => {
-        this.players = data.connectedClients;
-      });
-    this.lobbyId = this.$router.currentRoute.params.lobbyId;
-    if (!this.$webSocketService.isConnected()) {
-      let lobbyExists = await this.$hubApiService.checkLobbyExists(
-        this.lobbyId
-      );
-      if (!lobbyExists) {
-        this.$router.push({ name: "404" });
-      } else {
-        this.$webSocketService.connect(this.lobbyId);
-      }
     }
   }
 };
@@ -85,7 +75,8 @@ export default {
   padding-right: 100px;
 }
 
-.lobby-button, .exit-button {
+.lobby-button,
+.exit-button {
   margin-left: 2px;
   margin-right: 2px;
 }

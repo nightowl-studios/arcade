@@ -79,7 +79,7 @@ func TestSequentialRegister(t *testing.T) {
 
 			// fill up the registry with the inputClientID
 			for _, inputClientID := range testVal.inputClientIDs {
-				reg.Register(dummyChannel, inputClientID)
+				reg.Register(dummyChannel, inputClientID.ClientUUID)
 			}
 
 			// now check to see if all the clients are in the map
@@ -115,7 +115,7 @@ func TestThreadedRegister(t *testing.T) {
 			registerThread := func(wg *sync.WaitGroup, clientIDs []identifier.Client) {
 				defer wg.Done()
 				for _, inputClientID := range clientIDs {
-					reg.Register(dummyChannel, inputClientID)
+					reg.Register(dummyChannel, inputClientID.ClientUUID)
 				}
 			}
 

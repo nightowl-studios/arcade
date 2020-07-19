@@ -7,6 +7,7 @@ import "./index.scss";
 import store from './modules/common/store/globalstore/index';
 import router from "./router";
 import CookieService from "./services/cookieService";
+import EventHandlerService from "./services/eventHandlerService";
 import HubApiService from "./services/hubApiService";
 import WebSocketService from './services/webSocketService';
 
@@ -23,7 +24,8 @@ Vue.prototype.$hubAPI = "hub";
 let webSocketURL = "ws://" + document.location.hostname + ":8081/ws";
 let httpURL = "http://" + document.location.hostname + ":8081";
 Vue.prototype.$cookieService = new CookieService();
-Vue.prototype.$webSocketService = new WebSocketService(webSocketURL, Vue.prototype.$cookieService);
+let eventHandlerService = new EventHandlerService();
+Vue.prototype.$webSocketService = new WebSocketService(webSocketURL, Vue.prototype.$cookieService, eventHandlerService);
 Vue.prototype.$hubApiService = new HubApiService(httpURL);
 
 new Vue({

@@ -30,8 +30,8 @@ func Get() *Handler {
 	return &Handler{}
 }
 
-func (r *Handler) Name() string {
-	return name
+func (r *Handler) Names() []string {
+	return []string{name}
 }
 
 func (h *Handler) SendLobbyDetails(
@@ -56,7 +56,7 @@ func (h *Handler) SendLobbyDetails(
 		log.Errorf("unable to marshal response: %v", err)
 	}
 
-	reg.SendToSameHub(clientID, replyBytes)
+	reg.SendToSameHub(clientID.ClientUUID, replyBytes)
 }
 
 func (h *Handler) HandleInteraction(
@@ -75,7 +75,7 @@ func (h *Handler) HandleInteraction(
 	sendToCallerOnly := true
 
 	if hubAPI.ChangeNameTo != "" {
-		reg.GetClientUserDetail(clientID).ChangeNickName(hubAPI.ChangeNameTo)
+		reg.GetClientUserDetail(clientID.ClientUUID).ChangeNickName(hubAPI.ChangeNameTo)
 		// we want to respond with the new nickname
 		hubAPI.RequestLobbyDetails = true
 		// we want to tell everyone
@@ -103,9 +103,9 @@ func (h *Handler) HandleInteraction(
 	}
 
 	if sendToCallerOnly {
-		reg.SendToCaller(clientID, replyBytes)
+		reg.SendToCaller(clientID.ClientUUID, replyBytes)
 	} else {
-		reg.SendToSameHub(clientID, replyBytes)
+		reg.SendToSameHub(clientID.ClientUUID, replyBytes)
 	}
 
 	return
