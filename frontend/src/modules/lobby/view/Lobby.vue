@@ -4,7 +4,7 @@
     <Header class="lobby-header-room-id" :title="lobbyId" />
     <div class="lobby-buttons">
       <b-button class="lobby-button" variant="success" v-on:click="goToScribble">Start game</b-button>
-      <Nickname @onChangeNickname="onChangeNickname" />
+      <ChangeNicknameModal />
       <b-button class="exit-button" variant="danger" v-on:click="exitToHome">Exit Lobby</b-button>
     </div>
     <PlayerList :players="players" />
@@ -14,32 +14,27 @@
 <script>
 import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
-import Nickname from "../components/Nickname.vue";
+import ChangeNicknameModal from "../components/ChangeNicknameModal.vue";
 import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 
 export default {
-  mixins: [WebSocketMixin],
   name: "Lobby",
+
   components: {
     Header,
     PlayerList,
-    Nickname
+    ChangeNicknameModal
   },
+
   data: function() {
     return {
       lobbyId: ""
     };
   },
+
+  mixins: [WebSocketMixin],
+
   methods: {
-    onChangeNickname: function(event) {
-      let message = {
-        api: "hub",
-        payload: {
-          changeNameTo: event.nickname
-        }
-      };
-      this.$webSocketService.send(message);
-    },
     sendPlayerMessage: function() {
       let message = {
         api: "hub",
@@ -49,6 +44,7 @@ export default {
       };
       this.$webSocketService.send(message);
     },
+
     goToScribble: function() {
       let message = {
         api: "game",
@@ -60,8 +56,9 @@ export default {
         }
       };
       this.$webSocketService.send(message);
-      this.$router.push({ path: "/scribble/"  + this.lobbyId });
+      this.$router.push({ path: "/scribble/" + this.lobbyId });
     },
+
     exitToHome: function() {
       this.$webSocketService.disconnect();
       this.$router.push({ name: "home" });

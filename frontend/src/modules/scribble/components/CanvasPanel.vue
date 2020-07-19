@@ -16,7 +16,7 @@ import Canvas from "./Canvas.vue";
 import BrushSelector from "./BrushSelector.vue";
 import { createBrushStyle } from "../utility/BrushStyleUtils";
 import { EventBus } from "@/eventBus.js";
-import { createDrawActionMessage } from "../utility/WebSocketMessageUtils";
+import { createDrawActionMessage } from "@/modules/common/utility/WebSocketMessageUtils";
 
 export default {
   name: "CanvasPanel",

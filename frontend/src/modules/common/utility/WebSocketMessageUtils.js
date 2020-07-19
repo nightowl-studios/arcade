@@ -3,7 +3,14 @@ export function createChatMessage(message) {
 }
 
 export function createDrawActionMessage(drawAction) {
-  return createWebSocketMessage("draw", { action: drawAction, requestHistory: false });
+  return createWebSocketMessage("draw", {
+    action: drawAction,
+    requestHistory: false,
+  });
+}
+
+export function createChangeNicknameMessage(nickname) {
+  return createWebSocketMessage("hub", { changeNameTo: nickname });
 }
 
 export function createWebSocketMessage(api, payload) {

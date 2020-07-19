@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { createChatMessage } from "../utility/WebSocketMessageUtils";
+import { createChatMessage } from "@/modules/common/utility/WebSocketMessageUtils";
 import ChatLog from "./ChatLog";
 
 export default {

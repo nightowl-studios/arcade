@@ -1,24 +1,13 @@
 <template>
   <div id="joinRoom">
     <div id="joinRoomInput">
-      <b-form-input
-        id="lobbyIdInput"
-        v-model="lobbyId"
-        maxLength="4"
-        placeholder="Lobby ID">
-      </b-form-input>
-      <b-button
-        id="joinButton"
-        variant="success"
-        v-on:click="onJoin">
-        Join
-      </b-button>
+      <b-form-input id="lobbyIdInput" v-model="lobbyId" maxlength="4" placeholder="Lobby ID"></b-form-input>
+      <b-button id="joinButton" variant="success" v-on:click="onJoin">Join</b-button>
     </div>
     <p
       id="hubIdDoesNotExistError"
-      :style="{visibility: showError ? 'visible' : 'hidden'}">
-      Lobby doesn't exist!
-    </p>
+      :style="{visibility: showError ? 'visible' : 'hidden'}"
+    >Lobby doesn't exist!</p>
   </div>
 </template>
 
@@ -39,7 +28,13 @@ export default {
   },
   methods: {
     onJoin: async function() {
-      let lobbyExists = await this.$hubApiService.checkLobbyExists(this.lobbyId);
+      if (this.lobbyId.length != 4) {
+        this.showError = true;
+        return;
+      }
+      let lobbyExists = await this.$hubApiService.checkLobbyExists(
+        this.lobbyId
+      );
       if (lobbyExists) {
         this.$emit("onJoinRoom", this.lobbyId);
       } else {
