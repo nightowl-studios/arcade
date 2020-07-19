@@ -11,17 +11,17 @@ import (
 
 // Registry defines an interface in which `Registry`'s should provide
 type Registry interface {
-	Register(send chan []byte, clientID identifier.Client)
-	Unregister(clientID identifier.Client) (registryEmpty bool)
+	Register(send chan []byte, clientID identifier.ClientUUIDStruct)
+	Unregister(clientID identifier.ClientUUIDStruct) (registryEmpty bool)
 
 	GetClientSlice() []*identifier.UserDetails
 	GetClientUserDetail(
-		clientID identifier.Client,
+		clientID identifier.ClientUUIDStruct,
 	) *identifier.UserDetails
 
-	SendToSameHub(clientID identifier.Client, message []byte)
-	SendToCaller(clientID identifier.Client, message []byte)
-	SendToSameHubExceptCaller(clientID identifier.Client, message []byte)
+	SendToSameHub(clientID identifier.ClientUUIDStruct, message []byte)
+	SendToCaller(clientID identifier.ClientUUIDStruct, message []byte)
+	SendToSameHubExceptCaller(clientID identifier.ClientUUIDStruct, message []byte)
 }
 
 // RegistryProvider will provide the actual registry functionality
@@ -44,12 +44,12 @@ func GetRegistryProvider() *RegistryProvider {
 }
 
 func (r *RegistryProvider) GetClientUserDetail(
-	clientID identifier.Client,
+	clientID identifier.ClientUUIDStruct,
 ) *identifier.UserDetails {
 	r.lookupLock.RLock()
 	defer r.lookupLock.RUnlock()
 
-	return r.lookupMap[clientID.ClientUUID].userDetails
+	return r.lookupMap[clientID].userDetails
 }
 
 func (r *RegistryProvider) GetClientSlice() []*identifier.UserDetails {
@@ -66,13 +66,13 @@ func (r *RegistryProvider) GetClientSlice() []*identifier.UserDetails {
 // if it exists, it means this user is trying to reconnect
 func (r *RegistryProvider) Register(
 	send chan []byte,
-	clientID identifier.Client,
+	clientID identifier.ClientUUIDStruct,
 ) {
 	r.lookupLock.Lock()
 	defer r.lookupLock.Unlock()
 	log.Infof("registering: %v", clientID)
 
-	_, ok := r.lookupMap[clientID.ClientUUID]
+	_, ok := r.lookupMap[clientID]
 
 	if ok == true {
 		log.Errorf(
@@ -82,7 +82,7 @@ func (r *RegistryProvider) Register(
 		return
 	}
 
-	userDetails, ok := r.unregistered[clientID.ClientUUID]
+	userDetails, ok := r.unregistered[clientID]
 	if ok == true {
 		// someone is reconnecting. Move them from the unregistered map to the
 		// lookupMap
@@ -93,30 +93,30 @@ func (r *RegistryProvider) Register(
 		userDetails = UserDetails{
 			send: send,
 			userDetails: &identifier.UserDetails{
-				ClientUUID: clientID.ClientUUID,
+				ClientUUID: clientID,
 			},
 		}
 	}
 
-	r.lookupMap[clientID.ClientUUID] = userDetails
+	r.lookupMap[clientID] = userDetails
 }
 
 // Unregister will take the client and move it to the unregistered map
 // if the main lookupMap is empty, it'll return true
 func (r *RegistryProvider) Unregister(
-	clientID identifier.Client,
+	clientID identifier.ClientUUIDStruct,
 ) (registryEmpty bool) {
 	r.lookupLock.Lock()
 	defer r.lookupLock.Unlock()
 	log.Infof("unregistering: %v", clientID)
 
-	userDetails, ok := r.lookupMap[clientID.ClientUUID]
+	userDetails, ok := r.lookupMap[clientID]
 	if ok {
 		userDetails.send = nil
-		r.unregistered[clientID.ClientUUID] = userDetails
+		r.unregistered[clientID] = userDetails
 	}
 
-	delete(r.lookupMap, clientID.ClientUUID)
+	delete(r.lookupMap, clientID)
 	if len(r.lookupMap) == 0 {
 		registryEmpty = true
 	}
@@ -124,7 +124,7 @@ func (r *RegistryProvider) Unregister(
 }
 
 func (r *RegistryProvider) SendToSameHub(
-	clientID identifier.Client,
+	clientID identifier.ClientUUIDStruct,
 	message []byte,
 ) {
 	r.lookupLock.RLock()
@@ -138,13 +138,13 @@ func (r *RegistryProvider) SendToSameHub(
 }
 
 func (r *RegistryProvider) SendToCaller(
-	clientID identifier.Client,
+	clientID identifier.ClientUUIDStruct,
 	message []byte,
 ) {
 	r.lookupLock.RLock()
 	defer r.lookupLock.RUnlock()
 
-	clientDetails, ok := r.lookupMap[clientID.ClientUUID]
+	clientDetails, ok := r.lookupMap[clientID]
 	if ok != true {
 		log.Errorf("could not find channel for ID: %v", clientID)
 		return
@@ -155,14 +155,14 @@ func (r *RegistryProvider) SendToCaller(
 
 // SendToSameHubExceptCaller will send to everyone in the hub, except for the caller
 func (r *RegistryProvider) SendToSameHubExceptCaller(
-	clientID identifier.Client,
+	clientID identifier.ClientUUIDStruct,
 	message []byte,
 ) {
 	r.lookupLock.RLock()
 	defer r.lookupLock.RUnlock()
 
 	for _, clientDetails := range r.lookupMap {
-		if clientDetails.userDetails.ClientUUID == clientID.ClientUUID {
+		if clientDetails.userDetails.ClientUUID == clientID {
 			// don't send if the clientUUID match the caller
 			continue
 		}

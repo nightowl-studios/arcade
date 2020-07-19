@@ -107,6 +107,8 @@ func Errorf(format string, args ...interface{}) {
 	log.Errorf(format, args...)
 }
 
+// Fatalf will log the message under the fatal logging level and then
+// will call os.Exit()
 func Fatalf(format string, args ...interface{}) {
 	initIfEmpty()
 	log.Fatalf(format, args...)

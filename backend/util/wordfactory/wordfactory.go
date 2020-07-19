@@ -6,8 +6,11 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/bseto/arcade/backend/log"
 )
 
 func randInt(min int, max int) int {
@@ -15,11 +18,17 @@ func randInt(min int, max int) int {
 	return min + rand.Intn(max-min)
 }
 
-func WordGenerator() string {
-	b, err := ioutil.ReadFile("wordbank.txt")
+var (
+	Dir  string = filepath.Join("util", "wordfactory")
+	File string = "wordbank.txt"
+)
+
+func WordGenerator(filePath string) (string, error) {
+	b, err := ioutil.ReadFile(filePath)
 
 	if err != nil {
-		fmt.Println("There is an error in reading file.", err)
+		log.Errorf("There is an error in reading file.", err)
+		return "", err
 	}
 
 	allWords := string(b[:])
@@ -27,20 +36,18 @@ func WordGenerator() string {
 
 	words := strings.Split(wordList[0], "\r\n")
 	pickWord := randInt(0, len(wordList))
-	return words[pickWord]
+	return words[pickWord], nil
 }
 
-func WordGenerator2() (string, error) {
-	file, err := os.Open("wordbank.txt")
+func WordGenerator2(filePath string) (string, error) {
+	file, err := os.Open(filePath)
 	defer file.Close()
 	if err != nil {
-		fmt.Println("file could not be read", err)
 		return "", err
 	}
 
 	fileInfo, err := file.Stat()
 	if err != nil {
-		fmt.Println("file info cannot be read", err)
 		return "", err
 	}
 
@@ -62,23 +69,4 @@ func WordGenerator2() (string, error) {
 	}
 
 	return (string(data)), nil
-}
-
-func testWordGenerator2(testrand int) (int, error) {
-	file, err := os.Open("wordbank.txt")
-	defer file.Close()
-	if err != nil {
-		fmt.Println("file could not be read", err)
-	}
-
-	fileInfo, err := file.Stat()
-	if err != nil {
-		fmt.Println("file info cannot be read", err)
-	}
-
-	var fileSize int = int(fileInfo.Size())
-	for testrand <= 10 {
-		testrand = randInt(0, fileSize-10)
-	}
-	return testrand, nil
 }

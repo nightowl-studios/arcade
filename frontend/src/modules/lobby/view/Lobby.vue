@@ -50,7 +50,17 @@ export default {
       this.$webSocketService.send(message);
     },
     goToScribble: function() {
-      this.$router.push({ path: "/scribble/" + this.lobbyId });
+      let message = {
+        api: "game",
+        payload: {
+          gameMasterAPI: "waitForStart",
+          waitForStart: {
+            startGame: true
+          }
+        }
+      };
+      this.$webSocketService.send(message);
+      this.$router.push({ path: "/scribble/"  + this.lobbyId });
     },
     exitToHome: function() {
       this.$webSocketService.disconnect();
