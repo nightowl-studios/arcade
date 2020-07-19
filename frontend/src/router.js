@@ -25,7 +25,11 @@ export default new Router({
         },
         {
             path: "/scribble",
-            name: "scribble",
+            redirect: "/"
+        },
+        {
+            path: "/scribble/:lobbyId",
+            name: "lobby",
             component: Scribble,
         },
         {

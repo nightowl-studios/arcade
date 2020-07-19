@@ -1,25 +1,14 @@
-const state = () => ({
-    message: "Hello from vuex"
+import Vue from 'vue'
+import Vuex from 'vuex'
+import global from './modules/global'
+
+Vue.use(Vuex)
+
+const debug = process.env.NODE_ENV !== 'production'
+
+export const GlobalStore = new Vuex.Store({
+  modules: {
+    global
+  },
+  strict: debug
 })
-
-const getters = {
-    getMessage: (state) => {
-        return state.message;
-    }
-}
-
-const actions = {
-
-}
-
-const mutations = {
-
-}
-
-export default {
-    namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations
-}
