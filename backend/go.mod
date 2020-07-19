@@ -13,7 +13,8 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/vektra/mockery v1.1.2 // indirect
 	go.uber.org/zap v1.15.0
-	golang.org/x/sys v0.0.0-20191110163157-d32e6e3b99c4 // indirect
+	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
+	golang.org/x/tools v0.0.0-20200717024301-6ddee64345a6 // indirect
 	google.golang.org/grpc/examples v0.0.0-20200626195603-c95dc4da23cb // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.3.0 // indirect

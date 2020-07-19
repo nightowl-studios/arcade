@@ -41,6 +41,17 @@ export default {
 };
 </script>
 <style scoped>
+input {
+  border: 1px;
+  border-style: solid;
+  border-radius: 5px;
+  border-color: grey;
+}
+
+p {
+  margin: 5px;
+}
+
 #invalidNicknameError {
   margin-top: 8px;
   color: red;

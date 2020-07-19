@@ -1,7 +1,7 @@
 <template>
   <div id="home">
     <Title id="title" msg="Not ScribbleIO" />
-    <NicknameInput ref="nicknameInput" />
+    <NicknameInput id="nicknameInput" ref="nicknameInput" />
     <CreateButton id="createButton" @onCreateRoom="onCreateRoom" />
     <JoinRoom id="joinRoom" @onJoinRoom="onJoinRoom" />
   </div>
@@ -54,6 +54,10 @@ export default {
   display: grid;
   grid-template-rows: auto;
   justify-items: center;
+}
+
+#nicknameInput {
+  margin-top: 10px;
 }
 
 #createButton {
