@@ -1,7 +1,24 @@
 <template>
   <div id="joinRoom">
-    <b-form-input id="lobbyIdInput" v-model="lobbyId" placeholder="Lobby ID"></b-form-input>
-    <b-button id="joinButton" variant="success" v-on:click="onJoin">Join</b-button>
+    <div id="joinRoomInput">
+      <b-form-input
+        id="lobbyIdInput"
+        v-model="lobbyId"
+        maxLength="4"
+        placeholder="Lobby ID">
+      </b-form-input>
+      <b-button
+        id="joinButton"
+        variant="success"
+        v-on:click="onJoin">
+        Join
+      </b-button>
+    </div>
+    <p
+      id="hubIdDoesNotExistError"
+      :style="{visibility: showError ? 'visible' : 'hidden'}">
+      Lobby doesn't exist!
+    </p>
   </div>
 </template>
 
@@ -10,19 +27,23 @@ export default {
   name: "joinRoom",
   data: function() {
     return {
-      lobbyId: ""
+      lobbyId: "",
+      showError: false
     };
+  },
+  watch: {
+    lobbyId: function(val) {
+      this.lobbyId = val.toUpperCase();
+      this.showError = false;
+    }
   },
   methods: {
     onJoin: async function() {
-      console.log("Joining room " + this.lobbyId + "...");
-      let lobbyExists = await this.$hubApiService.checkLobbyExists(
-        this.lobbyId
-      );
+      let lobbyExists = await this.$hubApiService.checkLobbyExists(this.lobbyId);
       if (lobbyExists) {
         this.$emit("onJoinRoom", this.lobbyId);
       } else {
-        console.log("HubId does not exist...");
+        this.showError = true;
       }
     }
   }
@@ -30,7 +51,7 @@ export default {
 </script>
 
 <style scoped>
-#joinRoom {
+#joinRoomInput {
   display: flex;
 }
 
@@ -39,4 +60,9 @@ export default {
   width: 90px;
 }
 
+#hubIdDoesNotExistError {
+  display: inline-block;
+  margin-top: 8px;
+  color: red;
+}
 </style>
