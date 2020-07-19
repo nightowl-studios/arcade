@@ -11,6 +11,7 @@ import (
 	"github.com/bseto/arcade/backend/game/scribble/handler/addition"
 	"github.com/bseto/arcade/backend/game/scribble/handler/draw"
 	"github.com/bseto/arcade/backend/game/scribble/handler/echo"
+	"github.com/bseto/arcade/backend/game/scribble/handler/gamemaster"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/bseto/arcade/backend/websocket/registry"
@@ -21,17 +22,22 @@ const (
 )
 
 type Router struct {
-	handlers map[string]game.GameHandler
+	// a simple ad-hoc pub/sub structure
+	handlers map[string][]game.GameHandler
 }
 
-func GetScribbleRouter() game.GameRouter {
-	handlers := game.CreateGameHandlersMap(
-		echo.Get(),
-		addition.Get(),
-		hubapi.Get(),
-		chat.Get(),
-		draw.Get(),
-	)
+func GetScribbleRouter(reg registry.Registry) game.GameRouter {
+	var handlers map[string][]game.GameHandler
+	if reg != nil {
+		handlers = game.CreateGameHandlersMap(
+			echo.Get(),
+			addition.Get(),
+			hubapi.Get(),
+			chat.Get(),
+			draw.Get(),
+			gamemaster.Get(reg),
+		)
+	}
 
 	return &Router{
 		handlers: handlers,
@@ -52,23 +58,25 @@ func (r *Router) RouteMessage(
 	reg registry.Registry,
 ) {
 	var msg game.Message
-
 	err := json.Unmarshal(message, &msg)
 	if err != nil {
 		log.Errorf("unable to unmarshal the message: %v", err)
 	}
 
-	handler, ok := r.handlers[msg.API]
+	handlers, ok := r.handlers[msg.API]
 	if !ok {
 		log.Errorf("unable to find handler for: %v", msg.API)
 		return
 	}
 
-	handler.HandleInteraction(
-		msg.Payload,
-		clientID,
-		reg,
-	)
+	// cheap pub/sub using map of []handlers
+	for _, handler := range handlers {
+		handler.HandleInteraction(
+			msg.Payload,
+			clientID,
+			reg,
+		)
+	}
 
 	return
 }
@@ -78,8 +86,10 @@ func (r *Router) NewClient(
 	clientID identifier.Client,
 	reg registry.Registry,
 ) {
-	for _, handler := range r.handlers {
-		handler.NewClient(clientID, reg)
+	for _, handlers := range r.handlers {
+		for _, handler := range handlers {
+			handler.NewClient(clientID, reg)
+		}
 	}
 }
 
@@ -88,7 +98,9 @@ func (r *Router) ClientQuit(
 	clientID identifier.Client,
 	reg registry.Registry,
 ) {
-	for _, handler := range r.handlers {
-		handler.ClientQuit(clientID, reg)
+	for _, handlers := range r.handlers {
+		for _, handler := range handlers {
+			handler.ClientQuit(clientID, reg)
+		}
 	}
 }

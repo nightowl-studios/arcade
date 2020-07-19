@@ -71,23 +71,25 @@ func GetHub(gameFactory gamefactory.GameFactory) (Hub, error) {
 		return nil, err
 	}
 
+	reg := registry.GetRegistryProvider()
+
 	return &hub{
 		gameFactory: gameFactory,
-		reg:         registry.GetRegistryProvider(),
-		gameRouter:  gameFactory.GetGame("scribble"),
+		reg:         reg,
+		gameRouter:  gameFactory.GetGame("scribble", reg),
 		tokenSecret: secret,
 	}, nil
 }
 
 func (h *hub) RegisterClient(clientID identifier.Client, send chan []byte) {
-	h.reg.Register(send, clientID)
+	h.reg.Register(send, clientID.ClientUUID)
 	h.gameRouter.NewClient(clientID, h.reg)
 }
 
 func (h *hub) UnregisterClient(
 	clientID identifier.Client,
 ) (hubEmpty bool) {
-	hubEmpty = h.reg.Unregister(clientID)
+	hubEmpty = h.reg.Unregister(clientID.ClientUUID)
 	if hubEmpty != true {
 		h.gameRouter.ClientQuit(clientID, h.reg)
 	}

@@ -84,13 +84,15 @@ type GameHandler interface {
 
 	// Name needs to return a unique name of this GameHandler
 	// This return will be used for routing
-	Name() string
+	Names() []string
 }
 
-func CreateGameHandlersMap(handlers ...GameHandler) map[string]GameHandler {
-	handlerMap := make(map[string]GameHandler)
+func CreateGameHandlersMap(handlers ...GameHandler) map[string][]GameHandler {
+	handlerMap := make(map[string][]GameHandler)
 	for _, handler := range handlers {
-		handlerMap[handler.Name()] = handler
+		for _, name := range handler.Names() {
+			handlerMap[name] = append(handlerMap[name], handler)
+		}
 	}
 	return handlerMap
 }
