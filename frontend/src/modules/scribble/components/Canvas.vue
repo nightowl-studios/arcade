@@ -6,7 +6,6 @@
 
 <script>
 import { EventBus } from "@/eventBus.js";
-import { createDrawActionMessage } from "../utility/WebSocketMessageUtils";
 
 export default {
   name: "Canvas",
@@ -35,7 +34,6 @@ export default {
     this.canvas.addEventListener("mouseup", this.onMouseUp, false);
     this.canvas.addEventListener("mouseover", this.onMouseOver, false);
     EventBus.$on("brushUpdated", this.setBrushStyle);
-    EventBus.$on("draw", this.handleDrawMessage);
   },
 
   methods: {
@@ -53,7 +51,11 @@ export default {
           x: event.clientX - this.canvas.offsetLeft,
           y: event.clientY - this.canvas.offsetTop
         };
-        this.handleDrawInput(this.previousPosition, currentPosition, this.brushStyle);
+        this.handleDrawInput(
+          this.previousPosition,
+          currentPosition,
+          this.brushStyle
+        );
         this.previousPosition = currentPosition;
       }
     },
@@ -90,11 +92,7 @@ export default {
         lineCap: this.context.lineCap
       };
       this.draw(drawAction);
-      this.$webSocketService.send(createDrawActionMessage(drawAction));
-    },
-
-    handleDrawMessage: function(drawActionMessage) {
-      this.draw(drawActionMessage.action);
+      this.$emit("drawAction", drawAction);
     },
 
     draw: function(drawAction) {
