@@ -1,6 +1,12 @@
 <template>
   <div>
-    <Canvas :width="400" :height="400" :defaultBrushStyle="defaultBrushStyle" />
+    <Canvas
+      ref="canvas"
+      :width="400"
+      :height="400"
+      :defaultBrushStyle="defaultBrushStyle"
+      @drawAction="sendDrawAction"
+    />
     <BrushSelector :colors="colors" :sizes="sizes" />
   </div>
 </template>
@@ -9,6 +15,8 @@
 import Canvas from "./Canvas.vue";
 import BrushSelector from "./BrushSelector.vue";
 import { createBrushStyle } from "../utility/BrushStyleUtils";
+import { EventBus } from "@/eventBus.js";
+import { createDrawActionMessage } from "../utility/WebSocketMessageUtils";
 
 export default {
   name: "CanvasPanel",
@@ -28,6 +36,20 @@ export default {
       return createBrushStyle(this.sizes[0], this.colors[0]);
     }
   },
+
+  mounted: function() {
+    EventBus.$on("draw", this.handleDrawMessage);
+  },
+
+  methods: {
+    sendDrawAction(drawAction) {
+      this.$webSocketService.send(createDrawActionMessage(drawAction));
+    },
+
+    handleDrawMessage(drawMessage) {
+      this.$refs["canvas"].draw(drawMessage.action);
+    }
+  }
 };
 </script>
 

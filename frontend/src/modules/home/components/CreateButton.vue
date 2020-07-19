@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-button variant="success" v-on:click="createRoom">Create</b-button>
+    <b-button variant="success" v-on:click="createRoom">Create Room</b-button>
   </div>
 </template>
 
