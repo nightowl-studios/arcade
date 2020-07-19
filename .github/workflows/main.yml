@@ -33,11 +33,16 @@ jobs:
         go version
         cd backend
         go build
-        go test ./...
+        go test -v -coverprofile cover.out ./...
 
     - name: Setup Node.js environment
       run: |
         cd frontend
         npm install
         npm run build
-        npm test
+        npm run coverage
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
