@@ -29,7 +29,7 @@ export default {
 
   methods: {
     validateNickname: function() {
-      let validNickname = "".localeCompare(this.nickname) != 0;
+      const validNickname = "".localeCompare(this.nickname) !== 0;
       this.showError = !validNickname;
       return validNickname;
     },

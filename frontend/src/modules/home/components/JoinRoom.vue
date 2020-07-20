@@ -28,11 +28,11 @@ export default {
   },
   methods: {
     onJoin: async function() {
-      if (this.lobbyId.length != 4) {
+      if (this.lobbyId.length !== 4) {
         this.showError = true;
         return;
       }
-      let lobbyExists = await this.$hubApiService.checkLobbyExists(
+      const lobbyExists = await this.$hubApiService.checkLobbyExists(
         this.lobbyId
       );
       if (lobbyExists) {
