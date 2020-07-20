@@ -6,7 +6,7 @@
             <b-button
                 class="lobby-button"
                 variant="success"
-                v-on:click="goToScribble"
+                v-on:click="startGame"
                 >Start game</b-button
             >
             <ChangeNicknameModal />
@@ -26,6 +26,8 @@ import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
 import ChangeNicknameModal from "../components/ChangeNicknameModal.vue";
 import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
+import { Event } from "@/events";
+import { EventBus } from "@/eventBus.js";
 
 export default {
     name: "Lobby",
@@ -45,34 +47,19 @@ export default {
     mixins: [WebSocketMixin],
 
     methods: {
-        sendPlayerMessage: function () {
-            const message = {
-                api: "hub",
-                payload: {
-                    requestLobbyDetails: true,
-                },
-            };
-            this.$webSocketService.send(message);
-        },
-
-        goToScribble: function () {
-            const message = {
-                api: "game",
-                payload: {
-                    gameMasterAPI: "waitForStart",
-                    waitForStart: {
-                        startGame: true,
-                    },
-                },
-            };
-            this.$webSocketService.send(message);
-            this.$router.push({ path: `/scribble/${this.lobbyId}` });
+        startGame: function () {
+            this.$gameApiService.startGame();
         },
 
         exitToHome: function () {
             this.$webSocketService.disconnect();
             this.$router.push({ name: "home" });
         },
+    },
+    created() {
+        EventBus.$on(Event.START_GAME, () => {
+            this.$router.push({ path: "/scribble/${this.lobbyId}" });
+        });
     },
 };
 </script>

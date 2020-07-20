@@ -13,6 +13,7 @@ import CreateButton from "../components/CreateButton.vue";
 import JoinRoom from "../components/JoinRoom.vue";
 import { EventBus } from "@/eventBus.js";
 import NicknameInput from "@/modules/common/components/NicknameInput.vue";
+import { Event } from "@/events";
 
 export default {
     name: "Home",
@@ -41,7 +42,7 @@ export default {
         },
     },
     created() {
-        EventBus.$on("connected", (lobbyId) => {
+        EventBus.$on(Event.WEBSOCKET_CONNECTED, (lobbyId) => {
             this.$router.push({ name: "lobby", params: { lobbyId: lobbyId } });
             this.$refs["nicknameInput"].changeNickname();
         });

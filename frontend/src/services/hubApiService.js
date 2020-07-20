@@ -1,12 +1,12 @@
 import axios from "axios";
 
+// Service for making REST API requests to HubAPI
 export default class HubApiService {
     constructor(httpUrl) {
         this.apiUrl = httpUrl + "/hub";
     }
 
     async createLobby() {
-        console.log("Creating room...");
         let url = this.apiUrl;
         let response = await axios.get(url);
         return response.data.hubID;

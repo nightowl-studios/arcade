@@ -1,4 +1,5 @@
 import { EventBus } from "../../../src/eventBus.js";
+import { Event } from "../../../src/events.js";
 import WebSocketService from "../../../src/services/webSocketService";
 
 jest.mock("../../../src/eventBus");
@@ -45,7 +46,10 @@ describe("webSocketService", () => {
                 service.initWebSocket(websocket, "123");
                 websocket.onopen();
 
-                expect(EventBus.$emit).toBeCalledWith("connected", "123");
+                expect(EventBus.$emit).toBeCalledWith(
+                    Event.WEBSOCKET_CONNECTED,
+                    "123"
+                );
                 expect(websocket.send).toBeCalledWith('{"ContainsToken":true}');
             });
             it("logs an error if not connected", () => {
@@ -55,7 +59,10 @@ describe("webSocketService", () => {
                 service.initWebSocket(websocket, "123");
                 websocket.onopen();
 
-                expect(EventBus.$emit).toBeCalledWith("connected", "123");
+                expect(EventBus.$emit).toBeCalledWith(
+                    Event.WEBSOCKET_CONNECTED,
+                    "123"
+                );
                 expect(consoleOutput).toEqual(["NOT CONNECTED"]);
             });
         });
@@ -69,7 +76,10 @@ describe("webSocketService", () => {
                 service.initWebSocket(websocket, "123");
                 websocket.onopen();
 
-                expect(EventBus.$emit).toBeCalledWith("connected", "123");
+                expect(EventBus.$emit).toBeCalledWith(
+                    Event.WEBSOCKET_CONNECTED,
+                    "123"
+                );
                 expect(websocket.send).toBeCalledWith(
                     '{"api":"auth","payload":{"ContainsToken":false}}'
                 );
@@ -81,7 +91,10 @@ describe("webSocketService", () => {
                 service.initWebSocket(websocket, "123");
                 websocket.onopen();
 
-                expect(EventBus.$emit).toBeCalledWith("connected", "123");
+                expect(EventBus.$emit).toBeCalledWith(
+                    Event.WEBSOCKET_CONNECTED,
+                    "123"
+                );
                 expect(consoleOutput).toEqual(["NOT CONNECTED"]);
             });
         });
