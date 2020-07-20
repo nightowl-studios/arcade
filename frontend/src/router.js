@@ -8,38 +8,38 @@ import Scribble from "./modules/scribble/view/Scribble.vue";
 Vue.use(Router);
 
 export default new Router({
-  routes: [
-    {
-      path: "/",
-      name: "home",
-      component: Home,
-    },
-    {
-      path: "/lobby",
-      redirect: "/",
-    },
-    {
-      path: "/lobby/:lobbyId",
-      name: "lobby",
-      component: Lobby,
-    },
-    {
-      path: "/scribble",
-      redirect: "/",
-    },
-    {
-      path: "/scribble/:lobbyId",
-      name: "lobby",
-      component: Scribble,
-    },
-    {
-      path: "/404",
-      name: "404",
-      component: PageNotFound,
-    },
-    {
-      path: "*",
-      redirect: "/404",
-    },
-  ],
+    routes: [
+        {
+            path: "/",
+            name: "home",
+            component: Home,
+        },
+        {
+            path: "/lobby",
+            redirect: "/",
+        },
+        {
+            path: "/lobby/:lobbyId",
+            name: "lobby",
+            component: Lobby,
+        },
+        {
+            path: "/scribble",
+            redirect: "/",
+        },
+        {
+            path: "/scribble/:lobbyId",
+            name: "lobby",
+            component: Scribble,
+        },
+        {
+            path: "/404",
+            name: "404",
+            component: PageNotFound,
+        },
+        {
+            path: "*",
+            redirect: "/404",
+        },
+    ],
 });

@@ -6,9 +6,9 @@ name: CI
 # events but only for the master branch
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -19,32 +19,32 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    - uses: actions/setup-go@v2
-      with:
-       go-version: '1.14.4'
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '12.18.1'
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v2
+        with:
+          go-version: "1.14.4"
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.18.1"
 
-    - name: Build and test the Golang Binary
-      run: |
-        go version
-        cd backend
-        go build
-        go test -v -coverprofile cover.out ./...
+      - name: Build and test the Golang Binary
+        run: |
+          go version
+          cd backend
+          go build
+          go test -v -coverprofile cover.out ./...
 
-    - name: Setup Node.js environment
-      run: |
-        cd frontend
-        npm install
-        npm run build
-        npm run coverage
-    - name: SonarCloud Scan
-      uses: sonarsource/sonarcloud-github-action@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Setup Node.js environment
+        run: |
+          cd frontend
+          npm install
+          npm run build
+          npm run coverage
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
