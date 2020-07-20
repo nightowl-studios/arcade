@@ -2,13 +2,16 @@ import GameHandler from "./gameHandler";
 import HubHandler from "./hubHandler";
 
 export default class EventHandlerFactory {
-    constructor() {}
+    constructor() {
+        this.hubHandler = new HubHandler();
+        this.gameHandler = new GameHandler();
+    }
 
     getHandler(api) {
         if (api === "hub") {
-            return new HubHandler();
+            return this.hubHandler;
         } else if (api === "game") {
-            return new GameHandler();
+            return this.gameHandler;
         }
         return null;
     }
