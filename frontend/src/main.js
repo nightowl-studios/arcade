@@ -26,14 +26,14 @@ let httpURL = "http://" + document.location.hostname + ":8081";
 Vue.prototype.$cookieService = new CookieService();
 let eventHandlerService = new EventHandlerService();
 Vue.prototype.$webSocketService = new WebSocketService(
-  webSocketURL,
-  Vue.prototype.$cookieService,
-  eventHandlerService
+    webSocketURL,
+    Vue.prototype.$cookieService,
+    eventHandlerService
 );
 Vue.prototype.$hubApiService = new HubApiService(httpURL);
 
 new Vue({
-  store,
-  router,
-  render: (h) => h(App),
+    store,
+    router,
+    render: (h) => h(App),
 }).$mount("#app");

@@ -1,14 +1,24 @@
 <template>
-  <div id="lobby">
-    <Header title="Welcome to Not Scribble" />
-    <Header class="lobby-header-room-id" :title="lobbyId" />
-    <div class="lobby-buttons">
-      <b-button class="lobby-button" variant="success" v-on:click="goToScribble">Start game</b-button>
-      <ChangeNicknameModal />
-      <b-button class="exit-button" variant="danger" v-on:click="exitToHome">Exit Lobby</b-button>
+    <div id="lobby">
+        <Header title="Welcome to Not Scribble" />
+        <Header class="lobby-header-room-id" :title="lobbyId" />
+        <div class="lobby-buttons">
+            <b-button
+                class="lobby-button"
+                variant="success"
+                v-on:click="goToScribble"
+                >Start game</b-button
+            >
+            <ChangeNicknameModal />
+            <b-button
+                class="exit-button"
+                variant="danger"
+                v-on:click="exitToHome"
+                >Exit Lobby</b-button
+            >
+        </div>
+        <PlayerList :players="players" />
     </div>
-    <PlayerList :players="players" />
-  </div>
 </template>
 
 <script>
@@ -18,67 +28,67 @@ import ChangeNicknameModal from "../components/ChangeNicknameModal.vue";
 import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 
 export default {
-  name: "Lobby",
+    name: "Lobby",
 
-  components: {
-    Header,
-    PlayerList,
-    ChangeNicknameModal
-  },
-
-  data: function() {
-    return {
-      lobbyId: ""
-    };
-  },
-
-  mixins: [WebSocketMixin],
-
-  methods: {
-    sendPlayerMessage: function() {
-      let message = {
-        api: "hub",
-        payload: {
-          requestLobbyDetails: true
-        }
-      };
-      this.$webSocketService.send(message);
+    components: {
+        Header,
+        PlayerList,
+        ChangeNicknameModal,
     },
 
-    goToScribble: function() {
-      let message = {
-        api: "game",
-        payload: {
-          gameMasterAPI: "waitForStart",
-          waitForStart: {
-            startGame: true
-          }
-        }
-      };
-      this.$webSocketService.send(message);
-      this.$router.push({ path: "/scribble/" + this.lobbyId });
+    data: function () {
+        return {
+            lobbyId: "",
+        };
     },
 
-    exitToHome: function() {
-      this.$webSocketService.disconnect();
-      this.$router.push({ name: "home" });
-    }
-  }
+    mixins: [WebSocketMixin],
+
+    methods: {
+        sendPlayerMessage: function () {
+            let message = {
+                api: "hub",
+                payload: {
+                    requestLobbyDetails: true,
+                },
+            };
+            this.$webSocketService.send(message);
+        },
+
+        goToScribble: function () {
+            let message = {
+                api: "game",
+                payload: {
+                    gameMasterAPI: "waitForStart",
+                    waitForStart: {
+                        startGame: true,
+                    },
+                },
+            };
+            this.$webSocketService.send(message);
+            this.$router.push({ path: "/scribble/" + this.lobbyId });
+        },
+
+        exitToHome: function () {
+            this.$webSocketService.disconnect();
+            this.$router.push({ name: "home" });
+        },
+    },
 };
 </script>
 <style scoped>
 #lobby {
-  padding-left: 100px;
-  padding-right: 100px;
+    padding-left: 100px;
+    padding-right: 100px;
 }
 
 .lobby-button,
 .exit-button {
-  margin-left: 2px;
-  margin-right: 2px;
+    margin-left: 2px;
+    margin-right: 2px;
 }
 
 .lobby-header-room-id {
-  color: orange;
+    color: orange;
 }
 </style>

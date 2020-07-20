@@ -1,14 +1,14 @@
-import Vue from 'vue';
-import VueCookies from 'vue-cookies';
+import Vue from "vue";
+import VueCookies from "vue-cookies";
 
 Vue.use(VueCookies);
 
 export default class CookieService {
-    constructor() { }
+    constructor() {}
 
     getArcadeCookie() {
         console.log("Getting arcade cookie");
-        return Vue.$cookies.get('arcade_session');
+        return Vue.$cookies.get("arcade_session");
     }
 
     setArcadeCookie(data) {
