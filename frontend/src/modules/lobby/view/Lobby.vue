@@ -8,13 +8,7 @@
       <b-button class="exit-button" variant="danger" v-on:click="exitToHome">Exit Lobby</b-button>
     </div>
     <PlayerList :players="players" />
-    <b-container fluid class="invitation-link-section">
-      <b-row align-v="center" class="justify-content-md-center">
-        <b-col md="auto">Invitation Link: </b-col>
-        <b-col md="auto"><input id="invitation-link" type='text' v-model="inviteLink" readonly></b-col>
-        <b-col md="auto"><b-button class="copy-link-button" variant="success" v-on:click="copyInviteLink">Copy Link</b-button></b-col>
-      </b-row>
-    </b-container>
+    <InvitationLink :lobbyID="lobbyId" :stage="stage" />
   </div>
 </template>
 
@@ -22,6 +16,7 @@
 import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
 import Nickname from "../components/Nickname.vue";
+import InvitationLink from "../components/InvitationLink.vue";
 import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 
 export default {
@@ -30,12 +25,13 @@ export default {
   components: {
     Header,
     PlayerList,
-    Nickname
+    Nickname,
+    InvitationLink
   },
   data: function() {
     return {
       lobbyId: "",
-      inviteLink: window.location.href
+      stage: "lobby"
     };
   },
   methods: {
@@ -102,14 +98,5 @@ export default {
 
 .lobby-header-room-id {
   color: orange;
-}
-
-.invitation-link-section {
-  margin-top: 25px;
-}
-
-#invitation-link {
-  color: black;
-  width: 300px;
 }
 </style>
