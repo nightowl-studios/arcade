@@ -5,7 +5,7 @@ export default class GameApiService {
     }
 
     startGame() {
-        let message = {
+        const message = {
             api: "game",
             payload: {
                 gameMasterAPI: "waitForStart",

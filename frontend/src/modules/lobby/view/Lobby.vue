@@ -58,7 +58,7 @@ export default {
     },
     created() {
         EventBus.$on(Event.START_GAME, () => {
-            this.$router.push({ path: "/scribble/" + this.lobbyId });
+            this.$router.push({ path: "/scribble/${this.lobbyId}" });
         });
     },
 };
