@@ -15,10 +15,10 @@
 </template>
 
 <script>
-import NicknameInput from '@/modules/common/components/NicknameInput.vue'
+import NicknameInput from "@/modules/common/components/NicknameInput.vue";
 
 export default {
-    name: 'ChangeNicknameModal',
+    name: "ChangeNicknameModal",
 
     components: {
         NicknameInput,
@@ -26,18 +26,18 @@ export default {
 
     methods: {
         showModal() {
-            this.$refs['nicknameModal'].show()
+            this.$refs["nicknameModal"].show();
         },
 
         onOkClicked: function (nicknameModal) {
-            nicknameModal.preventDefault()
-            if (this.$refs['nicknameInput'].validateNickname()) {
-                this.$refs['nicknameInput'].changeNickname()
+            nicknameModal.preventDefault();
+            if (this.$refs["nicknameInput"].validateNickname()) {
+                this.$refs["nicknameInput"].changeNickname();
                 this.$nextTick(() => {
-                    this.$refs['nicknameModal'].hide()
-                })
+                    this.$refs["nicknameModal"].hide();
+                });
             }
         },
     },
-}
+};
 </script>

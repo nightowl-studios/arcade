@@ -20,41 +20,41 @@
 
 <script>
 export default {
-    name: 'Nickname',
+    name: "Nickname",
     data: function () {
         return {
-            nickname: '',
-        }
+            nickname: "",
+        };
     },
     methods: {
         showModal() {
-            this.$refs['nicknameModal'].show()
+            this.$refs["nicknameModal"].show();
         },
         hideModal() {
-            this.$refs['nicknameModal'].hide()
+            this.$refs["nicknameModal"].hide();
         },
         onOKClicked: function () {
             let message = {
-                api: 'hub',
+                api: "hub",
                 payload: {
                     changeNameTo: this.nickname,
                 },
-            }
-            this.$webSocketService.send(message)
+            };
+            this.$webSocketService.send(message);
         },
         onEnter: function () {
             let message = {
-                api: 'hub',
+                api: "hub",
                 payload: {
                     changeNameTo: this.nickname,
                 },
-            }
-            this.$webSocketService.send(message)
-            this.hideModal()
+            };
+            this.$webSocketService.send(message);
+            this.hideModal();
         },
     },
     mounted() {
         //this.showModal();
     },
-}
+};
 </script>

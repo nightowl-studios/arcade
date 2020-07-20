@@ -13,14 +13,14 @@
 </template>
 
 <script>
-import Canvas from './Canvas.vue'
-import BrushSelector from './BrushSelector.vue'
-import { createBrushStyle } from '../utility/BrushStyleUtils'
-import { EventBus } from '@/eventBus.js'
-import { createDrawMessage } from '@/modules/common/utility/WebSocketMessageUtils'
+import Canvas from "./Canvas.vue";
+import BrushSelector from "./BrushSelector.vue";
+import { createBrushStyle } from "../utility/BrushStyleUtils";
+import { EventBus } from "@/eventBus.js";
+import { createDrawMessage } from "@/modules/common/utility/WebSocketMessageUtils";
 
 export default {
-    name: 'CanvasPanel',
+    name: "CanvasPanel",
 
     props: {
         colors: Array,
@@ -34,13 +34,13 @@ export default {
 
     computed: {
         defaultBrushStyle() {
-            return createBrushStyle(this.sizes[0], this.colors[0])
+            return createBrushStyle(this.sizes[0], this.colors[0]);
         },
     },
 
     mounted: function () {
-        EventBus.$on('draw', this.handleDrawMessage)
-        this.sendRequestHistory()
+        EventBus.$on("draw", this.handleDrawMessage);
+        this.sendRequestHistory();
     },
 
     methods: {
@@ -48,29 +48,29 @@ export default {
             let drawMsg = createDrawMessage({
                 action: drawAction,
                 requestHistory: false,
-            })
-            this.$webSocketService.send(drawMsg)
+            });
+            this.$webSocketService.send(drawMsg);
         },
 
         sendRequestHistory() {
             let requestHistoryMsg = createDrawMessage({
                 requestHistory: true,
-            })
-            this.$webSocketService.send(requestHistoryMsg)
+            });
+            this.$webSocketService.send(requestHistoryMsg);
         },
 
         handleDrawMessage(drawMessage) {
             if (drawMessage.history != undefined) {
                 for (const action of drawMessage.history) {
-                    this.$refs['canvas'].draw(action)
+                    this.$refs["canvas"].draw(action);
                 }
             }
             if (drawMessage.action != undefined) {
-                this.$refs['canvas'].draw(drawMessage.action)
+                this.$refs["canvas"].draw(drawMessage.action);
             }
         },
     },
-}
+};
 </script>
 
 <style scoped></style>

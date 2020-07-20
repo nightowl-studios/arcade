@@ -19,13 +19,13 @@
 </template>
 
 <script>
-import BrushSizeTile from './BrushSizeTile.vue'
-import BrushColorTile from './BrushColorTile.vue'
-import { EventBus } from '@/eventBus.js'
-import { createBrushStyle } from '../utility/BrushStyleUtils'
+import BrushSizeTile from "./BrushSizeTile.vue";
+import BrushColorTile from "./BrushColorTile.vue";
+import { EventBus } from "@/eventBus.js";
+import { createBrushStyle } from "../utility/BrushStyleUtils";
 
 export default {
-    name: 'BrushSelector',
+    name: "BrushSelector",
 
     components: {
         BrushSizeTile,
@@ -41,26 +41,26 @@ export default {
         return {
             currentSize: this.sizes[0],
             currentColor: this.colors[0],
-        }
+        };
     },
 
     methods: {
         onSizeSelected: function (size) {
-            this.currentSize = size
-            this.emitUpdatedBrush()
+            this.currentSize = size;
+            this.emitUpdatedBrush();
         },
         onColorSelected: function (color) {
-            this.currentColor = color
-            this.emitUpdatedBrush()
+            this.currentColor = color;
+            this.emitUpdatedBrush();
         },
         emitUpdatedBrush: function () {
             EventBus.$emit(
-                'brushUpdated',
+                "brushUpdated",
                 createBrushStyle(this.currentSize, this.currentColor)
-            )
+            );
         },
     },
-}
+};
 </script>
 
 <style scoped>

@@ -1,14 +1,14 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import global from './modules/global'
+import Vue from "vue";
+import Vuex from "vuex";
+import global from "./modules/global";
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
-const debug = process.env.NODE_ENV !== 'production'
+const debug = process.env.NODE_ENV !== "production";
 
 export const GlobalStore = new Vuex.Store({
     modules: {
         global,
     },
     strict: debug,
-})
+});

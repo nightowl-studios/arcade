@@ -4,26 +4,26 @@
 
 <script>
 export default {
-    name: 'BrushColorTile',
+    name: "BrushColorTile",
     props: {
         color: String,
     },
     computed: {
         style() {
             return {
-                height: '20px',
-                width: '20px',
-                borderRadius: '30%',
+                height: "20px",
+                width: "20px",
+                borderRadius: "30%",
                 backgroundColor: this.color,
-            }
+            };
         },
     },
     methods: {
         onTileClicked() {
-            this.$emit('colorSelected', this.color)
+            this.$emit("colorSelected", this.color);
         },
     },
-}
+};
 </script>
 
 <style scoped></style>

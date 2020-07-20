@@ -11,38 +11,38 @@
 </template>
 
 <script>
-import { createChangeNicknameMessage } from '@/modules/common/utility/WebSocketMessageUtils'
+import { createChangeNicknameMessage } from "@/modules/common/utility/WebSocketMessageUtils";
 
 export default {
-    name: 'NicknameInput',
+    name: "NicknameInput",
 
     data: function () {
         return {
-            nickname: '',
+            nickname: "",
             showError: false,
-        }
+        };
     },
 
     watch: {
         nickname: function () {
-            this.showError = false
+            this.showError = false;
         },
     },
 
     methods: {
         validateNickname: function () {
-            let validNickname = ''.localeCompare(this.nickname) != 0
-            this.showError = !validNickname
-            return validNickname
+            let validNickname = "".localeCompare(this.nickname) != 0;
+            this.showError = !validNickname;
+            return validNickname;
         },
 
         changeNickname: function () {
             this.$webSocketService.send(
                 createChangeNicknameMessage(this.nickname)
-            )
+            );
         },
     },
-}
+};
 </script>
 <style scoped>
 input {

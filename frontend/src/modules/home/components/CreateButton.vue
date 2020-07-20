@@ -8,13 +8,13 @@
 
 <script>
 export default {
-    name: 'CreateButton',
+    name: "CreateButton",
     methods: {
         createRoom: async function () {
-            console.log('Creating room...')
-            let lobbyId = await this.$hubApiService.createLobby()
-            this.$emit('onCreateRoom', lobbyId)
+            console.log("Creating room...");
+            let lobbyId = await this.$hubApiService.createLobby();
+            this.$emit("onCreateRoom", lobbyId);
         },
     },
-}
+};
 </script>

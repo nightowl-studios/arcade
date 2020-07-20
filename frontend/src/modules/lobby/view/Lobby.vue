@@ -22,13 +22,13 @@
 </template>
 
 <script>
-import Header from '../components/Header.vue'
-import PlayerList from '../components/PlayerList.vue'
-import ChangeNicknameModal from '../components/ChangeNicknameModal.vue'
-import WebSocketMixin from '@/modules/common/mixins/webSocketMixin.js'
+import Header from "../components/Header.vue";
+import PlayerList from "../components/PlayerList.vue";
+import ChangeNicknameModal from "../components/ChangeNicknameModal.vue";
+import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 
 export default {
-    name: 'Lobby',
+    name: "Lobby",
 
     components: {
         Header,
@@ -38,8 +38,8 @@ export default {
 
     data: function () {
         return {
-            lobbyId: '',
-        }
+            lobbyId: "",
+        };
     },
 
     mixins: [WebSocketMixin],
@@ -47,34 +47,34 @@ export default {
     methods: {
         sendPlayerMessage: function () {
             let message = {
-                api: 'hub',
+                api: "hub",
                 payload: {
                     requestLobbyDetails: true,
                 },
-            }
-            this.$webSocketService.send(message)
+            };
+            this.$webSocketService.send(message);
         },
 
         goToScribble: function () {
             let message = {
-                api: 'game',
+                api: "game",
                 payload: {
-                    gameMasterAPI: 'waitForStart',
+                    gameMasterAPI: "waitForStart",
                     waitForStart: {
                         startGame: true,
                     },
                 },
-            }
-            this.$webSocketService.send(message)
-            this.$router.push({ path: '/scribble/' + this.lobbyId })
+            };
+            this.$webSocketService.send(message);
+            this.$router.push({ path: "/scribble/" + this.lobbyId });
         },
 
         exitToHome: function () {
-            this.$webSocketService.disconnect()
-            this.$router.push({ name: 'home' })
+            this.$webSocketService.disconnect();
+            this.$router.push({ name: "home" });
         },
     },
-}
+};
 </script>
 <style scoped>
 #lobby {

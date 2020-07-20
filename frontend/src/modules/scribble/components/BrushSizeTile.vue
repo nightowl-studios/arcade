@@ -4,7 +4,7 @@
 
 <script>
 export default {
-    name: 'BrushSizeTile',
+    name: "BrushSizeTile",
     props: {
         size: Number,
     },
@@ -13,17 +13,17 @@ export default {
             return {
                 height: `${this.size}px`,
                 width: `${this.size}px`,
-                borderRadius: '50%',
-                backgroundColor: 'black',
-            }
+                borderRadius: "50%",
+                backgroundColor: "black",
+            };
         },
     },
     methods: {
         onTileClicked() {
-            this.$emit('sizeSelected', this.size)
+            this.$emit("sizeSelected", this.size);
         },
     },
-}
+};
 </script>
 
 <style scoped></style>

@@ -20,10 +20,10 @@
 </template>
 
 <script>
-import Chat from './Chat.vue'
+import Chat from "./Chat.vue";
 
 export default {
-    name: 'Lobby',
+    name: "Lobby",
     props: {
         clients: Array,
     },
@@ -31,9 +31,9 @@ export default {
         Chat,
     },
     data: function () {
-        return {}
+        return {};
     },
-}
+};
 </script>
 
 <style>

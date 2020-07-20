@@ -5,10 +5,10 @@
 </template>
 
 <script>
-import { EventBus } from '@/eventBus.js'
+import { EventBus } from "@/eventBus.js";
 
 export default {
-    name: 'Canvas',
+    name: "Canvas",
 
     props: {
         width: Number,
@@ -23,17 +23,17 @@ export default {
             brushStyle: this.defaultBrushStyle,
             canvas: null,
             context: null,
-        }
+        };
     },
 
     mounted: function () {
-        this.canvas = this.$refs['canvas']
-        this.context = this.canvas.getContext('2d')
-        this.canvas.addEventListener('mousemove', this.onMouseMove, false)
-        this.canvas.addEventListener('mousedown', this.onMouseDown, false)
-        this.canvas.addEventListener('mouseup', this.onMouseUp, false)
-        this.canvas.addEventListener('mouseover', this.onMouseOver, false)
-        EventBus.$on('brushUpdated', this.setBrushStyle)
+        this.canvas = this.$refs["canvas"];
+        this.context = this.canvas.getContext("2d");
+        this.canvas.addEventListener("mousemove", this.onMouseMove, false);
+        this.canvas.addEventListener("mousedown", this.onMouseDown, false);
+        this.canvas.addEventListener("mouseup", this.onMouseUp, false);
+        this.canvas.addEventListener("mouseover", this.onMouseOver, false);
+        EventBus.$on("brushUpdated", this.setBrushStyle);
     },
 
     methods: {
@@ -41,8 +41,8 @@ export default {
             this.previousPosition = {
                 x: event.clientX - this.canvas.offsetLeft,
                 y: event.clientY - this.canvas.offsetTop,
-            }
-            this.mouseDown = true
+            };
+            this.mouseDown = true;
         },
 
         onMouseMove: function (event) {
@@ -50,18 +50,18 @@ export default {
                 let currentPosition = {
                     x: event.clientX - this.canvas.offsetLeft,
                     y: event.clientY - this.canvas.offsetTop,
-                }
+                };
                 this.handleDrawInput(
                     this.previousPosition,
                     currentPosition,
                     this.brushStyle
-                )
-                this.previousPosition = currentPosition
+                );
+                this.previousPosition = currentPosition;
             }
         },
 
         onMouseUp: function () {
-            this.mouseDown = false
+            this.mouseDown = false;
         },
 
         onMouseOver: function (event) {
@@ -70,18 +70,18 @@ export default {
                     ? (event.which & 1) === 1
                     : (event.buttons & 1) === 1)
             ) {
-                this.mouseDown = false
+                this.mouseDown = false;
             } else {
-                this.mouseDown = true
+                this.mouseDown = true;
                 this.previousPosition = {
                     x: event.clientX - this.canvas.offsetLeft,
                     y: event.clientY - this.canvas.offsetTop,
-                }
+                };
             }
         },
 
         setBrushStyle: function (brushStyle) {
-            this.brushStyle = brushStyle
+            this.brushStyle = brushStyle;
         },
 
         handleDrawInput: function (from, to, brushStyle) {
@@ -90,23 +90,23 @@ export default {
                 to: to,
                 brushStyle: brushStyle,
                 lineCap: this.context.lineCap,
-            }
-            this.draw(drawAction)
-            this.$emit('drawAction', drawAction)
+            };
+            this.draw(drawAction);
+            this.$emit("drawAction", drawAction);
         },
 
         draw: function (drawAction) {
-            this.context.beginPath()
-            this.context.moveTo(drawAction.from.x, drawAction.from.y)
-            this.context.lineTo(drawAction.to.x, drawAction.to.y)
-            this.context.strokeStyle = drawAction.brushStyle.brushColor
-            this.context.lineWidth = drawAction.brushStyle.brushSize
-            this.context.lineCap = 'round'
-            this.context.stroke()
-            this.context.closePath()
+            this.context.beginPath();
+            this.context.moveTo(drawAction.from.x, drawAction.from.y);
+            this.context.lineTo(drawAction.to.x, drawAction.to.y);
+            this.context.strokeStyle = drawAction.brushStyle.brushColor;
+            this.context.lineWidth = drawAction.brushStyle.brushSize;
+            this.context.lineCap = "round";
+            this.context.stroke();
+            this.context.closePath();
         },
     },
-}
+};
 </script>
 
 <style scoped>

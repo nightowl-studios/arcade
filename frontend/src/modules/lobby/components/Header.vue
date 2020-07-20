@@ -6,11 +6,11 @@
 
 <script>
 export default {
-    name: 'Header',
+    name: "Header",
     props: {
         title: String,
     },
-}
+};
 </script>
 
 <style scoped>

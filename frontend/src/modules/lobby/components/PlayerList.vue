@@ -8,17 +8,17 @@
 </template>
 
 <script>
-import Player from './Player.vue'
+import Player from "./Player.vue";
 
 export default {
-    name: 'PlayerList',
+    name: "PlayerList",
     props: {
         players: Array,
     },
     components: {
         Player,
     },
-}
+};
 </script>
 
 <style scoped>

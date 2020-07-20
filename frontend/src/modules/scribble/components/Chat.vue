@@ -22,65 +22,65 @@
 </template>
 
 <script>
-import { createChatMessage } from '@/modules/common/utility/WebSocketMessageUtils'
-import { EventBus } from '@/eventBus'
+import { createChatMessage } from "@/modules/common/utility/WebSocketMessageUtils";
+import { EventBus } from "@/eventBus";
 
 export default {
-    name: 'Chat',
+    name: "Chat",
 
     data: function () {
         return {
-            newMessage: '',
+            newMessage: "",
             chatLog: [],
-            message: '',
-        }
+            message: "",
+        };
     },
     created() {
-        EventBus.$on('chat', (data) => {
+        EventBus.$on("chat", (data) => {
             if (data.history) {
                 for (let messages of data.history) {
                     this.chatLog.push([
                         messages.sender.nickname,
                         messages.message,
-                    ])
+                    ]);
                     this.$nextTick(() => {
-                        this.$refs['chatbox'].scrollTop = this.$refs[
-                            'chatbox'
-                        ].scrollHeight
-                    })
+                        this.$refs["chatbox"].scrollTop = this.$refs[
+                            "chatbox"
+                        ].scrollHeight;
+                    });
                 }
             } else if (data.message) {
                 this.chatLog.push([
                     data.message.sender.nickname,
                     data.message.message,
-                ])
+                ]);
                 this.$nextTick(() => {
-                    this.$refs['chatbox'].scrollTop = this.$refs[
-                        'chatbox'
-                    ].scrollHeight
-                })
+                    this.$refs["chatbox"].scrollTop = this.$refs[
+                        "chatbox"
+                    ].scrollHeight;
+                });
             }
-        })
+        });
 
         let request = {
-            api: 'chat',
+            api: "chat",
             payload: {
                 requestHistory: true,
             },
-        }
-        this.$webSocketService.send(request)
+        };
+        this.$webSocketService.send(request);
     },
 
     methods: {
         onSendMessage: function () {
-            if (this.message != '') {
-                let messageToSend = createChatMessage(this.message)
-                this.$webSocketService.send(messageToSend)
-                this.message = ''
+            if (this.message != "") {
+                let messageToSend = createChatMessage(this.message);
+                this.$webSocketService.send(messageToSend);
+                this.message = "";
             }
         },
     },
-}
+};
 </script>
 
 <style>

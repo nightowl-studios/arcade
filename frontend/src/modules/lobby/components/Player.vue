@@ -8,11 +8,11 @@
 
 <script>
 export default {
-    name: 'Player',
+    name: "Player",
     props: {
         name: String,
     },
-}
+};
 </script>
 
 <style scoped>

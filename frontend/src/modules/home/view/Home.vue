@@ -8,14 +8,14 @@
 </template>
 
 <script>
-import Title from '../components/Title.vue'
-import CreateButton from '../components/CreateButton.vue'
-import JoinRoom from '../components/JoinRoom.vue'
-import { EventBus } from '@/eventBus.js'
-import NicknameInput from '@/modules/common/components/NicknameInput.vue'
+import Title from "../components/Title.vue";
+import CreateButton from "../components/CreateButton.vue";
+import JoinRoom from "../components/JoinRoom.vue";
+import { EventBus } from "@/eventBus.js";
+import NicknameInput from "@/modules/common/components/NicknameInput.vue";
 
 export default {
-    name: 'Home',
+    name: "Home",
 
     components: {
         Title,
@@ -26,27 +26,27 @@ export default {
 
     methods: {
         onCreateRoom: function (lobbyId) {
-            this.connectToRoom(lobbyId)
+            this.connectToRoom(lobbyId);
         },
 
         onJoinRoom: function (lobbyId) {
-            this.connectToRoom(lobbyId)
+            this.connectToRoom(lobbyId);
         },
 
         connectToRoom: function (lobbyId) {
-            if (!this.$refs['nicknameInput'].validateNickname()) {
-                return
+            if (!this.$refs["nicknameInput"].validateNickname()) {
+                return;
             }
-            this.$webSocketService.connect(lobbyId)
+            this.$webSocketService.connect(lobbyId);
         },
     },
     created() {
-        EventBus.$on('connected', (lobbyId) => {
-            this.$router.push({ name: 'lobby', params: { lobbyId: lobbyId } })
-            this.$refs['nicknameInput'].changeNickname()
-        })
+        EventBus.$on("connected", (lobbyId) => {
+            this.$router.push({ name: "lobby", params: { lobbyId: lobbyId } });
+            this.$refs["nicknameInput"].changeNickname();
+        });
     },
-}
+};
 </script>
 
 <style scoped>

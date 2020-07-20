@@ -22,36 +22,36 @@
 
 <script>
 export default {
-    name: 'joinRoom',
+    name: "joinRoom",
     data: function () {
         return {
-            lobbyId: '',
+            lobbyId: "",
             showError: false,
-        }
+        };
     },
     watch: {
         lobbyId: function (val) {
-            this.lobbyId = val.toUpperCase()
-            this.showError = false
+            this.lobbyId = val.toUpperCase();
+            this.showError = false;
         },
     },
     methods: {
         onJoin: async function () {
             if (this.lobbyId.length != 4) {
-                this.showError = true
-                return
+                this.showError = true;
+                return;
             }
             let lobbyExists = await this.$hubApiService.checkLobbyExists(
                 this.lobbyId
-            )
+            );
             if (lobbyExists) {
-                this.$emit('onJoinRoom', this.lobbyId)
+                this.$emit("onJoinRoom", this.lobbyId);
             } else {
-                this.showError = true
+                this.showError = true;
             }
         },
     },
-}
+};
 </script>
 
 <style scoped>
