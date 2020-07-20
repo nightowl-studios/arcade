@@ -3,8 +3,6 @@ import EventHandlerFactory from "./eventHandlers/eventHandlerFactory";
 
 // Service for handling websocket events
 export default class EventHandlerService {
-    constructor() {}
-
     handle(api, payload) {
         console.log("----- Event Received -----");
         console.log(api);
