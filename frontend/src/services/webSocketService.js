@@ -1,22 +1,22 @@
-import { EventBus } from '../eventBus.js';
+import { EventBus } from '../eventBus.js'
 
 export default class WebSocketService {
     constructor(webSocketURL, cookieService, eventHandlerService) {
-        this.webSocketURL = webSocketURL;
-        this.webSocket = null;
-        this.cookieService = cookieService;
-        this.eventHandlerService = eventHandlerService;
+        this.webSocketURL = webSocketURL
+        this.webSocket = null
+        this.cookieService = cookieService
+        this.eventHandlerService = eventHandlerService
     }
 
     getWebSocketURL() {
-        return this.webSocketURL;
+        return this.webSocketURL
     }
 
     connect(lobbyId) {
-        console.log("Connecting to websocket...");
-        let webSocketURL = this.webSocketURL + "/" + lobbyId;
+        console.log('Connecting to websocket...')
+        let webSocketURL = this.webSocketURL + '/' + lobbyId
         this.webSocket = new WebSocket(webSocketURL)
-        this.initWebSocket(this.webSocket, lobbyId);
+        this.initWebSocket(this.webSocket, lobbyId)
     }
 
     disconnect() {
@@ -27,47 +27,51 @@ export default class WebSocketService {
 
     initWebSocket(webSocket, lobbyId) {
         webSocket.onopen = () => {
-            let arcadeSession = this.cookieService.getArcadeCookie();
-            if (arcadeSession != null &&
-                arcadeSession.ContainsToken != false) {
-                this.send(arcadeSession);
+            let arcadeSession = this.cookieService.getArcadeCookie()
+            if (arcadeSession != null && arcadeSession.ContainsToken != false) {
+                this.send(arcadeSession)
             } else {
                 let noToken = {
-                    "api": "auth",
-                    "payload": {
-                        "ContainsToken": false
-                    }
+                    api: 'auth',
+                    payload: {
+                        ContainsToken: false,
+                    },
                 }
-                this.send(noToken);
+                this.send(noToken)
             }
 
-            console.log("Successfully connected to the websocket. ID: " + lobbyId);
-            EventBus.$emit('connected', lobbyId);
+            console.log(
+                'Successfully connected to the websocket. ID: ' + lobbyId
+            )
+            EventBus.$emit('connected', lobbyId)
         }
 
         webSocket.onmessage = (event) => {
-            let json = JSON.parse(event.data);
-            let api = json.api;
-            let payload = json.payload;
+            let json = JSON.parse(event.data)
+            let api = json.api
+            let payload = json.payload
 
-            if (api === "auth") {
-                this.cookieService.setArcadeCookie(json.payload);
+            if (api === 'auth') {
+                this.cookieService.setArcadeCookie(json.payload)
             }
 
-            this.eventHandlerService.handle(api, payload);
+            this.eventHandlerService.handle(api, payload)
         }
     }
 
     send(data) {
         if (this.isConnected()) {
-            let json = JSON.stringify(data);
-            this.webSocket.send(json);
+            let json = JSON.stringify(data)
+            this.webSocket.send(json)
         } else {
-            console.error("NOT CONNECTED");
+            console.error('NOT CONNECTED')
         }
     }
 
     isConnected() {
-        return this.webSocket != null && this.webSocket.readyState === WebSocket.OPEN;
+        return (
+            this.webSocket != null &&
+            this.webSocket.readyState === WebSocket.OPEN
+        )
     }
 }

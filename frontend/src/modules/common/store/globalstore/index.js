@@ -7,8 +7,8 @@ Vue.use(Vuex)
 const debug = process.env.NODE_ENV !== 'production'
 
 export const GlobalStore = new Vuex.Store({
-  modules: {
-    global
-  },
-  strict: debug
+    modules: {
+        global,
+    },
+    strict: debug,
 })
