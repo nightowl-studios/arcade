@@ -8,6 +8,7 @@ import store from "./modules/common/store/globalstore/index";
 import router from "./router";
 import CookieService from "./services/cookieService";
 import EventHandlerService from "./services/eventHandlerService";
+import GameApiService from "./services/gameApiService";
 import HubApiService from "./services/hubApiService";
 import WebSocketService from "./services/webSocketService";
 
@@ -23,14 +24,20 @@ Vue.prototype.$hubAPI = "hub";
 
 let webSocketURL = "ws://" + document.location.hostname + ":8081/ws";
 let httpURL = "http://" + document.location.hostname + ":8081";
-Vue.prototype.$cookieService = new CookieService();
+
+let cookieService = new CookieService();
 let eventHandlerService = new EventHandlerService();
 Vue.prototype.$webSocketService = new WebSocketService(
     webSocketURL,
-    Vue.prototype.$cookieService,
+    cookieService,
     eventHandlerService
 );
+
+// API Services
 Vue.prototype.$hubApiService = new HubApiService(httpURL);
+Vue.prototype.$gameApiService = new GameApiService(
+    Vue.prototype.$webSocketService
+);
 
 new Vue({
     store,

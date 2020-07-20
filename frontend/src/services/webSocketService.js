@@ -1,5 +1,7 @@
+import { Event } from "@/events";
 import { EventBus } from "../eventBus.js";
 
+// Service for handling connecting, sending, and recieving on websocket.
 export default class WebSocketService {
     constructor(webSocketURL, cookieService, eventHandlerService) {
         this.webSocketURL = webSocketURL;
@@ -43,7 +45,7 @@ export default class WebSocketService {
             console.log(
                 "Successfully connected to the websocket. ID: " + lobbyId
             );
-            EventBus.$emit("connected", lobbyId);
+            EventBus.$emit(Event.WEBSOCKET_CONNECTED, lobbyId);
         };
 
         webSocket.onmessage = (event) => {
