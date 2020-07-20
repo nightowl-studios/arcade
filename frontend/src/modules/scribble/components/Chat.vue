@@ -38,7 +38,7 @@ export default {
     created() {
         EventBus.$on("chat", (data) => {
             if (data.history) {
-                for (let messages of data.history) {
+                for (const messages of data.history) {
                     this.chatLog.push([
                         messages.sender.nickname,
                         messages.message,
@@ -62,7 +62,7 @@ export default {
             }
         });
 
-        let request = {
+        const request = {
             api: "chat",
             payload: {
                 requestHistory: true,
@@ -73,8 +73,8 @@ export default {
 
     methods: {
         onSendMessage: function () {
-            if (this.message != "") {
-                let messageToSend = createChatMessage(this.message);
+            if (this.message !== "") {
+                const messageToSend = createChatMessage(this.message);
                 this.$webSocketService.send(messageToSend);
                 this.message = "";
             }

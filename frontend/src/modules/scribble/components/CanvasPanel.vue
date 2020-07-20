@@ -45,7 +45,7 @@ export default {
 
     methods: {
         sendDrawAction(drawAction) {
-            let drawMsg = createDrawMessage({
+            const drawMsg = createDrawMessage({
                 action: drawAction,
                 requestHistory: false,
             });
@@ -53,19 +53,19 @@ export default {
         },
 
         sendRequestHistory() {
-            let requestHistoryMsg = createDrawMessage({
+            const requestHistoryMsg = createDrawMessage({
                 requestHistory: true,
             });
             this.$webSocketService.send(requestHistoryMsg);
         },
 
         handleDrawMessage(drawMessage) {
-            if (drawMessage.history != undefined) {
+            if (drawMessage.history != null) {
                 for (const action of drawMessage.history) {
                     this.$refs["canvas"].draw(action);
                 }
             }
-            if (drawMessage.action != undefined) {
+            if (drawMessage.action != null) {
                 this.$refs["canvas"].draw(drawMessage.action);
             }
         },
