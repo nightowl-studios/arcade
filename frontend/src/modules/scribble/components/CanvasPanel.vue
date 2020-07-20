@@ -32,6 +32,17 @@ export default {
         BrushSelector,
     },
 
+    computed: {
+        defaultBrushStyle() {
+            return createBrushStyle(this.sizes[0], this.colors[0]);
+        },
+    },
+
+    mounted: function () {
+        EventBus.$on("draw", this.handleDrawMessage);
+        this.sendRequestHistory();
+    },
+
     methods: {
         sendDrawAction(drawAction) {
             const drawMsg = createDrawMessage({
