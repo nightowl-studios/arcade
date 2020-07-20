@@ -69,17 +69,6 @@ export default {
     exitToHome: function() {
       this.$webSocketService.disconnect();
       this.$router.push({ name: "home" });
-    },
-    copyInviteLink: function() {
-      let linkToCopy = document.querySelector('#invitation-link');
-      linkToCopy.select();
-      try {
-        var successful = document.execCommand('copy');
-        var msg = successful ? 'successful' : 'unsuccessful';
-        alert('Invitation link was copied ' + msg);
-      } catch (err) {
-        alert('Oops, unable to copy');
-      }
     }
   }
 };
