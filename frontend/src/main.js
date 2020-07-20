@@ -21,10 +21,10 @@ Vue.use(IconsPlugin);
 // Global Instance Properties
 Vue.prototype.$hubAPI = "hub";
 
-let webSocketURL = "ws://" + document.location.hostname + ":8081/ws";
-let httpURL = "http://" + document.location.hostname + ":8081";
+const webSocketURL = `ws://${document.location.hostname}:8081/ws`;
+const httpURL = `http://${document.location.hostname}:8081`;
 Vue.prototype.$cookieService = new CookieService();
-let eventHandlerService = new EventHandlerService();
+const eventHandlerService = new EventHandlerService();
 Vue.prototype.$webSocketService = new WebSocketService(
     webSocketURL,
     Vue.prototype.$cookieService,

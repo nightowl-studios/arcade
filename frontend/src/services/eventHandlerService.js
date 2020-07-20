@@ -2,8 +2,6 @@ import { GlobalStore } from "@/modules/common/store/globalstore/index";
 import { EventBus } from "../eventBus.js";
 
 export default class EventHandlerService {
-    constructor() {}
-
     handle(api, payload) {
         if (api === "hub") {
             this.handleHubEvent(payload);

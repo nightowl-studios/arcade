@@ -46,7 +46,7 @@ export default {
 
     methods: {
         sendPlayerMessage: function () {
-            let message = {
+            const message = {
                 api: "hub",
                 payload: {
                     requestLobbyDetails: true,
@@ -56,7 +56,7 @@ export default {
         },
 
         goToScribble: function () {
-            let message = {
+            const message = {
                 api: "game",
                 payload: {
                     gameMasterAPI: "waitForStart",
@@ -66,7 +66,7 @@ export default {
                 },
             };
             this.$webSocketService.send(message);
-            this.$router.push({ path: "/scribble/" + this.lobbyId });
+            this.$router.push({ path: `/scribble/${this.lobbyId}` });
         },
 
         exitToHome: function () {
