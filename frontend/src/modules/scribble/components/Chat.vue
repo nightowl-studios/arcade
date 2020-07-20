@@ -1,7 +1,6 @@
 <template>
-
   <div id="wrapper">
-    <div class= "overflow" ref="chatbox">
+    <div class="overflow" ref="chatbox">
       <ul class="message">
         <li v-for="message in chatLog" :key="message.message">
           <p>
@@ -11,14 +10,19 @@
       </ul>
     </div>
     <div>
-      <input v-on:keyup.enter="onSendMessage()" type="text" v-model="message" placeholder="Enter message" />
+      <input
+        v-on:keyup.enter="onSendMessage()"
+        type="text"
+        v-model="message"
+        placeholder="Enter message"
+      />
       <button v-on:click="onSendMessage()">Send</button>
     </div>
   </div>
 </template>
 
 <script>
-import { createChatMessage } from "../utility/WebSocketMessageUtils";
+import { createChatMessage } from "@/modules/common/utility/WebSocketMessageUtils";
 import { EventBus } from "@/eventBus";
 
 export default {
@@ -28,7 +32,7 @@ export default {
     return {
       newMessage: "",
       chatLog: [],
-      message: "",
+      message: ""
     };
   },
   created() {
@@ -37,15 +41,17 @@ export default {
         for (let messages of data.history) {
           this.chatLog.push([messages.sender.nickname, messages.message]);
           this.$nextTick(() => {
-            this.$refs["chatbox"].scrollTop = this.$refs["chatbox"].scrollHeight;
-          })
+            this.$refs["chatbox"].scrollTop = this.$refs[
+              "chatbox"
+            ].scrollHeight;
+          });
         }
       } else if (data.message) {
-          this.chatLog.push([data.message.sender.nickname, data.message.message]);
-          this.$nextTick(() => {
-            this.$refs["chatbox"].scrollTop = this.$refs["chatbox"].scrollHeight;
-          })
-        }
+        this.chatLog.push([data.message.sender.nickname, data.message.message]);
+        this.$nextTick(() => {
+          this.$refs["chatbox"].scrollTop = this.$refs["chatbox"].scrollHeight;
+        });
+      }
     });
 
     let request = {
@@ -59,26 +65,26 @@ export default {
 
   methods: {
     onSendMessage: function() {
-      if (this.message != ""){
+      if (this.message != "") {
         let messageToSend = createChatMessage(this.message);
         this.$webSocketService.send(messageToSend);
         this.message = "";
       }
-    },
+    }
   }
 };
 </script>
 
 <style>
 #wrapper {
-  margin:0;
-  padding-bottom:10px;
-  background:#e5f4fc;
-  border:1px solid #a1c5d8;
+  margin: 0;
+  padding-bottom: 10px;
+  background: #e5f4fc;
+  border: 1px solid #a1c5d8;
   display: inline-block;
 }
-.overflow{
-  overflow:scroll;
+.overflow {
+  overflow: scroll;
   margin-bottom: 1px;
   margin: 10px;
   border: 1px solid gray;
@@ -86,11 +92,11 @@ export default {
   height: 500px;
   border-radius: 4px;
   overflow-x: hidden;
-  display:flex;
+  display: flex;
 }
 .message {
   font-size: 15px;
-  text-align:left;
+  text-align: left;
   list-style-type: none;
   padding-left: 10px;
   padding-right: 10px;

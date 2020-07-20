@@ -1,6 +1,7 @@
 <template>
   <div id="home">
     <Title id="title" msg="Not ScribbleIO" />
+    <NicknameInput id="nicknameInput" ref="nicknameInput" />
     <CreateButton id="createButton" @onCreateRoom="onCreateRoom" />
     <JoinRoom id="joinRoom" @onJoinRoom="onJoinRoom" />
   </div>
@@ -11,25 +12,38 @@ import Title from "../components/Title.vue";
 import CreateButton from "../components/CreateButton.vue";
 import JoinRoom from "../components/JoinRoom.vue";
 import { EventBus } from "@/eventBus.js";
+import NicknameInput from "@/modules/common/components/NicknameInput.vue";
 
 export default {
   name: "Home",
+
   components: {
     Title,
     CreateButton,
-    JoinRoom
+    JoinRoom,
+    NicknameInput
   },
+
   methods: {
     onCreateRoom: function(lobbyId) {
-      this.$webSocketService.connect(lobbyId);
+      this.connectToRoom(lobbyId);
     },
+
     onJoinRoom: function(lobbyId) {
+      this.connectToRoom(lobbyId);
+    },
+
+    connectToRoom: function(lobbyId) {
+      if (!this.$refs["nicknameInput"].validateNickname()) {
+        return;
+      }
       this.$webSocketService.connect(lobbyId);
     }
   },
   created() {
     EventBus.$on("connected", lobbyId => {
       this.$router.push({ name: "lobby", params: { lobbyId: lobbyId } });
+      this.$refs["nicknameInput"].changeNickname();
     });
   }
 };
@@ -42,6 +56,10 @@ export default {
   justify-items: center;
 }
 
+#nicknameInput {
+  margin-top: 10px;
+}
+
 #createButton {
   margin: 10px;
 }
@@ -49,5 +67,4 @@ export default {
 #joinRoom {
   margin: 10px;
 }
-
 </style>

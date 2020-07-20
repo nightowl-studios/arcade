@@ -1,20 +1,20 @@
-import { GlobalStore } from '@/modules/common/store/globalstore/index';
-import { EventBus } from '../eventBus.js';
+import { GlobalStore } from "@/modules/common/store/globalstore/index";
+import { EventBus } from "../eventBus.js";
 
 export default class EventHandlerService {
-    constructor() { }
+  constructor() {}
 
-    handle(api, payload) {
-        if (api === "hub") {
-            this.handleHubEvent(payload);
-        }
-
-        EventBus.$emit(api, payload);
+  handle(api, payload) {
+    if (api === "hub") {
+      this.handleHubEvent(payload);
     }
 
-    handleHubEvent(payload) {
-        if (payload.connectedClients != null) {
-            GlobalStore.commit('setPlayers', payload.connectedClients);
-        }
+    EventBus.$emit(api, payload);
+  }
+
+  handleHubEvent(payload) {
+    if (payload.connectedClients != null) {
+      GlobalStore.commit("setPlayers", payload.connectedClients);
     }
+  }
 }
