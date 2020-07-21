@@ -14,6 +14,8 @@ type Registry interface {
 	Register(send chan []byte, clientID identifier.ClientUUIDStruct)
 	Unregister(clientID identifier.ClientUUIDStruct) (registryEmpty bool)
 
+	// GetClientSlice should return the UserDetails in order of the
+	// UserDetails.JoinOrder field
 	GetClientSlice() []*identifier.UserDetails
 	GetClientUserDetail(
 		clientID identifier.ClientUUIDStruct,
@@ -98,6 +100,7 @@ func (r *RegistryProvider) Register(
 		}
 	}
 
+	userDetails.userDetails.JoinOrder = len(r.lookupMap) + 1
 	r.lookupMap[clientID] = userDetails
 }
 
