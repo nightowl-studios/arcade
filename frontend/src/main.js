@@ -6,6 +6,7 @@ import App from "./App.vue";
 import "./index.scss";
 import store from "./modules/common/store/globalstore/index";
 import router from "./router";
+import ChatApiService from "./services/chatApiService";
 import CookieService from "./services/cookieService";
 import EventHandlerService from "./services/eventHandlerService";
 import GameApiService from "./services/gameApiService";
@@ -38,6 +39,7 @@ Vue.prototype.$hubApiService = new HubApiService(httpURL);
 Vue.prototype.$gameApiService = new GameApiService(
     Vue.prototype.$webSocketService
 );
+Vue.prototype.$chatApiService = new ChatApiService(Vue.prototype.$webSocketService)
 
 new Vue({
     store,
