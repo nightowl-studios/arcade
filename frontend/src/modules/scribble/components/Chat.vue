@@ -28,7 +28,7 @@ import { EventBus } from "@/eventBus";
 export default {
     name: "Chat",
 
-    data: function () {
+    data: function() {
         return {
             newMessage: "",
             chatLog: [],
@@ -36,7 +36,7 @@ export default {
         };
     },
     created() {
-        EventBus.$on("chat", (data) => {
+        EventBus.$on("chat", data => {
             if (data.history) {
                 for (const messages of data.history) {
                     this.chatLog.push([
@@ -72,7 +72,7 @@ export default {
     },
 
     methods: {
-        onSendMessage: function () {
+        onSendMessage: function() {
             if (this.message !== "") {
                 const messageToSend = createChatMessage(this.message);
                 this.$webSocketService.send(messageToSend);
@@ -83,7 +83,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 #wrapper {
     margin: 0;
     padding-bottom: 10px;
