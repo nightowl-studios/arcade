@@ -24,6 +24,7 @@ export default {
     padding: 10px;
     background: #e5f4fc;
     border: 1px solid #a1c5d8;
-    display: inline-block;
+    width: 100%;
+    max-height: 400px;
 }
 </style>

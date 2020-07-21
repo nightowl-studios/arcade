@@ -1,5 +1,5 @@
 <template>
-    <div class="overflow" ref="chatbox">
+    <div class="chatlog" ref="chatbox">
         <ul class="message">
             <li v-for="message in chatLog" :key="message.message">
                 <p>
@@ -57,12 +57,11 @@ export default {
 </script>
 
 <style scoped>
-.overflow {
+.chatlog {
+    height: 88%;
     overflow: scroll;
     margin-bottom: 10px;
     border: 1px solid gray;
-    width: 400px;
-    height: 500px;
     border-radius: 4px;
     overflow-x: hidden;
     display: flex;
