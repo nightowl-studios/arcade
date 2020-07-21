@@ -17,7 +17,7 @@ import Canvas from "./Canvas.vue";
 import BrushSelector from "./BrushSelector.vue";
 import { createBrushStyle } from "../utility/BrushStyleUtils";
 import { EventBus } from "@/eventBus.js";
-import { createDrawMessage } from "@/modules/common/utility/WebSocketMessageUtils";
+import { createDrawMessage } from "@/utility/WebSocketMessageUtils";
 
 export default {
     name: "CanvasPanel",
@@ -38,7 +38,7 @@ export default {
         },
     },
 
-    mounted: function () {
+    mounted: function() {
         EventBus.$on("draw", this.handleDrawMessage);
         this.sendRequestHistory();
     },

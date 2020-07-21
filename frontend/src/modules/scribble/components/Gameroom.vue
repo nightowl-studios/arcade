@@ -4,9 +4,7 @@
         <div class="container">
             <div id="players">
                 <h2>Players</h2>
-                <div v-for="player in clients" :key="player">
-                    {{ player.nickname }}
-                </div>
+                <div v-for="player in clients" :key="player">{{ player.nickname }}</div>
             </div>
             <div id="drawing">
                 <h3>Here is where the canvas goes</h3>
@@ -30,13 +28,13 @@ export default {
     components: {
         Chat,
     },
-    data: function () {
+    data: function() {
         return {};
     },
 };
 </script>
 
-<style>
+<style scoped>
 #gameroom {
     text-align: center;
 }
