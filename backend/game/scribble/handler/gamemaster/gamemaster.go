@@ -279,7 +279,8 @@ type PlayerSelectSend struct {
 	// from. This Choices field is only sent to the Chosen client
 	Choices []string `json:"choices,omitempty"`
 
-	// Duration is the duration in nanoseconds.
+	// Duration is the duration in nanoseconds that the user is allowed to
+	// have to choose a word from the 'choices'
 	Duration time.Duration `json:"duration"`
 
 	LockCanvas bool `json:"lockCanvas"`
