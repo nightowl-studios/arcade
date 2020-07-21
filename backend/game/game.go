@@ -82,15 +82,18 @@ type GameHandler interface {
 		reg registry.Registry,
 	)
 
-	// Name needs to return a unique name of this GameHandler
-	// This return will be used for routing
-	Names() []string
+	// Name gives an identity to what this handler is
+	Name() string
+
+	// ListensTo lists the types of messages that this handler wants to listen
+	// to
+	ListensTo() []string
 }
 
 func CreateGameHandlersMap(handlers ...GameHandler) map[string][]GameHandler {
 	handlerMap := make(map[string][]GameHandler)
 	for _, handler := range handlers {
-		for _, name := range handler.Names() {
+		for _, name := range handler.ListensTo() {
 			handlerMap[name] = append(handlerMap[name], handler)
 		}
 	}

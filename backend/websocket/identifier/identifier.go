@@ -32,6 +32,7 @@ type UserDetails struct {
 	ClientUUID   ClientUUIDStruct `json:"clientUUID"`
 	NickNameLock sync.RWMutex     `json:"-"`
 	NickName     string           `json:"nickname"`
+	JoinOrder    int              `json:"joinOrder"`
 }
 
 func (u *UserDetails) GetNickName() string {

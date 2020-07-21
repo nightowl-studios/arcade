@@ -86,9 +86,11 @@ func (r *Router) NewClient(
 	clientID identifier.Client,
 	reg registry.Registry,
 ) {
-	for _, handlers := range r.handlers {
+	for name, handlers := range r.handlers {
 		for _, handler := range handlers {
-			handler.NewClient(clientID, reg)
+			if handler.Name() == name {
+				handler.NewClient(clientID, reg)
+			}
 		}
 	}
 }
@@ -98,9 +100,11 @@ func (r *Router) ClientQuit(
 	clientID identifier.Client,
 	reg registry.Registry,
 ) {
-	for _, handlers := range r.handlers {
+	for name, handlers := range r.handlers {
 		for _, handler := range handlers {
-			handler.ClientQuit(clientID, reg)
+			if handler.Name() == name {
+				handler.ClientQuit(clientID, reg)
+			}
 		}
 	}
 }

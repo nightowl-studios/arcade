@@ -30,8 +30,11 @@ func Get() *Handler {
 	return &Handler{}
 }
 
-func (r *Handler) Names() []string {
+func (r *Handler) ListensTo() []string {
 	return []string{name}
+}
+func (r *Handler) Name() string {
+	return name
 }
 
 func (h *Handler) SendLobbyDetails(
