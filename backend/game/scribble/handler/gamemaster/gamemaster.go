@@ -128,9 +128,9 @@ type Receive struct {
 // ClientList is a struct used internally to track what users are available
 // to select from, and their points
 type ClientList struct {
-	nextToBeSelected     int
-	clients              []identifier.ClientUUIDStruct
-	clientCorrectGuesses map[identifier.ClientUUIDStruct]bool
+	nextToBeSelected int
+	clients          []identifier.ClientUUIDStruct
+	clientPoints     map[identifier.ClientUUIDStruct]int
 }
 
 type Handler struct {
@@ -395,7 +395,9 @@ func (h *Handler) playerSelectTopic() {
 }
 
 type PlayTimeSend struct {
-	Score int `json:"score,omitempty"`
+	Hint     string                              `json:"hint,omitempty"`
+	Duration time.Duration                       `json:"duration,omitempty"`
+	Score    map[identifier.ClientUUIDStruct]int `json:"score,omitempty"`
 }
 
 type PlayTimeReceive struct {
@@ -403,8 +405,17 @@ type PlayTimeReceive struct {
 }
 
 func (h *Handler) playTime() {
-	// Tell nonselected people to lock their canvases
-	// tell selected person to lock their chat
+	// Send the frontend the hint and the duration
+
+	playTimeSend := PlayTimeSend{
+		Hint:     "TODO",
+		Duration: h.playTimeTimer,
+	}
+	playTimeSendBytes, err := game.MessageBuild(h.Name(), playTimeSend)
+	if err != nil {
+		log.Fatalf("unable to marshal: %v", err)
+	}
+	h.reg.SendToSameHub(h.clientList.clients[0], playTimeSendBytes)
 
 	// stop here until
 	// 1) playTime limit up
@@ -412,7 +423,6 @@ func (h *Handler) playTime() {
 
 	// adding 1 for tolerance
 	playTime := time.NewTimer(h.playTimeTimer + 1)
-
 	select {
 	case <-playTime.C:
 	case msg := <-h.playTimeChan:
