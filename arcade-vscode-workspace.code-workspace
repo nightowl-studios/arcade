@@ -1,0 +1,14 @@
+{
+    "folders": [
+		{
+			"path": "frontend"
+		},
+		{
+			"path": "backend"
+		}
+	],
+    "settings": {
+        "vetur.format.enable": true,
+        "vetur.format.options.tabSize": 4
+    }
+}
