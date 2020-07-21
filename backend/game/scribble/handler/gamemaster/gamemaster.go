@@ -278,6 +278,12 @@ type PlayerSelectSend struct {
 	// Choices is a slice of strings that the Chosen client is allowed to choose
 	// from. This Choices field is only sent to the Chosen client
 	Choices []string `json:"choices,omitempty"`
+
+	// Duration is the duration in nanoseconds.
+	Duration time.Duration `json:"duration"`
+
+	LockCanvas bool `json:"lockCanvas"`
+	LockChat   bool `json:"lockChat"`
 }
 
 type PlayerSelectReceive struct {
@@ -337,6 +343,9 @@ func (h *Handler) playerSelectTopic() {
 	selectedPlayerMsg := Send{
 		GameMasterAPI: PlayerSelect,
 		PlayerSelectSend: PlayerSelectSend{
+			LockCanvas: true,
+			LockChat:   false,
+			Duration:   h.selectTopicTimer,
 			ChosenUUID: selectedClient.UUID,
 		},
 	}
@@ -350,6 +359,8 @@ func (h *Handler) playerSelectTopic() {
 	// We did not want to send the other players the wordChoices just in case
 	// they're (zachary) snooping the websocket messages :P
 	selectedPlayerMsg.PlayerSelectSend.Choices = wordChoices
+	selectedPlayerMsg.PlayerSelectSend.LockCanvas = false
+	selectedPlayerMsg.PlayerSelectSend.LockChat = true
 	selectedPlayerBytes, err = game.MessageBuild("game", selectedPlayerMsg)
 	if err != nil {
 		log.Fatalf("unable to marshal: %v", err)
@@ -376,9 +387,7 @@ func (h *Handler) playerSelectTopic() {
 }
 
 type PlayTimeSend struct {
-	LockCanvas bool `json:"lockCanvas,omitempty"`
-	LockChat   bool `json:"lockChat,omitempty"`
-	Score      int  `json:"score,omitempty"`
+	Score int `json:"score,omitempty"`
 }
 
 type PlayTimeReceive struct {
