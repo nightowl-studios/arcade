@@ -3,19 +3,9 @@
         <Header title="Welcome to Not Scribble" />
         <Header class="lobby-header-room-id" :title="lobbyId" />
         <div class="lobby-buttons">
-            <b-button
-                class="lobby-button"
-                variant="success"
-                v-on:click="startGame"
-                >Start game</b-button
-            >
+            <b-button class="lobby-button" variant="success" v-on:click="startGame">Start game</b-button>
             <ChangeNicknameModal />
-            <b-button
-                class="exit-button"
-                variant="danger"
-                v-on:click="exitToHome"
-                >Exit Lobby</b-button
-            >
+            <b-button class="exit-button" variant="danger" v-on:click="exitToHome">Exit Lobby</b-button>
         </div>
         <PlayerList :players="players" />
     </div>
@@ -38,7 +28,7 @@ export default {
         ChangeNicknameModal,
     },
 
-    data: function () {
+    data: function() {
         return {
             lobbyId: "",
         };
@@ -47,18 +37,18 @@ export default {
     mixins: [WebSocketMixin],
 
     methods: {
-        startGame: function () {
+        startGame: function() {
             this.$gameApiService.startGame();
         },
 
-        exitToHome: function () {
+        exitToHome: function() {
             this.$webSocketService.disconnect();
             this.$router.push({ name: "home" });
         },
     },
     created() {
         EventBus.$on(Event.START_GAME, () => {
-            this.$router.push({ path: "/scribble/${this.lobbyId}" });
+            this.$router.push({ path: `/scribble/${this.lobbyId}` });
         });
     },
 };
