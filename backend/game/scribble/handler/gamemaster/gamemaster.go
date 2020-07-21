@@ -128,7 +128,6 @@ type Receive struct {
 // ClientList is a struct used internally to track what users are available
 // to select from, and their points
 type ClientList struct {
-	initialized          bool
 	nextToBeSelected     int
 	clients              []identifier.ClientUUIDStruct
 	clientCorrectGuesses map[identifier.ClientUUIDStruct]bool
@@ -328,32 +327,11 @@ type PlayerSelectReceive struct {
 	Choice int `json:"choice"`
 }
 
-func getClientList(userDetails []*identifier.UserDetails) ClientList {
-	var clientList ClientList
-
-	for _, client := range userDetails {
-		clientList.clients = append(
-			clientList.clients,
-			client.ClientUUID,
-		)
-	}
-	clientList.initialized = true
-	clientList.nextToBeSelected = 0
-
-	return clientList
-}
-
 // playerSelectTopic will in-order select a user from the clientList
 // and then provide them with 3 word choices.
 // this function will also let the other players know that the selected player
 // is currently choosing a word
 func (h *Handler) playerSelectTopic() {
-
-	if h.clientList.initialized == false {
-		clientSlice := h.reg.GetClientSlice()
-		h.clientList = getClientList(clientSlice)
-	}
-
 	var wordChoices []string
 	for i := 0; i < h.wordChoices; i++ {
 		word, err := wordfactory.WordGenerator2(
@@ -413,7 +391,6 @@ func (h *Handler) playerSelectTopic() {
 		}
 		h.changeGameStateTo(PlayTime)
 	}
-
 	return
 }
 
