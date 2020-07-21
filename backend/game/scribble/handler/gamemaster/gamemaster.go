@@ -121,8 +121,8 @@ type Send struct {
 // The "GameMasterAPI" field should be used the same way as the Send struct
 type Receive struct {
 	GameMasterAPI       State               `json:"gameMasterAPI"`
-	WaitForStartRecieve WaitForStartRecieve `json:"waitForStart"`
-	PlayerSelectRecieve PlayerSelectReceive `json:"playerSelect"`
+	WaitForStartReceive WaitForStartReceive `json:"waitForStart"`
+	PlayerSelectReceive PlayerSelectReceive `json:"playerSelect"`
 }
 
 // ClientList is a struct used internally to track what users are available
@@ -142,7 +142,7 @@ type Handler struct {
 	round         int
 	chosenWord    string
 
-	waitForStartChan (chan WaitForStartRecieve)
+	waitForStartChan (chan WaitForStartReceive)
 	selectTopicChan  (chan PlayerSelectReceive)
 	playTimeChan     (chan PlayTimeReceive)
 
@@ -165,7 +165,7 @@ func Get(reg registry.Registry) *Handler {
 		playTimeTimer:    60 * time.Second,
 		playTimeChan:     make(chan PlayTimeReceive),
 		selectTopicChan:  make(chan PlayerSelectReceive),
-		waitForStartChan: make(chan WaitForStartRecieve),
+		waitForStartChan: make(chan WaitForStartReceive),
 	}
 	go handler.run()
 	return handler
@@ -189,13 +189,15 @@ func (h *Handler) HandleInteraction(
 	switch h.gameState {
 	case WaitForStart:
 		log.Infof("sending thing to start channel")
-		h.waitForStartChan <- receive.WaitForStartRecieve
+		h.waitForStartChan <- receive.WaitForStartReceive
 	case PlayerSelect:
 		if caller.ClientUUID != h.clientList.clients[h.clientList.nextToBeSelected] {
 			log.Errorf("client: %v tried to send to gamemaster out of turn", caller)
 			return
 		}
-		h.selectTopicChan <- receive.PlayerSelectRecieve
+		h.selectTopicChan <- receive.PlayerSelectReceive
+	case PlayTime:
+
 	}
 
 }
@@ -264,9 +266,6 @@ func (h *Handler) run() {
 		case PlayerSelect:
 			h.playerSelectTopic()
 		case PlayTime:
-			// we are going to stop the run function cause after this
-			// nothing is defined
-			return
 			h.playTime()
 		case ScoreTime:
 			h.scoreTime()
@@ -282,7 +281,7 @@ func (h *Handler) run() {
 	}
 }
 
-type WaitForStartRecieve struct {
+type WaitForStartReceive struct {
 	StartGame bool `json:"startGame"`
 }
 
@@ -401,7 +400,8 @@ type PlayTimeSend struct {
 }
 
 type PlayTimeReceive struct {
-	AllCorrect bool
+	Timeout    bool `json:"timeout"`
+	AllCorrect bool `json:"allCorrect"`
 }
 
 func (h *Handler) playTime() {
