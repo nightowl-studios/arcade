@@ -25,5 +25,6 @@ export default {
     background: #e5f4fc;
     border: 1px solid #a1c5d8;
     width: 100%;
+    max-height: 400px;
 }
 </style>
