@@ -8,7 +8,7 @@
       <b-button class="exit-button" variant="danger" v-on:click="exitToHome">Exit Lobby</b-button>
     </div>
     <PlayerList :players="players" />
-    <InvitationLink :lobbyID="lobbyId" :stage="stage" />
+    <InvitationLink/>
   </div>
 </template>
 
@@ -30,8 +30,7 @@ export default {
   },
   data: function() {
     return {
-      lobbyId: "",
-      stage: "lobby"
+      lobbyId: ""
     };
   },
   methods: {
@@ -64,7 +63,7 @@ export default {
         }
       };
       this.$webSocketService.send(message);
-      this.$router.push({ path: "/scribble/"  + this.lobbyId });
+      this.$router.push({ path: "/scribble/" + this.lobbyId });
     },
     exitToHome: function() {
       this.$webSocketService.disconnect();
