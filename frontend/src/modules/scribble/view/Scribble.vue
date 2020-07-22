@@ -1,7 +1,7 @@
 <template>
     <div id="scribble">
         <b-container fluid class="scribble-container">
-            <b-row class="scribble-row-header">Placeholder</b-row>
+            <b-row class="scribble-row-header">{{ chosenUuid }} is drawing...</b-row>
             <b-row class="scribble-row-main">
                 <b-col>
                     <CanvasPanel :colors="colors" :sizes="sizes" />
@@ -24,6 +24,7 @@ import CanvasPanel from "../components/CanvasPanel.vue";
 import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 import Chat from "../components/Chat.vue";
 import PlayerList from "../components/PlayerList.vue";
+import { mapState } from "vuex";
 
 export default {
     mixins: [WebSocketMixin],
@@ -38,6 +39,11 @@ export default {
             colors: ["#000000", "#4287f5", "#da42f5", "#7ef542"],
             sizes: [8, 16, 32, 64],
         };
+    },
+    computed: {
+        ...mapState('scribble', {
+            chosenUuid: state => state.chosenUuid,
+        }),
     },
 };
 </script>
