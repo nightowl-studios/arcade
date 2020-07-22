@@ -1,14 +1,15 @@
+import application from "@/modules/common/stores/globalstore/index.js";
 import Vue from "vue";
 import Vuex from "vuex";
-import global from "./modules/global";
+
 
 Vue.use(Vuex);
 
 const debug = process.env.NODE_ENV !== "production";
 
-export const GlobalStore = new Vuex.Store({
+export const store = new Vuex.Store({
     modules: {
-        global,
+        application
     },
     strict: debug,
-});
+})
