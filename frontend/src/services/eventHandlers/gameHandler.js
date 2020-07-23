@@ -8,6 +8,7 @@ export default class GameHandler {
         if (payload.gameMasterAPI === "playerSelect") {
             // TODO store payload in vuex
             store.commit("scribble/setChosenUuid", payload.playerSelect.chosenUUID);
+            store.commit("scribble/setIsCanvasLocked", payload.playerSelect.lockCanvas);
             EventBus.$emit(Event.START_GAME);
         }
     }

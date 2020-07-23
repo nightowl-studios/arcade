@@ -1,7 +1,8 @@
 export default {
     namespaced: true,
     state: {
-        chosenUuid: ""
+        chosenUuid: "",
+        isCanvasLocked: true
     },
     getters: {
     },
@@ -9,6 +10,9 @@ export default {
         setChosenUuid: (state, payload) => {
             state.chosenUuid = payload;
         },
+        setIsCanvasLocked: (state, payload) => {
+            state.isCanvasLocked = payload
+        }
     },
     actions: {
 
