@@ -1,7 +1,7 @@
 <template>
     <div id="scribble">
         <b-container fluid class="scribble-container">
-            <b-row class="scribble-row-header">{{ chosenUuid }} is drawing...</b-row>
+            <b-row class="scribble-row-header">{{ chosenPlayer }} is drawing...</b-row>
             <b-row class="scribble-row-main">
                 <b-col>
                     <CanvasPanel :colors="colors" :sizes="sizes" />
@@ -44,6 +44,13 @@ export default {
         ...mapState('scribble', {
             chosenUuid: state => state.chosenUuid,
         }),
+        ...mapState('application', {
+            players: state => state.players
+        }),
+        chosenPlayer() {
+            const chosenPlayer = this.players.filter(player => player.uuid === player.uuid)[0];
+            return chosenPlayer.nickname;
+        }
     },
 };
 </script>
