@@ -64,8 +64,12 @@ func (h *Handler) HandleInteraction(
 	registry.SendToSameHub(caller.ClientUUID, responseMessage)
 }
 
-func (h *Handler) Names() []string {
+func (h *Handler) ListensTo() []string {
 	return []string{name}
+}
+
+func (h *Handler) Name() string {
+	return name
 }
 
 func (h *Handler) NewClient(

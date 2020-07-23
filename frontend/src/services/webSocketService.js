@@ -1,5 +1,7 @@
-import { EventBus } from '../eventBus.js';
+import { Event } from "@/events";
+import { EventBus } from "../eventBus.js";
 
+// Service for handling connecting, sending, and recieving on websocket.
 export default class WebSocketService {
     constructor(webSocketURL, cookieService, eventHandlerService) {
         this.webSocketURL = webSocketURL;
@@ -15,35 +17,36 @@ export default class WebSocketService {
     connect(lobbyId) {
         console.log("Connecting to websocket...");
         let webSocketURL = this.webSocketURL + "/" + lobbyId;
-        this.webSocket = new WebSocket(webSocketURL)
+        this.webSocket = new WebSocket(webSocketURL);
         this.initWebSocket(this.webSocket, lobbyId);
     }
 
     disconnect() {
         if (this.isConnected()) {
-            this.webSocket.close()
+            this.webSocket.close();
         }
     }
 
     initWebSocket(webSocket, lobbyId) {
         webSocket.onopen = () => {
             let arcadeSession = this.cookieService.getArcadeCookie();
-            if (arcadeSession != null &&
-                arcadeSession.ContainsToken != false) {
+            if (arcadeSession != null && arcadeSession.ContainsToken != false) {
                 this.send(arcadeSession);
             } else {
                 let noToken = {
-                    "api": "auth",
-                    "payload": {
-                        "ContainsToken": false
-                    }
-                }
+                    api: "auth",
+                    payload: {
+                        ContainsToken: false,
+                    },
+                };
                 this.send(noToken);
             }
 
-            console.log("Successfully connected to the websocket. ID: " + lobbyId);
-            EventBus.$emit('connected', lobbyId);
-        }
+            console.log(
+                "Successfully connected to the websocket. ID: " + lobbyId
+            );
+            EventBus.$emit(Event.WEBSOCKET_CONNECTED, lobbyId);
+        };
 
         webSocket.onmessage = (event) => {
             let json = JSON.parse(event.data);
@@ -55,6 +58,10 @@ export default class WebSocketService {
             }
 
             this.eventHandlerService.handle(api, payload);
+        };
+
+        webSocket.onclose = () => {
+            console.log("Websocket connection is closed");
         }
     }
 
@@ -68,6 +75,9 @@ export default class WebSocketService {
     }
 
     isConnected() {
-        return this.webSocket != null && this.webSocket.readyState === WebSocket.OPEN;
+        return (
+            this.webSocket != null &&
+            this.webSocket.readyState === WebSocket.OPEN
+        );
     }
 }

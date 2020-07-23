@@ -91,10 +91,12 @@ const (
 
 var (
 	// api's we want to listen to
-	names []string = []string{
+	listensTo []string = []string{
 		"chat",
 		"game",
 	}
+
+	name = "game"
 )
 
 // Send is a struct that defines what the gamemaster can send to the frontend
@@ -212,13 +214,42 @@ func (h *Handler) ClientQuit(
 	clientID identifier.Client,
 	reg registry.Registry,
 ) {
-	// stub
+	userShifted := false
+	for i, client := range h.clientList.clients {
+		if clientID.ClientUUID.UUID == client.UUID {
+			if i < h.clientList.nextToBeSelected {
+				// userShifted is true if the players who came before
+				// the nextToBeSelected left the game
+				userShifted = true
+			}
+			// delete index i from clients while maintaining order
+			h.clientList.clients = append(
+				h.clientList.clients[:i],
+				h.clientList.clients[i+1:]...,
+			)
+		}
+	}
+
+	if len(h.clientList.clients) == h.clientList.nextToBeSelected {
+		// if the last user left (len clients == nextToBeSelected only happens
+		// in this case) then we want to wrap the order and potentially increment
+		// the round
+		h.WrapUserAndRound()
+	} else if userShifted {
+		// we have to shift back down to stay with the same person
+		h.clientList.nextToBeSelected--
+	} else {
+		// the person who left was after the selected user so no shift needs to
+		// happen
+	}
 }
 
-// Name needs to return a unique name of this GameHandler
-// This return will be used for routing
-func (h *Handler) Names() []string {
-	return names
+func (h *Handler) ListensTo() []string {
+	return listensTo
+}
+
+func (h *Handler) Name() string {
+	return name
 }
 
 // run is the function that should be called as a thread
@@ -278,6 +309,13 @@ type PlayerSelectSend struct {
 	// Choices is a slice of strings that the Chosen client is allowed to choose
 	// from. This Choices field is only sent to the Chosen client
 	Choices []string `json:"choices,omitempty"`
+
+	// Duration is the duration in nanoseconds that the user is allowed to
+	// have to choose a word from the 'choices'
+	Duration time.Duration `json:"duration"`
+
+	LockCanvas bool `json:"lockCanvas"`
+	LockChat   bool `json:"lockChat"`
 }
 
 type PlayerSelectReceive struct {
@@ -337,6 +375,9 @@ func (h *Handler) playerSelectTopic() {
 	selectedPlayerMsg := Send{
 		GameMasterAPI: PlayerSelect,
 		PlayerSelectSend: PlayerSelectSend{
+			LockCanvas: true,
+			LockChat:   false,
+			Duration:   h.selectTopicTimer,
 			ChosenUUID: selectedClient.UUID,
 		},
 	}
@@ -350,6 +391,8 @@ func (h *Handler) playerSelectTopic() {
 	// We did not want to send the other players the wordChoices just in case
 	// they're (zachary) snooping the websocket messages :P
 	selectedPlayerMsg.PlayerSelectSend.Choices = wordChoices
+	selectedPlayerMsg.PlayerSelectSend.LockCanvas = false
+	selectedPlayerMsg.PlayerSelectSend.LockChat = true
 	selectedPlayerBytes, err = game.MessageBuild("game", selectedPlayerMsg)
 	if err != nil {
 		log.Fatalf("unable to marshal: %v", err)
@@ -371,14 +414,11 @@ func (h *Handler) playerSelectTopic() {
 		h.changeGameStateTo(PlayTime)
 	}
 
-	h.clientList.nextToBeSelected++
 	return
 }
 
 type PlayTimeSend struct {
-	LockCanvas bool `json:"lockCanvas,omitempty"`
-	LockChat   bool `json:"lockChat,omitempty"`
-	Score      int  `json:"score,omitempty"`
+	Score int `json:"score,omitempty"`
 }
 
 type PlayTimeReceive struct {
@@ -420,13 +460,15 @@ type ScoreTimeSend struct {
 }
 
 func (h *Handler) scoreTime() {
-	h.round++
+	h.clientList.nextToBeSelected++
+	h.WrapUserAndRound()
+
 	if h.round >= h.maxRounds {
 		h.gameState = ShowResults
 	} else {
 		h.gameState = PlayerSelect
 	}
-	selectedClient := h.clientList.clients[h.clientList.nextToBeSelected]
+	selectedClient := h.clientList.clients[0]
 	scoreTimeMsg := Send{
 		GameMasterAPI: ScoreTime,
 		ScoreTimeSend: ScoreTimeSend{
@@ -449,4 +491,14 @@ func (h *Handler) changeGameStateTo(state State) {
 	h.gameStateLock.Lock()
 	defer h.gameStateLock.Unlock()
 	h.gameState = state
+}
+
+// WrapUserAndRound will check if the nextToBeSelected is valid.
+// If the nextToBeSelected is greater than the length of clients, it will
+// wrap the users and increment the round
+func (h *Handler) WrapUserAndRound() {
+	if len(h.clientList.clients) <= h.clientList.nextToBeSelected {
+		h.clientList.nextToBeSelected = 0
+		h.round++
+	}
 }

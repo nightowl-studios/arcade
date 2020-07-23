@@ -12,11 +12,11 @@ export default new Router({
         {
             path: "/",
             name: "home",
-            component: Home
+            component: Home,
         },
         {
             path: "/lobby",
-            redirect: "/"
+            redirect: "/",
         },
         {
             path: "/lobby/:lobbyId",
@@ -25,7 +25,7 @@ export default new Router({
         },
         {
             path: "/scribble",
-            redirect: "/"
+            redirect: "/",
         },
         {
             path: "/scribble/:lobbyId",
@@ -35,11 +35,11 @@ export default new Router({
         {
             path: "/404",
             name: "404",
-            component: PageNotFound
+            component: PageNotFound,
         },
         {
             path: "*",
-            redirect: "/404"
-        }
-    ]
-})
+            redirect: "/404",
+        },
+    ],
+});

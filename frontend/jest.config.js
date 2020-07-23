@@ -5,6 +5,6 @@ module.exports = {
         "src/**/*.{js,jsx,vue}",
         "!**/node_modules/**",
         "!**/vendor/**",
-        "!**/dist/**"
-    ]
-}
+        "!**/dist/**",
+    ],
+};

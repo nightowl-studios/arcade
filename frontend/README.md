@@ -1,4 +1,4 @@
-# frontend-2
+# Arcade
 
 ## Install NPM and Node
 ```

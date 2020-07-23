@@ -1,57 +1,65 @@
 {
-  "name": "frontend-2",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "test": "jest",
-    "coverage": "jest --coverage"
-  },
-  "dependencies": {
-    "axios": "^0.19.2",
-    "bootstrap": "^4.5.0",
-    "bootstrap-vue": "^2.15.0",
-    "core-js": "^3.6.5",
-    "vue": "^2.6.11",
-    "vue-cookies": "^1.7.2",
-    "vue-router": "^3.3.4",
-    "vuex": "^3.5.1"
-  },
-  "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.4.0",
-    "@vue/cli-plugin-eslint": "~4.4.0",
-    "@vue/cli-plugin-unit-jest": "^4.4.6",
-    "@vue/cli-service": "~4.4.0",
-    "@vue/test-utils": "^1.0.3",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.2.2",
-    "jest": "^26.1.0",
-    "node-sass": "^4.14.1",
-    "sass-loader": "^8.0.2",
-    "lodash": ">=4.17.19",
-    "vue-template-compiler": "^2.6.11"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "jest": true,
-      "node": true
+    "name": "Arcade",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "serve": "vue-cli-service serve",
+        "build": "vue-cli-service build",
+        "lint": "vue-cli-service lint",
+        "test": "jest",
+        "coverage": "jest --coverage"
     },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
+    "dependencies": {
+        "axios": "^0.19.2",
+        "bootstrap": "^4.5.0",
+        "bootstrap-vue": "^2.15.0",
+        "core-js": "^3.6.5",
+        "vue": "^2.6.11",
+        "vue-cookies": "^1.7.2",
+        "vue-router": "^3.3.4",
+        "vuex": "^3.5.1"
+    },
+    "devDependencies": {
+        "@vue/cli-plugin-babel": "~4.4.0",
+        "@vue/cli-plugin-eslint": "~4.4.0",
+        "@vue/cli-plugin-unit-jest": "^4.4.6",
+        "@vue/cli-service": "~4.4.0",
+        "@vue/test-utils": "^1.0.3",
+        "babel-eslint": "^10.1.0",
+        "eslint": "^6.7.2",
+        "eslint-plugin-vue": "^6.2.2",
+        "husky": "^4.2.5",
+        "jest": "^26.1.0",
+        "lodash": ">=4.17.19",
+        "node-sass": "^4.14.1",
+        "prettier": "2.0.5",
+        "pretty-quick": "^2.0.1",
+        "sass-loader": "^8.0.2",
+        "vue-template-compiler": "^2.6.11"
+    },
+    "eslintConfig": {
+        "root": true,
+        "env": {
+            "jest": true,
+            "node": true
+        },
+        "extends": [
+            "plugin:vue/essential",
+            "eslint:recommended"
+        ],
+        "parserOptions": {
+            "parser": "babel-eslint"
+        },
+        "rules": {}
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not dead"
     ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "rules": {}
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+    "husky": {
+        "hooks": {
+            "pre-commit": "pretty-quick --staged"
+        }
+    }
 }

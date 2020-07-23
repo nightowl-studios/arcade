@@ -4,12 +4,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Vue from "vue";
 import App from "./App.vue";
 import "./index.scss";
-import store from './modules/common/store/globalstore/index';
 import router from "./router";
+import ChatApiService from "./services/chatApiService";
 import CookieService from "./services/cookieService";
 import EventHandlerService from "./services/eventHandlerService";
+import GameApiService from "./services/gameApiService";
 import HubApiService from "./services/hubApiService";
-import WebSocketService from './services/webSocketService';
+import WebSocketService from "./services/webSocketService";
+import { store } from "./store";
 
 Vue.config.productionTip = false;
 
@@ -21,15 +23,26 @@ Vue.use(IconsPlugin);
 // Global Instance Properties
 Vue.prototype.$hubAPI = "hub";
 
-let webSocketURL = "ws://" + document.location.hostname + ":8081/ws";
-let httpURL = "http://" + document.location.hostname + ":8081";
-Vue.prototype.$cookieService = new CookieService();
-let eventHandlerService = new EventHandlerService();
-Vue.prototype.$webSocketService = new WebSocketService(webSocketURL, Vue.prototype.$cookieService, eventHandlerService);
+const webSocketURL = `ws://${document.location.hostname}:8081/ws`;
+const httpURL = `http://${document.location.hostname}:8081`;
+
+const cookieService = new CookieService();
+const eventHandlerService = new EventHandlerService();
+Vue.prototype.$webSocketService = new WebSocketService(
+    webSocketURL,
+    cookieService,
+    eventHandlerService
+);
+
+// API Services
 Vue.prototype.$hubApiService = new HubApiService(httpURL);
+Vue.prototype.$gameApiService = new GameApiService(
+    Vue.prototype.$webSocketService
+);
+Vue.prototype.$chatApiService = new ChatApiService(Vue.prototype.$webSocketService)
 
 new Vue({
-  store,
-  router,
-  render: (h) => h(App),
+    store,
+    router,
+    render: (h) => h(App),
 }).$mount("#app");
