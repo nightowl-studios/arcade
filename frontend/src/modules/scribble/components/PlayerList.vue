@@ -1,7 +1,7 @@
 <template>
     <div id="player-list">
         <h2>Players</h2>
-        <div v-for="player in players" :key="player">{{ player.nickname }}</div>
+        <div v-for="player in players" :key="player.uuid">{{ player.nickname }}</div>
     </div>
 </template>
 

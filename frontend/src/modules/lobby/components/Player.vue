@@ -1,17 +1,15 @@
 <template>
-    <body>
-        <div class="player">
-            <h2 class="name">{{ name }}</h2>
-        </div>
-    </body>
+    <div class="player">
+        <h2>{{ nickname }}</h2>
+    </div>
 </template>
 
 <script>
 export default {
     name: "Player",
     props: {
-        name: String,
-    },
+        nickname: String,
+    }
 };
 </script>
 

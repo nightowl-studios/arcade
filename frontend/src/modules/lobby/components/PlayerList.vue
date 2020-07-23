@@ -1,8 +1,8 @@
 <template>
     <div class="player-list">
         <h1>Players</h1>
-        <div v-for="player in players" :key="player">
-            <Player :name="player.nickname" />
+        <div v-for="player in players" :key="player.uuid">
+            <Player :nickname="player.nickname" />
         </div>
     </div>
 </template>
@@ -17,7 +17,7 @@ export default {
     },
     components: {
         Player,
-    },
+    }
 };
 </script>
 

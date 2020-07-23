@@ -1,16 +1,20 @@
 <template>
-    <div id="scribble">
-        <b-container fluid class="scribble-container">
-            <b-row class="scribble-row-header">{{ chosenUuid }} is drawing...</b-row>
-            <b-row class="scribble-row-main">
+    <div class="scribble">
+        <b-container fluid class="scribble__container">
+            <b-row class="scribble__container__header" align-v="center">
+                <b-col>
+                    <Header :nickname="chosenPlayer" />
+                </b-col>
+            </b-row>
+            <b-row class="scribble__container__body">
                 <b-col>
                     <CanvasPanel :colors="colors" :sizes="sizes" />
                 </b-col>
                 <b-col>
-                    <b-row class="scribble-row-players">
+                    <b-row class="scribble__container__body__players">
                         <PlayerList :players="players" />
                     </b-row>
-                    <b-row class="scribble-row-chat">
+                    <b-row class="scribble__container__body__chat">
                         <Chat />
                     </b-row>
                 </b-col>
@@ -20,9 +24,10 @@
 </template>
 
 <script>
-import CanvasPanel from "../components/CanvasPanel.vue";
 import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 import Chat from "../components/Chat.vue";
+import CanvasPanel from "../components/CanvasPanel.vue";
+import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
 import { mapState } from "vuex";
 
@@ -32,6 +37,7 @@ export default {
     components: {
         CanvasPanel,
         Chat,
+        Header,
         PlayerList,
     },
     data: function() {
@@ -44,28 +50,35 @@ export default {
         ...mapState('scribble', {
             chosenUuid: state => state.chosenUuid,
         }),
+        ...mapState('application', {
+            players: state => state.players
+        }),
+        chosenPlayer() {
+            const chosenPlayer = this.players.filter(player => player.uuid === this.chosenUuid)[0];
+            return chosenPlayer.nickname;
+        }
     },
 };
 </script>
 
-<style scoped>
-#scribble {
+<style lang="scss" scoped>
+.scribble {
     height: 100%;
-}
 
-.scribble-container {
-    height: 100%;
-}
+    &__container {
+        height: 100%;
 
-.scribble-row-main {
-    height: 100%;
-}
+        &__body {
+            height: 100%;
 
-.scribble-row-players {
-    height: 50%;
-}
+            &__players {
+                height: 50%;
+            }
 
-.scribble-row-chat {
-    height: 50%;
+            &__chat {
+                height: 50%;
+            }
+        }
+    }
 }
 </style>
