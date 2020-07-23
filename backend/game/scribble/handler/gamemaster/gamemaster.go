@@ -12,10 +12,12 @@ package gamemaster
 import (
 	"encoding/json"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/bseto/arcade/backend/game"
+	"github.com/bseto/arcade/backend/game/scribble/handler/gamemaster/util/point"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/util/wordfactory"
 	"github.com/bseto/arcade/backend/websocket/identifier"
@@ -125,12 +127,21 @@ type Receive struct {
 	PlayerSelectReceive PlayerSelectReceive `json:"playerSelect"`
 }
 
+type client struct {
+	identifier.ClientUUIDStruct
+	guessedRight bool
+}
+
 // ClientList is a struct used internally to track what users are available
 // to select from, and their points
 type ClientList struct {
 	nextToBeSelected int
-	clients          []identifier.ClientUUIDStruct
-	clientPoints     map[identifier.ClientUUIDStruct]int
+	clients          []client
+
+	// Do not delete from this map even when a player quits. They can reconnect
+	totalScore map[identifier.ClientUUIDStruct]int
+	// This is what we use to display to the user when a round ends
+	roundScore map[identifier.ClientUUIDStruct]int
 }
 
 type Handler struct {
@@ -144,13 +155,16 @@ type Handler struct {
 
 	waitForStartChan (chan WaitForStartReceive)
 	selectTopicChan  (chan PlayerSelectReceive)
-	playTimeChan     (chan PlayTimeReceive)
+	playTimeChan     (chan PlayTimeChanReceive)
 
 	// config-like things
 	maxRounds        int
 	wordChoices      int
 	selectTopicTimer time.Duration
 	playTimeTimer    time.Duration
+
+	// util things
+	pointHandler *point.Handler
 }
 
 func Get(reg registry.Registry) *Handler {
@@ -162,10 +176,11 @@ func Get(reg registry.Registry) *Handler {
 		round:            0,
 		gameState:        WaitForStart,
 		selectTopicTimer: 10 * time.Second,
-		playTimeTimer:    60 * time.Second,
-		playTimeChan:     make(chan PlayTimeReceive),
+		playTimeTimer:    5 * time.Second,
+		playTimeChan:     make(chan PlayTimeChanReceive),
 		selectTopicChan:  make(chan PlayerSelectReceive),
 		waitForStartChan: make(chan WaitForStartReceive),
+		pointHandler:     point.Get(),
 	}
 	go handler.run()
 	return handler
@@ -174,6 +189,7 @@ func Get(reg registry.Registry) *Handler {
 // HandleInteraction will be given the tools it needs to handle
 // any interaction
 func (h *Handler) HandleInteraction(
+	api string,
 	message json.RawMessage,
 	caller identifier.Client,
 	registry registry.Registry,
@@ -188,18 +204,22 @@ func (h *Handler) HandleInteraction(
 	defer h.gameStateLock.RUnlock()
 	switch h.gameState {
 	case WaitForStart:
-		log.Infof("sending thing to start channel")
-		h.waitForStartChan <- receive.WaitForStartReceive
-	case PlayerSelect:
-		if caller.ClientUUID != h.clientList.clients[h.clientList.nextToBeSelected] {
-			log.Errorf("client: %v tried to send to gamemaster out of turn", caller)
-			return
+		if api == h.Name() {
+			log.Infof("sending thing to start channel")
+			h.waitForStartChan <- receive.WaitForStartReceive
 		}
-		h.selectTopicChan <- receive.PlayerSelectReceive
+	case PlayerSelect:
+		if api == h.Name() {
+			if caller.ClientUUID != h.clientList.clients[h.clientList.nextToBeSelected].ClientUUIDStruct {
+				log.Errorf("client: %v tried to send to gamemaster out of turn", caller)
+				return
+			}
+			h.selectTopicChan <- receive.PlayerSelectReceive
+		}
 	case PlayTime:
+		h.handlePlayMessages(api, message, caller, registry)
 
 	}
-
 }
 
 func (h *Handler) NewClient(
@@ -208,7 +228,13 @@ func (h *Handler) NewClient(
 ) {
 	// if a user joins halfway, they'll be appended to the end of the
 	// clientList
-	h.clientList.clients = append(h.clientList.clients, clientID.ClientUUID)
+	h.clientList.clients = append(
+		h.clientList.clients,
+		client{
+			ClientUUIDStruct: clientID.ClientUUID,
+			guessedRight:     false,
+		},
+	)
 }
 
 func (h *Handler) ClientQuit(
@@ -313,7 +339,6 @@ type PlayerSelectSend struct {
 	Duration time.Duration `json:"duration"`
 
 	LockCanvas bool `json:"lockCanvas"`
-	LockChat   bool `json:"lockChat"`
 }
 
 type PlayerSelectReceive struct {
@@ -353,7 +378,6 @@ func (h *Handler) playerSelectTopic() {
 		GameMasterAPI: PlayerSelect,
 		PlayerSelectSend: PlayerSelectSend{
 			LockCanvas: true,
-			LockChat:   false,
 			Duration:   h.selectTopicTimer,
 			ChosenUUID: selectedClient.UUID,
 		},
@@ -363,19 +387,18 @@ func (h *Handler) playerSelectTopic() {
 		log.Fatalf("unable to marshal: %v", err)
 		return
 	}
-	h.reg.SendToSameHubExceptCaller(selectedClient, selectedPlayerBytes)
+	h.reg.SendToSameHubExceptCaller(selectedClient.ClientUUIDStruct, selectedPlayerBytes)
 
 	// We did not want to send the other players the wordChoices just in case
 	// they're (zachary) snooping the websocket messages :P
 	selectedPlayerMsg.PlayerSelectSend.Choices = wordChoices
 	selectedPlayerMsg.PlayerSelectSend.LockCanvas = false
-	selectedPlayerMsg.PlayerSelectSend.LockChat = true
 	selectedPlayerBytes, err = game.MessageBuild("game", selectedPlayerMsg)
 	if err != nil {
 		log.Fatalf("unable to marshal: %v", err)
 		return
 	}
-	h.reg.SendToCaller(selectedClient, selectedPlayerBytes)
+	h.reg.SendToCaller(selectedClient.ClientUUIDStruct, selectedPlayerBytes)
 
 	// adding 1 for tolerance
 	selectTopicTime := time.NewTimer(h.selectTopicTimer + 1)
@@ -394,12 +417,18 @@ func (h *Handler) playerSelectTopic() {
 }
 
 type PlayTimeSend struct {
-	Hint     string                              `json:"hint,omitempty"`
-	Duration time.Duration                       `json:"duration,omitempty"`
-	Score    map[identifier.ClientUUIDStruct]int `json:"score,omitempty"`
+	Hint          string                              `json:"hint,omitempty"`
+	Duration      time.Duration                       `json:"duration,omitempty"`
+	TotalScore    map[identifier.ClientUUIDStruct]int `json:"totalScore,omitempty"`
+	RoundScore    map[identifier.ClientUUIDStruct]int `json:"roundScore,omitempty"`
+	CorrectClient identifier.ClientUUIDStruct         `json:"correctClient,omitempty"`
 }
 
 type PlayTimeReceive struct {
+	Message string `json:"message"`
+}
+
+type PlayTimeChanReceive struct {
 	Timeout    bool `json:"timeout"`
 	AllCorrect bool `json:"allCorrect"`
 }
@@ -415,7 +444,7 @@ func (h *Handler) playTime() {
 	if err != nil {
 		log.Fatalf("unable to marshal: %v", err)
 	}
-	h.reg.SendToSameHub(h.clientList.clients[0], playTimeSendBytes)
+	h.reg.SendToSameHub(h.clientList.clients[0].ClientUUIDStruct, playTimeSendBytes)
 
 	// stop here until
 	// 1) playTime limit up
@@ -435,11 +464,63 @@ func (h *Handler) playTime() {
 }
 
 // snooping in on "chat"
-func (h *Handler) handlePlayMessages() {
-	// if someone is correct, assign score
-	// and then message everyone someone guessed right
+func (h *Handler) handlePlayMessages(
+	api string,
+	message json.RawMessage,
+	caller identifier.Client,
+	registry registry.Registry,
+) {
+	switch api {
+	case "chat":
+		h.handlePlayChatMessages(message, caller, registry)
+	default:
+		log.Errorf("unknown api :'%v' inside gamemaster", api)
+	}
+}
 
-	// if everyone guessed right, then send to channel
+func (h *Handler) handlePlayChatMessages(
+	message json.RawMessage,
+	caller identifier.Client,
+	registry registry.Registry,
+) {
+	var msg PlayTimeReceive
+	err := json.Unmarshal(message, &msg)
+	if err != nil {
+		log.Fatalf("unable to unmarshal message: %v", err)
+	}
+
+	equal := strings.EqualFold(msg.Message, h.chosenWord)
+	if equal {
+		points := h.pointHandler.GetPoints()
+		h.clientList.totalScore[caller.ClientUUID] += points
+		h.clientList.roundScore[caller.ClientUUID] = points
+	}
+
+	send := PlayTimeSend{
+		TotalScore:    h.clientList.totalScore,
+		RoundScore:    h.clientList.roundScore,
+		CorrectClient: caller.ClientUUID,
+	}
+
+	sendBytes, err := game.MessageBuild(h.Name(), send)
+	if err != nil {
+		log.Fatalf("unable to marshal: %v", err)
+	}
+	h.reg.SendToSameHub(caller.ClientUUID, sendBytes)
+
+	// if everyone guessed right, then let playTime know
+	allCorrect := true
+	for _, client := range h.clientList.clients {
+		if client.guessedRight != true {
+			allCorrect = false
+			break
+		}
+	}
+	if allCorrect {
+		h.playTimeChan <- PlayTimeChanReceive{
+			AllCorrect: true,
+		}
+	}
 }
 
 type ScoreTimeSend struct {
@@ -467,7 +548,7 @@ func (h *Handler) scoreTime() {
 		log.Fatalf("unable to marshal: %v", err)
 		return
 	}
-	h.reg.SendToSameHub(selectedClient, scoreTimeBytes)
+	h.reg.SendToSameHub(selectedClient.ClientUUIDStruct, scoreTimeBytes)
 }
 
 func (h *Handler) showResults() {

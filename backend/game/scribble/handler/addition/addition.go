@@ -29,6 +29,7 @@ func Get() *Handler {
 }
 
 func (h *Handler) HandleInteraction(
+	api string,
 	message json.RawMessage,
 	caller identifier.Client,
 	registry registry.Registry,
