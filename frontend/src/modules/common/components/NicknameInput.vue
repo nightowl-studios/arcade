@@ -4,19 +4,17 @@
         <p
             id="invalidNicknameError"
             :style="{ visibility: this.showError ? 'visible' : 'hidden' }"
-        >
-            Please enter a valid nickname!
-        </p>
+        >Please enter a valid nickname!</p>
     </div>
 </template>
 
 <script>
-import { createChangeNicknameMessage } from "@/modules/common/utility/WebSocketMessageUtils";
+import { createChangeNicknameMessage } from "@/utility/WebSocketMessageUtils";
 
 export default {
     name: "NicknameInput",
 
-    data: function () {
+    data: function() {
         return {
             nickname: "",
             showError: false,
@@ -24,19 +22,19 @@ export default {
     },
 
     watch: {
-        nickname: function () {
+        nickname: function() {
             this.showError = false;
         },
     },
 
     methods: {
-        validateNickname: function () {
+        validateNickname: function() {
             const validNickname = "".localeCompare(this.nickname) !== 0;
             this.showError = !validNickname;
             return validNickname;
         },
 
-        changeNickname: function () {
+        changeNickname: function() {
             this.$webSocketService.send(
                 createChangeNicknameMessage(this.nickname)
             );

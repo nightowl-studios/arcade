@@ -90,10 +90,12 @@ func (h *Handler) ClientQuit(
 	// stub
 }
 
-// Name needs to return a unique name of this GameHandler
-// This return will be used for routing
-func (h *Handler) Names() []string {
+func (h *Handler) ListensTo() []string {
 	return []string{name}
+}
+
+func (h *Handler) Name() string {
+	return name
 }
 
 func (h *Handler) SendHistory(

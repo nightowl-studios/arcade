@@ -46,7 +46,9 @@ export default {
             this.$router.push({ name: "lobby", params: { lobbyId: lobbyId } });
             this.$refs["nicknameInput"].changeNickname();
         });
-    },
+
+        this.$webSocketService.disconnect();
+    }
 };
 </script>
 

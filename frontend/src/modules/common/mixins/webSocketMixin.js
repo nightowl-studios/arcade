@@ -1,10 +1,10 @@
-import { GlobalStore } from "../store/globalstore/index";
+import { mapState } from "vuex";
 
 export default {
     computed: {
-        players() {
-            return GlobalStore.getters.getPlayers;
-        },
+        ...mapState('application', {
+            players: state => state.players,
+        }),
     },
     created: async function () {
         this.lobbyId = this.$router.currentRoute.params.lobbyId;
