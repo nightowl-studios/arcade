@@ -5,13 +5,21 @@ import (
 	"time"
 )
 
-type WordHint struct {
+func randInt(min int, max int) int {
+	return min + rand.Intn(max-min)
+}
+
+type WordHint interface {
+	GiveHint(word string) string
+}
+
+type wordHint struct {
 	previousHintIndexes []int
 }
 
-func randInt(min int, max int) int {
+func Get() *wordHint {
 	rand.Seed(time.Now().UTC().UnixNano())
-	return min + rand.Intn(max-min)
+	return &wordHint{}
 }
 
 func Find(slice []int, val int) bool {
@@ -23,7 +31,7 @@ func Find(slice []int, val int) bool {
 	return false
 }
 
-func (w WordHint) GiveHint(word string) string {
+func (w wordHint) GiveHint(word string) string {
 	hint := ""
 	hintIndex := randInt(1, len(word))
 	found := Find(w.previousHintIndexes, hintIndex)
