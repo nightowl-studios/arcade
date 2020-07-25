@@ -13,6 +13,11 @@ import (
 	"github.com/bseto/arcade/backend/log"
 )
 
+type WordFactory interface {
+	GenerateWordList(numOfWords int) []string
+}
+type wordFactory struct{}
+
 func randInt(min int, max int) int {
 	rand.Seed(time.Now().UTC().UnixNano())
 	return min + rand.Intn(max-min)
@@ -22,6 +27,42 @@ var (
 	Dir  string = filepath.Join("util", "wordfactory")
 	File string = "wordbank.txt"
 )
+
+func GetWordFactory() *wordFactory {
+	return &wordFactory{}
+}
+
+func (w wordFactory) GenerateWordList(numOfWords int) []string {
+	return generateWordList(numOfWords, getWord)
+}
+
+// generateWordList() will generate an unique list of words in the requested length
+func generateWordList(numOfWords int, wordGenerator func(string) string) []string {
+	wordBank := filepath.Join(Dir, File)
+	wordList := make(map[string]bool)
+	for len(wordList) < numOfWords {
+		newWord := wordGenerator(wordBank)
+		wordList[newWord] = true
+	}
+	var retList []string
+	for key, _ := range wordList {
+		retList = append(retList, key)
+	}
+	return retList
+}
+
+// GetWord() will generate a word using either WordGenerator() or WordGenerator2()
+func getWord(wordBank string) string {
+	word, err := WordGenerator2(wordBank)
+	if err != nil {
+		log.Errorf("unable to get a word, trying again: %v", err)
+		word, err = WordGenerator(wordBank)
+		if err != nil {
+			log.Fatalf("unable to get a word using WordGenerator1: %v", err)
+		}
+	}
+	return word
+}
 
 func WordGenerator(filePath string) (string, error) {
 	b, err := ioutil.ReadFile(filePath)
