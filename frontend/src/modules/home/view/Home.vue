@@ -1,9 +1,11 @@
 <template>
     <div id="home">
-        <Title id="title" msg="Not ScribbleIO" />
-        <NicknameInput id="nicknameInput" ref="nicknameInput" />
-        <CreateButton id="createButton" @onCreateRoom="onCreateRoom" />
-        <JoinRoom id="joinRoom" @onJoinRoom="onJoinRoom" />
+        <Title id="title" msg="SketchNight" />
+        <NicknameInput ref="nicknameInput" />
+        <div class="start-game">
+            <CreateButton @onCreateRoom="onCreateRoom" />
+            <JoinRoom @onJoinRoom="onJoinRoom" />
+        </div>
     </div>
 </template>
 
@@ -48,26 +50,24 @@ export default {
         });
 
         this.$webSocketService.disconnect();
-    }
+    },
 };
 </script>
 
 <style scoped>
 #home {
+    margin-top: 2em;
     display: grid;
+    grid-gap: 1em;
     grid-template-rows: auto;
     justify-items: center;
 }
 
-#nicknameInput {
-    margin-top: 10px;
-}
-
-#createButton {
-    margin: 10px;
-}
-
-#joinRoom {
-    margin: 10px;
+.start-game {
+    display: grid;
+    grid-gap: 5em;
+    grid-template-columns: 200px 200px;
+    justify-content: center;
+    align-content: center;
 }
 </style>
