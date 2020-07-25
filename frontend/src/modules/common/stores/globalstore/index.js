@@ -5,6 +5,12 @@ export default {
         players: []
     },
     getters: {
+        getPlayerUuid: (state) => {
+            return state.playerUuid;
+        },
+        getPlayerWithUuid: (state) => {
+            return uuid => state.players.filter(p => p.uuid === uuid)[0];
+        }
     },
     mutations: {
         setPlayers: (state, payload) => {

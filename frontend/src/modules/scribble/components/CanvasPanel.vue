@@ -5,6 +5,7 @@
             :width="400"
             :height="400"
             :defaultBrushStyle="defaultBrushStyle"
+            :drawingLocked="isCanvasLocked"
             @drawAction="sendDrawAction"
             @requestHistory="sendRequestHistory"
         />
@@ -25,6 +26,7 @@ export default {
     props: {
         colors: Array,
         sizes: Array,
+        isCanvasLocked: Boolean,
     },
 
     components: {
@@ -38,7 +40,7 @@ export default {
         },
     },
 
-    mounted: function() {
+    mounted: function () {
         EventBus.$on("draw", this.handleDrawMessage);
         this.sendRequestHistory();
     },
