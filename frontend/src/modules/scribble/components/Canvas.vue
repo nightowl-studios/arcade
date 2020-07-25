@@ -93,8 +93,8 @@ export default {
 
         updateOffset: function () {
             var br = this.canvas.getBoundingClientRect();
-            this.offsetLeft = br.left;
-            this.offsetTop = br.top;
+            this.offsetLeft = parseInt(br.left);
+            this.offsetTop = parseInt(br.top);
         },
 
         setBrushStyle: function (brushStyle) {
