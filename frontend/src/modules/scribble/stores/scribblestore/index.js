@@ -1,17 +1,13 @@
 export default {
     namespaced: true,
     state: {
-        chosenUuid: "",
-        isCanvasLocked: true
+        gameState: null
     },
     getters: {
     },
     mutations: {
-        setChosenUuid: (state, payload) => {
-            state.chosenUuid = payload;
-        },
-        setIsCanvasLocked: (state, payload) => {
-            state.isCanvasLocked = payload
+        setGameState: (state, payload) => {
+            state.gameState = payload
         }
     },
     actions: {

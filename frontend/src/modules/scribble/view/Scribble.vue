@@ -3,7 +3,7 @@
         <b-container fluid class="scribble__container">
             <b-row class="scribble__container__header" align-v="center">
                 <b-col>
-                    <Header :nickname="chosenPlayer" />
+                    <Header :nickname="gameState.player.nickname" />
                 </b-col>
             </b-row>
             <b-row class="scribble__container__body">
@@ -40,23 +40,19 @@ export default {
         Header,
         PlayerList,
     },
-    data: function() {
+    data: function () {
         return {
             colors: ["#000000", "#4287f5", "#da42f5", "#7ef542"],
             sizes: [8, 16, 32, 64],
         };
     },
     computed: {
-        ...mapState('scribble', {
-            chosenUuid: state => state.chosenUuid,
+        ...mapState("application", {
+            players: (state) => state.players,
         }),
-        ...mapState('application', {
-            players: state => state.players
+        ...mapState("scribble", {
+            gameState: (state) => state.gameState,
         }),
-        chosenPlayer() {
-            const chosenPlayer = this.players.filter(player => player.uuid === this.chosenUuid)[0];
-            return chosenPlayer.nickname;
-        }
     },
 };
 </script>
