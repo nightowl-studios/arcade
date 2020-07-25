@@ -72,6 +72,7 @@ func (r *Router) RouteMessage(
 	// cheap pub/sub using map of []handlers
 	for _, handler := range handlers {
 		handler.HandleInteraction(
+			msg.API,
 			msg.Payload,
 			clientID,
 			reg,

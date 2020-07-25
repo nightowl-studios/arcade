@@ -67,6 +67,7 @@ type GameHandler interface {
 	// HandleInteraction will be given the tools it needs to handle
 	// any interaction
 	HandleInteraction(
+		api string,
 		message json.RawMessage,
 		caller identifier.Client,
 		registry registry.Registry,

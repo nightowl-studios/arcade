@@ -96,6 +96,11 @@ func (h *hub) UnregisterClient(
 	return
 }
 
+type AuthSend struct {
+	Token      JSONWebTokenMessage `json:"tokenMessage"`
+	ClientUUID string              `json:"uuid"`
+}
+
 type JSONWebTokenMessage struct {
 	ContainsToken bool   `json:"containsToken"`
 	Token         string `json:"token"`
@@ -157,7 +162,12 @@ func (h *hub) HandleAuthentication(
 		ContainsToken: true,
 	}
 
-	message, err = game.MessageBuild("auth", tokenMessage)
+	authSend := AuthSend{
+		Token:      tokenMessage,
+		ClientUUID: client.ClientUUID.UUID,
+	}
+
+	message, err = game.MessageBuild("auth", authSend)
 	if err != nil {
 		log.Errorf("unable to build message: %v", err)
 		// continue? I guess they won't be able to re-connect

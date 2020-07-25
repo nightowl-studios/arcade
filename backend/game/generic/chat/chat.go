@@ -55,6 +55,7 @@ func (c ChatTime) MarshalJSON() ([]byte, error) {
 // HandleInteraction will be given the tools it needs to handle
 // any interaction
 func (h *Handler) HandleInteraction(
+	api string,
 	message json.RawMessage,
 	caller identifier.Client,
 	registry registry.Registry,
