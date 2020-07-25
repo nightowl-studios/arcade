@@ -10,9 +10,7 @@
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "vetur.format.enable": true,
     "prettier.tabWidth": 4,
-    "vetur.format.options.tabSize": 4,
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     }
