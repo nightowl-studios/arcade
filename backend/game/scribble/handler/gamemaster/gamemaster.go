@@ -115,6 +115,7 @@ type Send struct {
 	GameMasterAPI  State          `json:"gameMasterAPI"`
 	WordSelectSend WordSelectSend `json:"wordSelect,omitempty"`
 	ScoreTimeSend  ScoreTimeSend  `json:"scoreTime,omitempty"`
+	PlayTimeSend   PlayTimeSend   `json:"playTimeSend,omitempty"`
 }
 
 // Receive is a struct that defines what the gamemaster expected to
@@ -175,8 +176,8 @@ func Get(reg registry.Registry) *Handler {
 		wordChoices:      3,
 		round:            0,
 		gameState:        WaitForStart,
-		selectTopicTimer: 10 * time.Second,
-		playTimeTimer:    5 * time.Second,
+		selectTopicTimer: 15 * time.Second,
+		playTimeTimer:    180 * time.Second,
 		playTimeChan:     make(chan PlayTimeChanReceive),
 		selectTopicChan:  make(chan WordSelectReceive),
 		waitForStartChan: make(chan WaitForStartReceive),
@@ -436,11 +437,15 @@ type PlayTimeChanReceive struct {
 func (h *Handler) playTime() {
 	// Send the frontend the hint and the duration
 
-	playTimeSend := PlayTimeSend{
-		Hint:     "TODO",
-		Duration: h.playTimeTimer,
+	send := Send{
+		GameMasterAPI: PlayTime,
+		PlayTimeSend: PlayTimeSend{
+			Hint:     "TODO",
+			Duration: h.playTimeTimer,
+		},
 	}
-	playTimeSendBytes, err := game.MessageBuild(h.Name(), playTimeSend)
+
+	playTimeSendBytes, err := game.MessageBuild(h.Name(), send)
 	if err != nil {
 		log.Fatalf("unable to marshal: %v", err)
 	}
@@ -496,10 +501,13 @@ func (h *Handler) handlePlayChatMessages(
 		h.clientList.roundScore[caller.ClientUUID] = points
 	}
 
-	send := PlayTimeSend{
-		TotalScore:    h.clientList.totalScore,
-		RoundScore:    h.clientList.roundScore,
-		CorrectClient: caller.ClientUUID,
+	send := Send{
+		GameMasterAPI: PlayTime,
+		PlayTimeSend: PlayTimeSend{
+			TotalScore:    h.clientList.totalScore,
+			RoundScore:    h.clientList.roundScore,
+			CorrectClient: caller.ClientUUID,
+		},
 	}
 
 	sendBytes, err := game.MessageBuild(h.Name(), send)
