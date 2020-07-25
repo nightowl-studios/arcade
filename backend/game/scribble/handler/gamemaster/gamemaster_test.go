@@ -72,7 +72,6 @@ func TestWaitForStart(t *testing.T) {
 // This test will check that the messages sent to the front end initially are
 // correct.
 func TestWordSelect(t *testing.T) {
-	startingState := WordSelect
 	wordSelectTimer := time.Second * 10
 	wordChoices := []string{"a", "b", "c"}
 
@@ -83,7 +82,7 @@ func TestWordSelect(t *testing.T) {
 		maxRounds:        3,
 		wordChoices:      3,
 		round:            0,
-		gameState:        startingState, // start at wordSelect
+		gameState:        WordSelect,
 		selectTopicTimer: wordSelectTimer,
 		playTimeTimer:    180 * time.Second,
 		playTimeChan:     make(chan PlayTimeChanReceive),
