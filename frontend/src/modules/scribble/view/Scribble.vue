@@ -4,12 +4,14 @@
             <b-row class="scribble__container__header" align-v="center">
                 <b-col>
                     <Header
-                        v-if="isSelectingWord"
+                        v-if="gameState.showPlayerChoosing"
                         nickname="gameState.player.nickname"
                     />
-                </b-col>
-                <b-col>
-                    <WordChoice :words="gameState.words" />
+                    <Word
+                        v-if="gameState.showWordToGuess"
+                        :word="gameState.word"
+                        :isGuessing="gameState.lockCanvas"
+                    />
                 </b-col>
             </b-row>
             <b-row class="scribble__container__body">
@@ -17,7 +19,7 @@
                     <CanvasPanel
                         :colors="colors"
                         :sizes="sizes"
-                        :isCanvasLocked="lockCanvas"
+                        :isCanvasLocked="gameState.lockCanvas"
                     />
                 </b-col>
                 <b-col>
@@ -29,6 +31,10 @@
                     </b-row>
                 </b-col>
             </b-row>
+            <WordChoiceModal
+                :words="gameState.words"
+                :modalShow="gameState.showWordChoices"
+            />
         </b-container>
     </div>
 </template>
@@ -39,13 +45,9 @@ import Chat from "../components/Chat.vue";
 import CanvasPanel from "../components/CanvasPanel.vue";
 import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
-import WordChoice from "../components/WordChoice.vue";
+import WordChoiceModal from "../components/WordChoiceModal.vue";
 import { mapState } from "vuex";
-import {
-    WaitingForPlayerToChooseWord,
-    ChoosingWord,
-    Guessing,
-} from "../stores/states/gamestates";
+import Word from "../components/Word.vue";
 
 export default {
     mixins: [WebSocketMixin],
@@ -55,7 +57,8 @@ export default {
         Chat,
         Header,
         PlayerList,
-        WordChoice,
+        WordChoiceModal,
+        Word,
     },
     data: function () {
         return {
@@ -70,18 +73,6 @@ export default {
         ...mapState("scribble", {
             gameState: (state) => state.gameState,
         }),
-        lockCanvas() {
-            return (
-                this.gameState.state === WaitingForPlayerToChooseWord.STATE ||
-                this.gameState.state === Guessing.State
-            );
-        },
-        isSelectingWord() {
-            return (
-                this.gameState.state === WaitingForPlayerToChooseWord.STATE ||
-                this.gameState.state === ChoosingWord.STATE
-            );
-        },
     },
 };
 </script>

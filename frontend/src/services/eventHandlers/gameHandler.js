@@ -1,4 +1,5 @@
 import { EventBus } from "@/eventBus";
+import { Event } from "@/events";
 import {
     ChoosingWord,
     Drawing,
@@ -31,14 +32,14 @@ export default class GameHandler {
 
             EventBus.$emit(Event.START_GAME);
         } else if (payload.gameMasterAPI === "playTime") {
-            const currentState = store.getters["scribble/getCurrentState"];
+            const currentState = store.getters["scribble/getGameState"];
             if (currentState.state === ChoosingWord.STATE) {
-                const state = new Drawing();
+                const state = new Drawing(payload.playTimeSend.hint);
                 store.commit("scribble/setGameState", state);
             } else if (
                 currentState.state === WaitingForPlayerToChooseWord.STATE
             ) {
-                const state = new Guessing();
+                const state = new Guessing(payload.playTimeSend.hint);
                 store.commit("scribble/setGameState", state);
             }
         }

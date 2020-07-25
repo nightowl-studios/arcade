@@ -1,5 +1,5 @@
 <template>
-    <div class="header">{{ nickname }} is currently drawing...</div>
+    <div class="header">{{ nickname }} is currently selecting a word...</div>
 </template>
 
 <script>
@@ -8,7 +8,7 @@ export default {
     props: {
         nickname: String,
     },
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -16,4 +16,3 @@ export default {
     text-align: center;
 }
 </style>
-
