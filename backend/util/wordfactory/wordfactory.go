@@ -13,6 +13,11 @@ import (
 	"github.com/bseto/arcade/backend/log"
 )
 
+type WordFactory interface {
+	GenerateWordList(numOfWords int) []string
+}
+type wordFactory struct{}
+
 func randInt(min int, max int) int {
 	rand.Seed(time.Now().UTC().UnixNano())
 	return min + rand.Intn(max-min)
@@ -23,7 +28,11 @@ var (
 	File string = "wordbank.txt"
 )
 
-func GenerateWordList(numOfWords int) []string {
+func GetWordFactory() *wordFactory {
+	return &wordFactory{}
+}
+
+func (w wordFactory) GenerateWordList(numOfWords int) []string {
 	return generateWordList(numOfWords, getWord)
 }
 
