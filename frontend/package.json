@@ -5,8 +5,9 @@
     "scripts": {
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build",
-        "lint": "vue-cli-service lint",
+        "lint": "npx pretty-quick --check",
         "test": "jest",
+        "format": "npx pretty-quick",
         "coverage": "jest --coverage"
     },
     "dependencies": {
