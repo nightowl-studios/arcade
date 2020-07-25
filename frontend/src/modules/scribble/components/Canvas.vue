@@ -6,7 +6,6 @@
 
 <script>
 import { EventBus } from "@/eventBus.js";
-import { mapState } from "vuex";
 
 export default {
     name: "Canvas",
@@ -15,12 +14,7 @@ export default {
         width: Number,
         height: Number,
         defaultBrushStyle: Object,
-    },
-
-    computed: {
-        ...mapState('scribble', {
-            isCanvasLocked: state => state.isCanvasLocked,
-        })
+        drawingLocked: Boolean,
     },
 
     data: function () {
@@ -36,7 +30,7 @@ export default {
     mounted: function () {
         this.canvas = this.$refs["canvas"];
         this.context = this.canvas.getContext("2d");
-        if (!this.isCanvasLocked) {
+        if (!this.drawingLocked) {
             this.canvas.addEventListener("mousemove", this.onMouseMove, false);
             this.canvas.addEventListener("mousedown", this.onMouseDown, false);
             this.canvas.addEventListener("mouseup", this.onMouseUp, false);

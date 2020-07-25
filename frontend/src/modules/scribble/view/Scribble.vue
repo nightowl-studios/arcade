@@ -8,7 +8,7 @@
             </b-row>
             <b-row class="scribble__container__body">
                 <b-col>
-                    <CanvasPanel :colors="colors" :sizes="sizes" />
+                    <CanvasPanel :colors="colors" :sizes="sizes" :isCanvasLocked="lockCanvas" />
                 </b-col>
                 <b-col>
                     <b-row class="scribble__container__body__players">
@@ -30,6 +30,7 @@ import CanvasPanel from "../components/CanvasPanel.vue";
 import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
 import { mapState } from "vuex";
+import { WaitingForPlayerToChooseWord } from "../stores/states/gamestates";
 
 export default {
     mixins: [WebSocketMixin],
@@ -53,6 +54,9 @@ export default {
         ...mapState("scribble", {
             gameState: (state) => state.gameState,
         }),
+        lockCanvas() {
+            return this.gameState.state === WaitingForPlayerToChooseWord.STATE;
+        },
     },
 };
 </script>
