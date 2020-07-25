@@ -30,29 +30,35 @@ export default {
     mounted: function () {
         this.canvas = this.$refs["canvas"];
         this.context = this.canvas.getContext("2d");
-        if (!this.drawingLocked) {
-            this.canvas.addEventListener("mousemove", this.onMouseMove, false);
-            this.canvas.addEventListener("mousedown", this.onMouseDown, false);
-            this.canvas.addEventListener("mouseup", this.onMouseUp, false);
-            this.canvas.addEventListener("mouseover", this.onMouseOver, false);
-        }
+        this.canvas.addEventListener("mousemove", this.onMouseMove, false);
+        this.canvas.addEventListener("mousedown", this.onMouseDown, false);
+        this.canvas.addEventListener("mouseup", this.onMouseUp, false);
+        this.canvas.addEventListener("mouseover", this.onMouseOver, false);
         EventBus.$on("brushUpdated", this.setBrushStyle);
     },
 
     methods: {
         onMouseDown: function (event) {
+            var br = this.canvas.getBoundingClientRect();
+
             this.previousPosition = {
-                x: event.clientX - this.canvas.offsetLeft,
-                y: event.clientY - this.canvas.offsetTop,
+                x: event.clientX - br.left,
+                y: event.clientY - br.top,
             };
+            this.handleDrawInput(
+                this.previousPosition,
+                this.previousPosition,
+                this.brushStyle
+            );
             this.mouseDown = true;
         },
 
         onMouseMove: function (event) {
             if (this.mouseDown) {
+                var br = this.canvas.getBoundingClientRect();
                 let currentPosition = {
-                    x: event.clientX - this.canvas.offsetLeft,
-                    y: event.clientY - this.canvas.offsetTop,
+                    x: event.clientX - br.left,
+                    y: event.clientY - br.top,
                 };
                 this.handleDrawInput(
                     this.previousPosition,
@@ -88,14 +94,16 @@ export default {
         },
 
         handleDrawInput: function (from, to, brushStyle) {
-            let drawAction = {
-                from: from,
-                to: to,
-                brushStyle: brushStyle,
-                lineCap: this.context.lineCap,
-            };
-            this.draw(drawAction);
-            this.$emit("drawAction", drawAction);
+            if (!this.drawingLocked) {
+                let drawAction = {
+                    from: from,
+                    to: to,
+                    brushStyle: brushStyle,
+                    lineCap: this.context.lineCap,
+                };
+                this.draw(drawAction);
+                this.$emit("drawAction", drawAction);
+            }
         },
 
         draw: function (drawAction) {
