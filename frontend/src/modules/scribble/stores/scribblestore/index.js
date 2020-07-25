@@ -1,14 +1,14 @@
 export default {
     namespaced: true,
     state: {
-        chosenUuid: ""
+        gameState: null
     },
     getters: {
     },
     mutations: {
-        setChosenUuid: (state, payload) => {
-            state.chosenUuid = payload;
-        },
+        setGameState: (state, payload) => {
+            state.gameState = payload
+        }
     },
     actions: {
 

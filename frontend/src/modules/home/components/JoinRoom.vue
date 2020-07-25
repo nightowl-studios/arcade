@@ -1,18 +1,16 @@
 <template>
-    <div id="joinRoom">
-        <div id="joinRoomInput">
-            <b-form-input
-                id="lobbyIdInput"
-                v-model="lobbyId"
-                maxlength="4"
-                placeholder="Lobby ID"
-            ></b-form-input>
-            <b-button id="joinButton" variant="success" v-on:click="onJoin"
-                >Join</b-button
-            >
-        </div>
+    <div class="join-room">
+        <b-form-input
+            class="join-room__lobby-id-input"
+            v-model="lobbyId"
+            maxlength="4"
+            placeholder="Lobby ID"
+        ></b-form-input>
+        <b-button variant="success" v-on:click="onJoin">
+            Join
+        </b-button>
         <p
-            id="hubIdDoesNotExistError"
+            class="join-room__error"
             :style="{ visibility: showError ? 'visible' : 'hidden' }"
         >
             Lobby doesn't exist!
@@ -55,16 +53,21 @@ export default {
 </script>
 
 <style scoped>
-#joinRoomInput {
-    display: flex;
+.join-room {
+    display: grid;
+    grid-template-rows: auto;
+    grid-gap: 7px;
 }
 
-#lobbyIdInput {
-    margin-right: 10px;
-    width: 90px;
+.joinRoom * {
+    width: 100%;
 }
 
-#hubIdDoesNotExistError {
+.join-room__lobby-id-input {
+    text-align: center;
+}
+
+.join-room__error {
     display: inline-block;
     margin-top: 8px;
     color: red;
