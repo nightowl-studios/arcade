@@ -63,6 +63,7 @@ func (h *Handler) SendLobbyDetails(
 }
 
 func (h *Handler) HandleInteraction(
+	api string,
 	message json.RawMessage,
 	clientID identifier.Client,
 	reg registry.Registry,

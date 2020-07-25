@@ -33,6 +33,7 @@ func Get() *Handler {
 
 // HandleInteraction will echo with a flavour :D
 func (h *Handler) HandleInteraction(
+	api string,
 	message json.RawMessage,
 	caller identifier.Client,
 	registry registry.Registry,
