@@ -20,3 +20,17 @@ export class WaitingForPlayerToChooseWord extends GameState {
         this.player = player;
     }
 }
+
+export class Drawing extends GameState {
+    static STATE = "Drawing";
+    constructor() {
+        super(Drawing.STATE);
+    }
+}
+
+export class Guessing extends GameState {
+    static STATE = "Guessing";
+    constructor() {
+        super(Guessing.STATE);
+    }
+}

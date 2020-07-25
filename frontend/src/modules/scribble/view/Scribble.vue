@@ -1,10 +1,15 @@
 <template>
     <div class="scribble">
         <b-container fluid class="scribble__container">
-            <WordChoice :words="gameState.words" />
             <b-row class="scribble__container__header" align-v="center">
                 <b-col>
-                    <Header :nickname="gameState.player.nickname" />
+                    <Header
+                        v-if="isSelectingWord"
+                        nickname="gameState.player.nickname"
+                    />
+                </b-col>
+                <b-col>
+                    <WordChoice :words="gameState.words" />
                 </b-col>
             </b-row>
             <b-row class="scribble__container__body">
@@ -36,7 +41,11 @@ import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
 import WordChoice from "../components/WordChoice.vue";
 import { mapState } from "vuex";
-import { WaitingForPlayerToChooseWord } from "../stores/states/gamestates";
+import {
+    WaitingForPlayerToChooseWord,
+    ChoosingWord,
+    Guessing,
+} from "../stores/states/gamestates";
 
 export default {
     mixins: [WebSocketMixin],
@@ -62,7 +71,16 @@ export default {
             gameState: (state) => state.gameState,
         }),
         lockCanvas() {
-            return this.gameState.state === WaitingForPlayerToChooseWord.STATE;
+            return (
+                this.gameState.state === WaitingForPlayerToChooseWord.STATE ||
+                this.gameState.state === Guessing.State
+            );
+        },
+        isSelectingWord() {
+            return (
+                this.gameState.state === WaitingForPlayerToChooseWord.STATE ||
+                this.gameState.state === ChoosingWord.STATE
+            );
         },
     },
 };
