@@ -59,6 +59,10 @@ export default class WebSocketService {
 
             this.eventHandlerService.handle(api, payload);
         };
+
+        webSocket.onclose = () => {
+            console.log("Websocket connection is closed");
+        }
     }
 
     send(data) {

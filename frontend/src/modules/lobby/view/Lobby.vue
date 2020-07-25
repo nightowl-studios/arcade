@@ -8,12 +8,14 @@
             <b-button class="exit-button" variant="danger" v-on:click="exitToHome">Exit Lobby</b-button>
         </div>
         <PlayerList :players="players" />
+        <InvitationLink/>
     </div>
 </template>
 
 <script>
 import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
+import InvitationLink from "../components/InvitationLink.vue";
 import ChangeNicknameModal from "../components/ChangeNicknameModal.vue";
 import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 import { Event } from "@/events";
@@ -26,6 +28,7 @@ export default {
         Header,
         PlayerList,
         ChangeNicknameModal,
+        InvitationLink
     },
 
     data: function() {
