@@ -36,10 +36,10 @@ const (
 	// This state ends when:
 	// 1) The leader presses on the start button
 	// The next state is:
-	// "playerSelect"
+	// "wordSelect"
 	WaitForStart State = "waitForStart"
 
-	// PlayerSelect State is a state where the gamemaster will - in no particular
+	// WordSelect State is a state where the gamemaster will - in no particular
 	// order, but will be consistent - choose a player and offer the player 3
 	// words to choose from. At the same time, the gamemaster will notify all
 	// other players which player they are currently waiting on.
@@ -50,8 +50,8 @@ const (
 	// 2) The user runs out of time
 	// The next state is:
 	// If 1), the next game state will be "playTime"
-	// if 2), the next game state will be "playerSelect"
-	PlayerSelect State = "playerSelect"
+	// if 2), the next game state will be "wordSelect"
+	WordSelect State = "wordSelect"
 
 	// PlayTime State is a state where the gamemaster will notify all players
 	// that the game has started and there should be the "hint" displayed
@@ -73,7 +73,7 @@ const (
 	// This state ends when:
 	// 1) After a timeout - no message required from frontend for this
 	// The next state is:
-	// 1) If the rounds < maxRounds, "playerSelect"
+	// 1) If the rounds < maxRounds, "wordSelect"
 	// 2) If the rounds == maxRounds, "showResults"
 	ScoreTime State = "scoreTime"
 
@@ -109,12 +109,12 @@ var (
 //
 // To further make things easier, whenever a state sends messages to the front-end
 // the GameMasterAPI will be filled out with the State name.
-// For example, if "playerSelect" was sending a message with the "playerSelect"
-// field, the "gameMasterAPI" field will be "playerSelect"
+// For example, if "wordSelect" was sending a message with the "wordSelect"
+// field, the "gameMasterAPI" field will be "wordSelect"
 type Send struct {
-	GameMasterAPI    State            `json:"gameMasterAPI"`
-	PlayerSelectSend PlayerSelectSend `json:"playerSelect,omitempty"`
-	ScoreTimeSend    ScoreTimeSend    `json:"scoreTime,omitempty"`
+	GameMasterAPI  State          `json:"gameMasterAPI"`
+	WordSelectSend WordSelectSend `json:"wordSelect,omitempty"`
+	ScoreTimeSend  ScoreTimeSend  `json:"scoreTime,omitempty"`
 }
 
 // Receive is a struct that defines what the gamemaster expected to
@@ -124,7 +124,7 @@ type Send struct {
 type Receive struct {
 	GameMasterAPI       State               `json:"gameMasterAPI"`
 	WaitForStartReceive WaitForStartReceive `json:"waitForStart"`
-	PlayerSelectReceive PlayerSelectReceive `json:"playerSelect"`
+	WordSelectReceive   WordSelectReceive   `json:"wordSelect"`
 }
 
 type client struct {
@@ -154,7 +154,7 @@ type Handler struct {
 	chosenWord    string
 
 	waitForStartChan (chan WaitForStartReceive)
-	selectTopicChan  (chan PlayerSelectReceive)
+	selectTopicChan  (chan WordSelectReceive)
 	playTimeChan     (chan PlayTimeChanReceive)
 
 	// config-like things
@@ -178,7 +178,7 @@ func Get(reg registry.Registry) *Handler {
 		selectTopicTimer: 10 * time.Second,
 		playTimeTimer:    5 * time.Second,
 		playTimeChan:     make(chan PlayTimeChanReceive),
-		selectTopicChan:  make(chan PlayerSelectReceive),
+		selectTopicChan:  make(chan WordSelectReceive),
 		waitForStartChan: make(chan WaitForStartReceive),
 		pointHandler:     point.Get(),
 	}
@@ -208,13 +208,13 @@ func (h *Handler) HandleInteraction(
 			log.Infof("sending thing to start channel")
 			h.waitForStartChan <- receive.WaitForStartReceive
 		}
-	case PlayerSelect:
+	case WordSelect:
 		if api == h.Name() {
 			if caller.ClientUUID != h.clientList.clients[h.clientList.nextToBeSelected].ClientUUIDStruct {
 				log.Errorf("client: %v tried to send to gamemaster out of turn", caller)
 				return
 			}
-			h.selectTopicChan <- receive.PlayerSelectReceive
+			h.selectTopicChan <- receive.WordSelectReceive
 		}
 	case PlayTime:
 		h.handlePlayMessages(api, message, caller, registry)
@@ -289,8 +289,8 @@ func (h *Handler) run() {
 		case WaitForStart:
 			log.Infof("waiting for start....")
 			h.waitForStart()
-		case PlayerSelect:
-			h.playerSelectTopic()
+		case WordSelect:
+			h.wordSelect()
 		case PlayTime:
 			h.playTime()
 		case ScoreTime:
@@ -319,14 +319,14 @@ func (h *Handler) waitForStart() {
 	select {
 	case msg := <-h.waitForStartChan:
 		if msg.StartGame == true {
-			h.changeGameStateTo(PlayerSelect)
+			h.changeGameStateTo(WordSelect)
 		}
 	}
 }
 
-// PlayerSelectSend defines the message that the "playerSelect" state
+// WordSelectSend defines the message that the "wordSelect" state
 // will send to the front end
-type PlayerSelectSend struct {
+type WordSelectSend struct {
 	// ChosenUUID is the UUID of the client that was chosen
 	// to pick a word
 	ChosenUUID string `json:"chosenUUID"`
@@ -341,7 +341,7 @@ type PlayerSelectSend struct {
 	LockCanvas bool `json:"lockCanvas"`
 }
 
-type PlayerSelectReceive struct {
+type WordSelectReceive struct {
 	// If the user chose a word, set this bool to true
 	// If the user did not choose a word and timed out, then set this bool to false
 	WordChosen bool `json:"wordChosen"`
@@ -351,11 +351,11 @@ type PlayerSelectReceive struct {
 	Choice int `json:"choice"`
 }
 
-// playerSelectTopic will in-order select a user from the clientList
+// wordSelect will in-order select a user from the clientList
 // and then provide them with 3 word choices.
 // this function will also let the other players know that the selected player
 // is currently choosing a word
-func (h *Handler) playerSelectTopic() {
+func (h *Handler) wordSelect() {
 	var wordChoices []string
 	for i := 0; i < h.wordChoices; i++ {
 		word, err := wordfactory.WordGenerator2(
@@ -375,8 +375,8 @@ func (h *Handler) playerSelectTopic() {
 
 	selectedClient := h.clientList.clients[h.clientList.nextToBeSelected]
 	selectedPlayerMsg := Send{
-		GameMasterAPI: PlayerSelect,
-		PlayerSelectSend: PlayerSelectSend{
+		GameMasterAPI: WordSelect,
+		WordSelectSend: WordSelectSend{
 			LockCanvas: true,
 			Duration:   h.selectTopicTimer,
 			ChosenUUID: selectedClient.UUID,
@@ -391,8 +391,8 @@ func (h *Handler) playerSelectTopic() {
 
 	// We did not want to send the other players the wordChoices just in case
 	// they're (zachary) snooping the websocket messages :P
-	selectedPlayerMsg.PlayerSelectSend.Choices = wordChoices
-	selectedPlayerMsg.PlayerSelectSend.LockCanvas = false
+	selectedPlayerMsg.WordSelectSend.Choices = wordChoices
+	selectedPlayerMsg.WordSelectSend.LockCanvas = false
 	selectedPlayerBytes, err = game.MessageBuild("game", selectedPlayerMsg)
 	if err != nil {
 		log.Fatalf("unable to marshal: %v", err)
@@ -404,10 +404,10 @@ func (h *Handler) playerSelectTopic() {
 	selectTopicTime := time.NewTimer(h.selectTopicTimer + 1)
 	select {
 	case <-selectTopicTime.C:
-		h.changeGameStateTo(PlayerSelect)
+		h.changeGameStateTo(WordSelect)
 	case msg := <-h.selectTopicChan:
 		if msg.WordChosen == false {
-			h.changeGameStateTo(PlayerSelect)
+			h.changeGameStateTo(WordSelect)
 		} else {
 			h.chosenWord = wordChoices[msg.Choice]
 		}
@@ -534,7 +534,7 @@ func (h *Handler) scoreTime() {
 	if h.round >= h.maxRounds {
 		h.gameState = ShowResults
 	} else {
-		h.gameState = PlayerSelect
+		h.gameState = WordSelect
 	}
 	selectedClient := h.clientList.clients[0]
 	scoreTimeMsg := Send{
