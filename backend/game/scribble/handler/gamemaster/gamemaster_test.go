@@ -22,8 +22,11 @@ func TestWaitForStart(t *testing.T) {
 		t.Errorf("got state: %v, expected: %v", gameMaster.gameState, WaitForStart)
 	}
 
-	receivedStruct := WaitForStartReceive{
-		StartGame: false,
+	receivedStruct := Receive{
+		GameMasterAPI: WaitForStart,
+		WaitForStartReceive: WaitForStartReceive{
+			StartGame: false,
+		},
 	}
 	b, err := json.Marshal(receivedStruct)
 	if err != nil {
@@ -34,13 +37,24 @@ func TestWaitForStart(t *testing.T) {
 		t.Errorf("got state: %v, expected: %v", gameMaster.gameState, WaitForStart)
 	}
 
-	receivedStruct.StartGame = true
+	var testPlz Receive
+	err = json.Unmarshal(b, &testPlz)
+	if err != nil {
+		t.Errorf("wtf: %v", err)
+	}
+
+	receivedStruct.WaitForStartReceive.StartGame = true
 	b, err = json.Marshal(receivedStruct)
 	if err != nil {
 		t.Fatalf("unable to marshal struct: %v", err)
 	}
+
+	err = json.Unmarshal(b, &testPlz)
+	if err != nil {
+		t.Errorf("wtf: %v", err)
+	}
 	gameMaster.HandleInteraction(gameMaster.Name(), b, ID, &reg)
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 500)
 
 	if gameMaster.gameState != WordSelect {
 		t.Errorf("got state: %v, expected: %v", gameMaster.gameState, WordSelect)
