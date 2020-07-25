@@ -24,26 +24,29 @@ export default {
             brushStyle: this.defaultBrushStyle,
             canvas: null,
             context: null,
+            offsetLeft: 0,
+            offsetTop: 0,
         };
     },
 
     mounted: function () {
         this.canvas = this.$refs["canvas"];
         this.context = this.canvas.getContext("2d");
+        this.updateOffset();
         this.canvas.addEventListener("mousemove", this.onMouseMove, false);
         this.canvas.addEventListener("mousedown", this.onMouseDown, false);
         this.canvas.addEventListener("mouseup", this.onMouseUp, false);
         this.canvas.addEventListener("mouseover", this.onMouseOver, false);
+        window.addEventListener("scroll", this.updateOffset, false);
+        window.addEventListener("resize", this.updateOffset, false);
         EventBus.$on("brushUpdated", this.setBrushStyle);
     },
 
     methods: {
         onMouseDown: function (event) {
-            var br = this.canvas.getBoundingClientRect();
-
             this.previousPosition = {
-                x: event.clientX - br.left,
-                y: event.clientY - br.top,
+                x: event.clientX - this.offsetLeft,
+                y: event.clientY - this.offsetTop,
             };
             this.handleDrawInput(
                 this.previousPosition,
@@ -55,10 +58,9 @@ export default {
 
         onMouseMove: function (event) {
             if (this.mouseDown) {
-                var br = this.canvas.getBoundingClientRect();
                 let currentPosition = {
-                    x: event.clientX - br.left,
-                    y: event.clientY - br.top,
+                    x: event.clientX - this.offsetLeft,
+                    y: event.clientY - this.offsetTop,
                 };
                 this.handleDrawInput(
                     this.previousPosition,
@@ -87,6 +89,12 @@ export default {
                     y: event.clientY - this.canvas.offsetTop,
                 };
             }
+        },
+
+        updateOffset: function () {
+            var br = this.canvas.getBoundingClientRect();
+            this.offsetLeft = br.left;
+            this.offsetTop = br.top;
         },
 
         setBrushStyle: function (brushStyle) {
