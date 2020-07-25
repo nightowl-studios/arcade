@@ -5,20 +5,18 @@ class GameState {
 }
 
 export class ChoosingWord extends GameState {
-    static STATE = 'ChoosingWord';
+    static STATE = "ChoosingWord";
     constructor(player, words) {
         super(ChoosingWord.STATE);
         this.player = player;
         this.words = words;
     }
-
 }
 
 export class WaitingForPlayerToChooseWord extends GameState {
-    static STATE = 'WaitingForPlayerToChooseWord';
+    static STATE = "WaitingForPlayerToChooseWord";
     constructor(player) {
         super(WaitingForPlayerToChooseWord.STATE);
         this.player = player;
     }
-
 }
