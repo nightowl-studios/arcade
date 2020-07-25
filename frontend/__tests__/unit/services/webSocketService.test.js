@@ -108,8 +108,6 @@ describe("webSocketService", () => {
                     service.initWebSocket(websocket, "123");
                     websocket.onmessage(event);
 
-                    expect(cookieService.setArcadeCookie).toBeCalledTimes(1);
-                    expect(cookieService.setArcadeCookie).toBeCalledWith("123");
                     expect(eventHandlerService.handle).toBeCalledTimes(1);
                     expect(eventHandlerService.handle).toBeCalledWith(
                         "auth",
@@ -124,7 +122,6 @@ describe("webSocketService", () => {
                     service.initWebSocket(websocket, "123");
                     websocket.onmessage(event);
 
-                    expect(cookieService.setArcadeCookie).toBeCalledTimes(0);
                     expect(eventHandlerService.handle).toBeCalledTimes(1);
                     expect(eventHandlerService.handle).toBeCalledWith(
                         "notAuth",
