@@ -53,10 +53,6 @@ export default class WebSocketService {
             let api = json.api;
             let payload = json.payload;
 
-            if (api === "auth") {
-                this.cookieService.setArcadeCookie(json.payload);
-            }
-
             this.eventHandlerService.handle(api, payload);
         };
 
