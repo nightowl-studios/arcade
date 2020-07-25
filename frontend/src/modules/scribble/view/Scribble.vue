@@ -16,6 +16,9 @@
                     />
                 </b-col>
                 <b-col>
+                    <b-row class="scribble__container__body__lobbyid">
+                        <LobbyId />
+                    </b-row>
                     <b-row class="scribble__container__body__players">
                         <PlayerList :players="players" />
                     </b-row>
@@ -33,6 +36,7 @@ import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 import Chat from "../components/Chat.vue";
 import CanvasPanel from "../components/CanvasPanel.vue";
 import Header from "../components/Header.vue";
+import LobbyId from "../components/LobbyId.vue";
 import PlayerList from "../components/PlayerList.vue";
 import WordChoice from "../components/WordChoice.vue";
 import { mapState } from "vuex";
@@ -45,6 +49,7 @@ export default {
         CanvasPanel,
         Chat,
         Header,
+        LobbyId,
         PlayerList,
         WordChoice,
     },
@@ -77,7 +82,6 @@ export default {
 
         &__body {
             height: 100%;
-
             &__players {
                 height: 50%;
             }
