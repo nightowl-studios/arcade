@@ -98,41 +98,6 @@ describe("webSocketService", () => {
                 expect(consoleOutput).toEqual(["NOT CONNECTED"]);
             });
         });
-        describe("on message", () => {
-            describe("handles the message and", () => {
-                it("sets the arcade cookie when api is auth", () => {
-                    let event = {
-                        data: '{"api": "auth", "payload": "123"}',
-                    };
-
-                    service.initWebSocket(websocket, "123");
-                    websocket.onmessage(event);
-
-                    expect(cookieService.setArcadeCookie).toBeCalledTimes(1);
-                    expect(cookieService.setArcadeCookie).toBeCalledWith("123");
-                    expect(eventHandlerService.handle).toBeCalledTimes(1);
-                    expect(eventHandlerService.handle).toBeCalledWith(
-                        "auth",
-                        "123"
-                    );
-                });
-                it("does not set the arcade cookie when api is not auth", () => {
-                    let event = {
-                        data: '{"api": "notAuth", "payload": "123"}',
-                    };
-
-                    service.initWebSocket(websocket, "123");
-                    websocket.onmessage(event);
-
-                    expect(cookieService.setArcadeCookie).toBeCalledTimes(0);
-                    expect(eventHandlerService.handle).toBeCalledTimes(1);
-                    expect(eventHandlerService.handle).toBeCalledWith(
-                        "notAuth",
-                        "123"
-                    );
-                });
-            });
-        });
     });
     describe("on disconnect", () => {
         it("disconnects if connected", () => {

@@ -1,14 +1,19 @@
 <template>
     <div class="scribble">
         <b-container fluid class="scribble__container">
+            <WordChoice :words="gameState.words" />
             <b-row class="scribble__container__header" align-v="center">
                 <b-col>
-                    <Header :nickname="chosenPlayer" />
+                    <Header :nickname="gameState.player.nickname" />
                 </b-col>
             </b-row>
             <b-row class="scribble__container__body">
                 <b-col>
-                    <CanvasPanel :colors="colors" :sizes="sizes" />
+                    <CanvasPanel
+                        :colors="colors"
+                        :sizes="sizes"
+                        :isCanvasLocked="lockCanvas"
+                    />
                 </b-col>
                 <b-col>
                     <b-row class="scribble__container__body__players">
@@ -29,7 +34,9 @@ import Chat from "../components/Chat.vue";
 import CanvasPanel from "../components/CanvasPanel.vue";
 import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
+import WordChoice from "../components/WordChoice.vue";
 import { mapState } from "vuex";
+import { WaitingForPlayerToChooseWord } from "../stores/states/gamestates";
 
 export default {
     mixins: [WebSocketMixin],
@@ -39,24 +46,24 @@ export default {
         Chat,
         Header,
         PlayerList,
+        WordChoice,
     },
-    data: function() {
+    data: function () {
         return {
             colors: ["#000000", "#4287f5", "#da42f5", "#7ef542"],
             sizes: [8, 16, 32, 64],
         };
     },
     computed: {
-        ...mapState('scribble', {
-            chosenUuid: state => state.chosenUuid,
+        ...mapState("application", {
+            players: (state) => state.players,
         }),
-        ...mapState('application', {
-            players: state => state.players
+        ...mapState("scribble", {
+            gameState: (state) => state.gameState,
         }),
-        chosenPlayer() {
-            const chosenPlayer = this.players.filter(player => player.uuid === this.chosenUuid)[0];
-            return chosenPlayer.nickname;
-        }
+        lockCanvas() {
+            return this.gameState.state === WaitingForPlayerToChooseWord.STATE;
+        },
     },
 };
 </script>

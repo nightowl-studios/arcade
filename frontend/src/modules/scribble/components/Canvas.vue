@@ -14,6 +14,7 @@ export default {
         width: Number,
         height: Number,
         defaultBrushStyle: Object,
+        drawingLocked: Boolean,
     },
 
     data: function () {
@@ -23,33 +24,43 @@ export default {
             brushStyle: this.defaultBrushStyle,
             canvas: null,
             context: null,
+            offsetLeft: 0,
+            offsetTop: 0,
         };
     },
 
     mounted: function () {
         this.canvas = this.$refs["canvas"];
         this.context = this.canvas.getContext("2d");
+        this.updateOffset();
         this.canvas.addEventListener("mousemove", this.onMouseMove, false);
         this.canvas.addEventListener("mousedown", this.onMouseDown, false);
         this.canvas.addEventListener("mouseup", this.onMouseUp, false);
         this.canvas.addEventListener("mouseover", this.onMouseOver, false);
+        window.addEventListener("scroll", this.updateOffset, false);
+        window.addEventListener("resize", this.updateOffset, false);
         EventBus.$on("brushUpdated", this.setBrushStyle);
     },
 
     methods: {
         onMouseDown: function (event) {
             this.previousPosition = {
-                x: event.clientX - this.canvas.offsetLeft,
-                y: event.clientY - this.canvas.offsetTop,
+                x: event.clientX - this.offsetLeft,
+                y: event.clientY - this.offsetTop,
             };
+            this.handleDrawInput(
+                this.previousPosition,
+                this.previousPosition,
+                this.brushStyle
+            );
             this.mouseDown = true;
         },
 
         onMouseMove: function (event) {
             if (this.mouseDown) {
                 let currentPosition = {
-                    x: event.clientX - this.canvas.offsetLeft,
-                    y: event.clientY - this.canvas.offsetTop,
+                    x: event.clientX - this.offsetLeft,
+                    y: event.clientY - this.offsetTop,
                 };
                 this.handleDrawInput(
                     this.previousPosition,
@@ -80,19 +91,27 @@ export default {
             }
         },
 
+        updateOffset: function () {
+            var br = this.canvas.getBoundingClientRect();
+            this.offsetLeft = parseInt(br.left);
+            this.offsetTop = parseInt(br.top);
+        },
+
         setBrushStyle: function (brushStyle) {
             this.brushStyle = brushStyle;
         },
 
         handleDrawInput: function (from, to, brushStyle) {
-            let drawAction = {
-                from: from,
-                to: to,
-                brushStyle: brushStyle,
-                lineCap: this.context.lineCap,
-            };
-            this.draw(drawAction);
-            this.$emit("drawAction", drawAction);
+            if (!this.drawingLocked) {
+                let drawAction = {
+                    from: from,
+                    to: to,
+                    brushStyle: brushStyle,
+                    lineCap: this.context.lineCap,
+                };
+                this.draw(drawAction);
+                this.$emit("drawAction", drawAction);
+            }
         },
 
         draw: function (drawAction) {
