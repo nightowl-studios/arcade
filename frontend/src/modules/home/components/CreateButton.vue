@@ -1,6 +1,9 @@
 <template>
     <div>
-        <b-button variant="success" v-on:click="createRoom"
+        <b-button
+            class="create-button"
+            variant="success"
+            v-on:click="createRoom"
             >Create Room</b-button
         >
     </div>
@@ -17,3 +20,9 @@ export default {
     },
 };
 </script>
+
+<style scoped>
+.create-button {
+    width: 100%;
+}
+</style>
