@@ -1,6 +1,7 @@
 <template>
     <div class="scribble">
         <b-container fluid class="scribble__container">
+            <WordChoice :words="gameState.words" />
             <b-row class="scribble__container__header" align-v="center">
                 <b-col>
                     <Header :nickname="gameState.player.nickname" />
@@ -8,7 +9,11 @@
             </b-row>
             <b-row class="scribble__container__body">
                 <b-col>
-                    <CanvasPanel :colors="colors" :sizes="sizes" :isCanvasLocked="lockCanvas" />
+                    <CanvasPanel
+                        :colors="colors"
+                        :sizes="sizes"
+                        :isCanvasLocked="lockCanvas"
+                    />
                 </b-col>
                 <b-col>
                     <b-row class="scribble__container__body__players">
@@ -29,6 +34,7 @@ import Chat from "../components/Chat.vue";
 import CanvasPanel from "../components/CanvasPanel.vue";
 import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
+import WordChoice from "../components/WordChoice.vue";
 import { mapState } from "vuex";
 import { WaitingForPlayerToChooseWord } from "../stores/states/gamestates";
 
@@ -40,6 +46,7 @@ export default {
         Chat,
         Header,
         PlayerList,
+        WordChoice,
     },
     data: function () {
         return {
