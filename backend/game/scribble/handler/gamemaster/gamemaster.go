@@ -11,7 +11,6 @@ package gamemaster
 
 import (
 	"encoding/json"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -115,6 +114,7 @@ type Send struct {
 	GameMasterAPI  State          `json:"gameMasterAPI"`
 	WordSelectSend WordSelectSend `json:"wordSelect,omitempty"`
 	ScoreTimeSend  ScoreTimeSend  `json:"scoreTime,omitempty"`
+	PlayTimeSend   PlayTimeSend   `json:"playTimeSend,omitempty"`
 }
 
 // Receive is a struct that defines what the gamemaster expected to
@@ -164,7 +164,8 @@ type Handler struct {
 	playTimeTimer    time.Duration
 
 	// util things
-	pointHandler *point.Handler
+	pointHandler point.Handler
+	wordFactory  wordfactory.WordFactory
 }
 
 func Get(reg registry.Registry) *Handler {
@@ -175,12 +176,13 @@ func Get(reg registry.Registry) *Handler {
 		wordChoices:      3,
 		round:            0,
 		gameState:        WaitForStart,
-		selectTopicTimer: 10 * time.Second,
-		playTimeTimer:    5 * time.Second,
+		selectTopicTimer: 15 * time.Second,
+		playTimeTimer:    180 * time.Second,
 		playTimeChan:     make(chan PlayTimeChanReceive),
 		selectTopicChan:  make(chan WordSelectReceive),
 		waitForStartChan: make(chan WaitForStartReceive),
 		pointHandler:     point.Get(),
+		wordFactory:      wordfactory.GetWordFactory(),
 	}
 	go handler.run()
 	return handler
@@ -356,23 +358,7 @@ type WordSelectReceive struct {
 // this function will also let the other players know that the selected player
 // is currently choosing a word
 func (h *Handler) wordSelect() {
-	var wordChoices []string
-	for i := 0; i < h.wordChoices; i++ {
-		word, err := wordfactory.WordGenerator2(
-			filepath.Join(wordfactory.Dir, wordfactory.File),
-		)
-		if err != nil {
-			log.Errorf("unable to get a word, trying again: %v", err)
-			word, err = wordfactory.WordGenerator(
-				filepath.Join(wordfactory.Dir, wordfactory.File),
-			)
-			if err != nil {
-				log.Fatalf("unable to get a word using WordGenerator1: %v", err)
-			}
-		}
-		wordChoices = append(wordChoices, word)
-	}
-
+	wordChoices := h.wordFactory.GenerateWordList(h.wordChoices)
 	selectedClient := h.clientList.clients[h.clientList.nextToBeSelected]
 	selectedPlayerMsg := Send{
 		GameMasterAPI: WordSelect,
@@ -436,11 +422,15 @@ type PlayTimeChanReceive struct {
 func (h *Handler) playTime() {
 	// Send the frontend the hint and the duration
 
-	playTimeSend := PlayTimeSend{
-		Hint:     "TODO",
-		Duration: h.playTimeTimer,
+	send := Send{
+		GameMasterAPI: PlayTime,
+		PlayTimeSend: PlayTimeSend{
+			Hint:     "TODO",
+			Duration: h.playTimeTimer,
+		},
 	}
-	playTimeSendBytes, err := game.MessageBuild(h.Name(), playTimeSend)
+
+	playTimeSendBytes, err := game.MessageBuild(h.Name(), send)
 	if err != nil {
 		log.Fatalf("unable to marshal: %v", err)
 	}
@@ -496,10 +486,13 @@ func (h *Handler) handlePlayChatMessages(
 		h.clientList.roundScore[caller.ClientUUID] = points
 	}
 
-	send := PlayTimeSend{
-		TotalScore:    h.clientList.totalScore,
-		RoundScore:    h.clientList.roundScore,
-		CorrectClient: caller.ClientUUID,
+	send := Send{
+		GameMasterAPI: PlayTime,
+		PlayTimeSend: PlayTimeSend{
+			TotalScore:    h.clientList.totalScore,
+			RoundScore:    h.clientList.roundScore,
+			CorrectClient: caller.ClientUUID,
+		},
 	}
 
 	sendBytes, err := game.MessageBuild(h.Name(), send)
