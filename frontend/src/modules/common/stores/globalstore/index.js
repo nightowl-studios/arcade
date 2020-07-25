@@ -1,6 +1,7 @@
 export default {
     namespaced: true,
     state: {
+        playerUuid: "",
         players: []
     },
     getters: {
@@ -9,6 +10,9 @@ export default {
         setPlayers: (state, payload) => {
             state.players = payload;
         },
+        setPlayerUuid: (state, payload) => {
+            state.playerUuid = payload;
+        }
     },
     actions: {
 
