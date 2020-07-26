@@ -1,23 +1,19 @@
 import { EventBus } from "../../../src/eventBus.js";
+import { Event } from "../../../src/events.js";
 import GameHandler from "../../../src/services/eventHandlers/gameHandler";
 import { store } from "../../../src/store.js";
 
 jest.mock("../../../src/eventBus");
-jest.mock("../../../src/store.js", () => ({
-    get store() {
+jest.mock("../../../src/store.js");
+
+store.getters = {
+    "application/getPlayerUuid": "123",
+    "application/getPlayerWithUuid": (uuid) => {
         return {
-            getters: {
-                "application/getPlayerUuid": "123",
-                "application/getPlayerWithUuid": (uuid) => {
-                    return {
-                        playerUuid: "123",
-                    };
-                },
-            },
-            commit: (a, b) => {},
+            playerUuid: "123",
         };
     },
-}));
+};
 
 describe("gameHandler", () => {
     let gameHandler = new GameHandler();
@@ -34,9 +30,11 @@ describe("gameHandler", () => {
         describe("if player is chosen", () => {
             gameHandler.handle(wordSelectMock);
             it("commits", () => {
-                expect(store.commit).toHaveBeenCalledWith;
-                "scribble/setGameState", expect.anything();
-                expect(EventBus.$emit).toBeCalledWith(Event.GAME_STARTED);
+                expect(store.commit).toHaveBeenCalledWith(
+                    "scribble/setGameState",
+                    expect.anything()
+                );
+                expect(EventBus.$emit).toBeCalledWith(Event.START_GAME);
             });
         });
     });
