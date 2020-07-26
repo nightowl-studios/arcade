@@ -41,7 +41,7 @@ export default {
 
     methods: {
         onMouseDown: function (event) {
-            let rect = this.canvas.getBoundingClientRect();
+            const rect = this.canvas.getBoundingClientRect();
 
             this.previousPosition = {
                 x:
@@ -62,7 +62,7 @@ export default {
 
         onMouseMove: function (event) {
             if (this.mouseDown) {
-                let rect = this.canvas.getBoundingClientRect();
+                const rect = this.canvas.getBoundingClientRect();
 
                 let currentPosition = {
                     x:
@@ -94,7 +94,7 @@ export default {
                 this.mouseDown = false;
             } else {
                 this.mouseDown = true;
-                let rect = this.canvas.getBoundingClientRect();
+                const rect = this.canvas.getBoundingClientRect();
 
                 this.previousPosition = {
                     x:
