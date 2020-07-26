@@ -11,7 +11,6 @@ package gamemaster
 
 import (
 	"encoding/json"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -165,7 +164,8 @@ type Handler struct {
 	playTimeTimer    time.Duration
 
 	// util things
-	pointHandler *point.Handler
+	pointHandler point.Handler
+	wordFactory  wordfactory.WordFactory
 }
 
 func Get(reg registry.Registry) *Handler {
@@ -182,6 +182,7 @@ func Get(reg registry.Registry) *Handler {
 		selectTopicChan:  make(chan WordSelectReceive),
 		waitForStartChan: make(chan WaitForStartReceive),
 		pointHandler:     point.Get(),
+		wordFactory:      wordfactory.GetWordFactory(),
 	}
 	go handler.run()
 	return handler
@@ -357,23 +358,7 @@ type WordSelectReceive struct {
 // this function will also let the other players know that the selected player
 // is currently choosing a word
 func (h *Handler) wordSelect() {
-	var wordChoices []string
-	for i := 0; i < h.wordChoices; i++ {
-		word, err := wordfactory.WordGenerator2(
-			filepath.Join(wordfactory.Dir, wordfactory.File),
-		)
-		if err != nil {
-			log.Errorf("unable to get a word, trying again: %v", err)
-			word, err = wordfactory.WordGenerator(
-				filepath.Join(wordfactory.Dir, wordfactory.File),
-			)
-			if err != nil {
-				log.Fatalf("unable to get a word using WordGenerator1: %v", err)
-			}
-		}
-		wordChoices = append(wordChoices, word)
-	}
-
+	wordChoices := h.wordFactory.GenerateWordList(h.wordChoices)
 	selectedClient := h.clientList.clients[h.clientList.nextToBeSelected]
 	selectedPlayerMsg := Send{
 		GameMasterAPI: WordSelect,
