@@ -64,6 +64,8 @@ func TestWaitForStart(t *testing.T) {
 		t.Errorf("got state: %v, expected: %v", gameMaster.gameState, WordSelect)
 	}
 
+	gameMaster.ClientQuit(ID, &reg)
+
 	reg.AssertExpectations(t)
 	wordFactory.AssertExpectations(t)
 }
@@ -88,6 +90,7 @@ func TestWordSelect(t *testing.T) {
 		playTimeChan:     make(chan PlayTimeChanReceive),
 		selectTopicChan:  make(chan WordSelectReceive),
 		waitForStartChan: make(chan WaitForStartReceive),
+		EndChan:          make(chan bool),
 		pointHandler:     point.Get(),
 		wordFactory:      &wordFactory,
 	}
@@ -152,7 +155,9 @@ func TestWordSelect(t *testing.T) {
 
 	go gameMaster.run()
 
-	time.Sleep(time.Millisecond * 500)
+	time.Sleep(time.Millisecond * 100)
+
+	gameMaster.ClientQuit(ID, &reg)
 
 	reg.AssertExpectations(t)
 	wordFactory.AssertExpectations(t)
@@ -169,18 +174,49 @@ func TestAllClientsQuit(t *testing.T) {
 		maxRounds:        3,
 		wordChoices:      3,
 		round:            0,
-		gameState:        WordSelect,
+		gameState:        WaitForStart,
 		selectTopicTimer: time.Second * 10,
 		playTimeTimer:    180 * time.Second,
 		playTimeChan:     make(chan PlayTimeChanReceive),
 		selectTopicChan:  make(chan WordSelectReceive),
 		waitForStartChan: make(chan WaitForStartReceive),
+		EndChan:          make(chan bool),
 		pointHandler:     point.Get(),
 		wordFactory:      &wordFactory,
 	}
+	go gameMaster.run()
+	time.Sleep(time.Millisecond * 100)
+
 	ID := identifier.Client{
 		ClientUUID: identifier.ClientUUIDStruct{"AAA"},
 		HubName:    identifier.HubNameStruct{"BBB"},
 	}
+	ID2 := identifier.Client{
+		ClientUUID: identifier.ClientUUIDStruct{"BBB"},
+		HubName:    identifier.HubNameStruct{"BBB"},
+	}
 	gameMaster.NewClient(ID, &reg)
+	gameMaster.NewClient(ID2, &reg)
+
+	if gameMaster.gameState != WaitForStart {
+		t.Errorf(
+			"unexpected gamestate: %v, expected: %v",
+			gameMaster.gameState,
+			WaitForStart,
+		)
+	}
+
+	gameMaster.ClientQuit(ID, &reg)
+	gameMaster.ClientQuit(ID2, &reg)
+
+	time.Sleep(time.Millisecond * 100)
+
+	if gameMaster.gameState != Ended {
+		t.Errorf(
+			"unexpected gamestate: %v, expected: %v",
+			gameMaster.gameState,
+			Ended,
+		)
+	}
+
 }

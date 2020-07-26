@@ -88,6 +88,10 @@ const (
 	// the game has officially ended. The frontend can use this event however
 	// they'd like. Maybe redirect to a new lobby, or back to the landing page.
 	EndGame State = "endGame"
+
+	// Ended state is a state that can be used to check if the run() loop has
+	// been stopped.
+	Ended State = "ended"
 )
 
 var (
@@ -308,10 +312,14 @@ func (h *Handler) run() {
 		case ShowResults:
 			h.showResults()
 			h.gameState = EndGame
+			fallthrough
+		case EndGame:
 			break
 		}
+		log.Infof("outside of the switch...")
 
 		if h.gameState == EndGame {
+			h.changeGameStateTo(Ended)
 			break
 		}
 	}
@@ -568,7 +576,11 @@ func (h *Handler) showResults() {
 func (h *Handler) changeGameStateTo(state State) {
 	h.gameStateLock.Lock()
 	defer h.gameStateLock.Unlock()
+
 	h.gameState = state
+	if state == EndGame {
+		h.EndChan <- true
+	}
 }
 
 // WrapUserAndRound will check if the nextToBeSelected is valid.
