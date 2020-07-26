@@ -130,9 +130,9 @@ export default {
 
 <style scoped>
 canvas {
-    position: absolute;
     top: 10%;
     left: 10%;
     border: 2px solid;
+    width: 100%;
 }
 </style>

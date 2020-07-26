@@ -1,5 +1,7 @@
 <template>
-    <div :style="style" v-on:click="onTileClicked"></div>
+    <div class="box" v-on:click="onTileClicked">
+        <div :style="style"></div>
+    </div>
 </template>
 
 <script>
@@ -11,10 +13,12 @@ export default {
     computed: {
         style() {
             return {
-                height: `${this.size}px`,
-                width: `${this.size}px`,
-                borderRadius: "50%",
+                height: `${this.size / 2}px`,
+                width: `${this.size / 2}px`,
+                position: "absolute",
                 backgroundColor: "black",
+                borderRadius: "50%",
+                margin: `${(40 - this.size / 2) / 2 - 1}px`,
             };
         },
     },
@@ -26,4 +30,11 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.box {
+    height: 40px;
+    width: 40px;
+    text-align: center;
+    border: 1px solid;
+}
+</style>

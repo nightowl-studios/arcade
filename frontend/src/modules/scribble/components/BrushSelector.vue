@@ -67,9 +67,11 @@ export default {
 #brush-selector {
     width: 500px;
     height: 500px;
+    display: flex;
 }
 #size-selector {
     width: 500px;
     height: 500px;
+    display: flex;
 }
 </style>

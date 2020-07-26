@@ -15,6 +15,7 @@ export default {
                 width: "20px",
                 borderRadius: "30%",
                 backgroundColor: this.color,
+                float: "left",
             };
         },
     },
