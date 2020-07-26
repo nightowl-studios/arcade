@@ -157,3 +157,30 @@ func TestWordSelect(t *testing.T) {
 	reg.AssertExpectations(t)
 	wordFactory.AssertExpectations(t)
 }
+
+// TestWordSelect tests the gamemaster starting at the WordSelect state.
+// This test will check that the messages sent to the front end initially are
+// correct.
+func TestAllClientsQuit(t *testing.T) {
+	var reg mocks.Registry
+	var wordFactory mockWf.WordFactory
+	gameMaster := &Handler{
+		reg:              &reg,
+		maxRounds:        3,
+		wordChoices:      3,
+		round:            0,
+		gameState:        WordSelect,
+		selectTopicTimer: time.Second * 10,
+		playTimeTimer:    180 * time.Second,
+		playTimeChan:     make(chan PlayTimeChanReceive),
+		selectTopicChan:  make(chan WordSelectReceive),
+		waitForStartChan: make(chan WaitForStartReceive),
+		pointHandler:     point.Get(),
+		wordFactory:      &wordFactory,
+	}
+	ID := identifier.Client{
+		ClientUUID: identifier.ClientUUIDStruct{"AAA"},
+		HubName:    identifier.HubNameStruct{"BBB"},
+	}
+	gameMaster.NewClient(ID, &reg)
+}

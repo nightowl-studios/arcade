@@ -156,6 +156,7 @@ type Handler struct {
 	waitForStartChan (chan WaitForStartReceive)
 	selectTopicChan  (chan WordSelectReceive)
 	playTimeChan     (chan PlayTimeChanReceive)
+	EndChan          (chan bool)
 
 	// config-like things
 	maxRounds        int
@@ -181,6 +182,7 @@ func Get(reg registry.Registry) *Handler {
 		playTimeChan:     make(chan PlayTimeChanReceive),
 		selectTopicChan:  make(chan WordSelectReceive),
 		waitForStartChan: make(chan WaitForStartReceive),
+		EndChan:          make(chan bool),
 		pointHandler:     point.Get(),
 		wordFactory:      wordfactory.GetWordFactory(),
 	}
@@ -243,6 +245,12 @@ func (h *Handler) ClientQuit(
 	clientID identifier.Client,
 	reg registry.Registry,
 ) {
+
+	if len(h.clientList.clients) == 1 {
+		h.changeGameStateTo(EndGame)
+		return
+	}
+
 	userShifted := false
 	for i, client := range h.clientList.clients {
 		if clientID.ClientUUID.UUID == client.UUID {
@@ -323,6 +331,9 @@ func (h *Handler) waitForStart() {
 		if msg.StartGame == true {
 			h.changeGameStateTo(WordSelect)
 		}
+	case <-h.EndChan:
+		// we need to enter the run() loop so we can exit
+		return
 	}
 }
 
@@ -398,6 +409,9 @@ func (h *Handler) wordSelect() {
 			h.chosenWord = wordChoices[msg.Choice]
 		}
 		h.changeGameStateTo(PlayTime)
+	case <-h.EndChan:
+		// we need to enter the run() loop so we can exit
+		return
 	}
 	return
 }
@@ -448,6 +462,9 @@ func (h *Handler) playTime() {
 		if msg.AllCorrect {
 			// we gucci
 		}
+	case <-h.EndChan:
+		// we need to enter the run() loop so we can exit
+		return
 	}
 	h.changeGameStateTo(ScoreTime)
 	return
