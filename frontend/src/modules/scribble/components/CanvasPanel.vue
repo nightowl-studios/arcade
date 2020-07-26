@@ -1,15 +1,19 @@
 <template>
     <div>
-        <Canvas
-            ref="canvas"
-            :width="400"
-            :height="400"
-            :defaultBrushStyle="defaultBrushStyle"
-            :drawingLocked="isCanvasLocked"
-            @drawAction="sendDrawAction"
-            @requestHistory="sendRequestHistory"
-        />
-        <BrushSelector :colors="colors" :sizes="sizes" />
+        <div>
+            <Canvas
+                ref="canvas"
+                :width="400"
+                :height="400"
+                :defaultBrushStyle="defaultBrushStyle"
+                :drawingLocked="isCanvasLocked"
+                @drawAction="sendDrawAction"
+                @requestHistory="sendRequestHistory"
+            />
+        </div>
+        <div>
+            <BrushSelector :colors="colors" :sizes="sizes" />
+        </div>
     </div>
 </template>
 

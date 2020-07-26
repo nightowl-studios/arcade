@@ -9,6 +9,11 @@
             </b-row>
             <b-row class="scribble__container__body">
                 <b-col>
+                    <b-row class="scribble__container__body__players">
+                        <PlayerList :players="players" />
+                    </b-row>
+                </b-col>
+                <b-col>
                     <CanvasPanel
                         :colors="colors"
                         :sizes="sizes"
@@ -16,9 +21,6 @@
                     />
                 </b-col>
                 <b-col>
-                    <b-row class="scribble__container__body__players">
-                        <PlayerList :players="players" />
-                    </b-row>
                     <b-row class="scribble__container__body__chat">
                         <Chat />
                     </b-row>
@@ -80,10 +82,13 @@ export default {
 
             &__players {
                 height: 50%;
+                width: 30%;
+                float: right;
             }
 
             &__chat {
                 height: 50%;
+                float: left;
             }
         }
     }
