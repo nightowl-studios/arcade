@@ -28,7 +28,8 @@ export default {
 
 <style lang="scss" scoped>
 .lobby-id {
-    background-color: rgb(144, 183, 255);
+    background-color: #e5f4fc;
+    border: 1px solid #a1c5d8;
     padding-top: 5px;
     padding-bottom: 5px;
     border-radius: 6px;
