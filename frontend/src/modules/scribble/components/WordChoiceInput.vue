@@ -17,6 +17,12 @@
                 }}</b-button>
             </b-col>
         </b-row>
+        <!-- Test button to be removed when rick does this -->
+        <b-row>
+            <b-col class="text-center">
+                <b-button v-on:click="sendWord">TEST</b-button>
+            </b-col>
+        </b-row>
     </div>
 </template>
 
@@ -25,6 +31,12 @@ export default {
     name: "WordChoice",
     props: {
         words: Array,
+    },
+    methods: {
+        sendWord() {
+            // Select the first choice
+            this.$gameApiService.selectWord(0);
+        },
     },
 };
 </script>
