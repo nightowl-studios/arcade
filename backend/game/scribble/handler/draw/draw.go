@@ -36,8 +36,8 @@ type DrawAction struct {
 }
 
 type Point struct {
-	X int32 `json:"x"`
-	Y int32 `json:"y"`
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 type BrushStyle struct {
