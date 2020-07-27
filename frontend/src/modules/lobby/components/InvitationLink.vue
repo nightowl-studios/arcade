@@ -1,25 +1,18 @@
 <template>
-    <div class="invitation-link-section">
-        <b-container fluid>
-            <b-row align-v="center" class="justify-content-md-center">
-                <b-col md="auto">Invitation Link: </b-col>
-                <b-col md="auto"
-                    ><input
-                        id="invitation-link"
-                        type="text"
-                        v-model="inviteLink"
-                        readonly
-                /></b-col>
-                <b-col md="auto"
-                    ><b-button
-                        class="copy-link-button"
-                        variant="success"
-                        v-on:click="copyInviteLink"
-                        >Copy Link</b-button
-                    ></b-col
-                >
-            </b-row>
-        </b-container>
+    <div class="invitation-link">
+        <p class="invitation-link__title">Invitation Link</p>
+        <input
+            class="invitation-link__url"
+            type="text"
+            v-model="inviteLink"
+            readonly
+        />
+        <b-button
+            class="invitation-link__button"
+            variant="primary"
+            v-on:click="copyInviteLink"
+            >Copy</b-button
+        >
     </div>
 </template>
 
@@ -33,12 +26,15 @@ export default {
     },
     methods: {
         copyInviteLink: function () {
-            const linkToCopy = document.querySelector("#invitation-link");
+            const linkToCopy = document.querySelector(".invitation-link__url");
             linkToCopy.select();
             try {
                 var successful = document.execCommand("copy");
-                var msg = successful ? "successful" : "unsuccessful";
-                alert(`Invitation link was copied${msg}`);
+                if (successful) {
+                    alert(`Invitation link copied!`);
+                } else {
+                    alert("Oops, unable to copy");
+                }
             } catch (err) {
                 alert("Oops, unable to copy");
             }
@@ -48,12 +44,32 @@ export default {
 </script>
 
 <style scoped>
-.invitation-link-section {
-    margin-top: 25px;
+.invitation-link {
+    display: grid;
+    grid-template-columns: auto 300px auto;
+    grid-template-rows: 38px;
+    border-radius: 10px;
+    border: 1px solid black;
 }
 
-#invitation-link {
+.invitation-link__title {
+    margin: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    display: flex;
+    align-items: center;
+}
+
+.invitation-link__url {
     color: black;
-    width: 300px;
+    padding: 10px;
+    border: 0;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+
+.invitation-link__button {
+    border-radius: 0 10px 10px 0;
 }
 </style>
