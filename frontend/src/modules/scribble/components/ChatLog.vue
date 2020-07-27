@@ -16,33 +16,23 @@ import { Event } from "@/events";
 
 export default {
     name: "ChatLog",
-    data: function() {
+    data: function () {
         return {
             newMessage: "",
             chatLog: [],
         };
     },
     created() {
-        EventBus.$on(Event.CHAT_HISTORY, data => {
+        EventBus.$on(Event.CHAT_HISTORY, (data) => {
             for (const messages of data) {
                 this.chatLog.push([messages.sender.nickname, messages.message]);
-                this.$nextTick(() => {
-                    let chatBox = this.$refs.chatbox;
-                    if (chatBox) {
-                        chatBox.scrollTop = chatBox.scrollHeight;
-                    }
-                });
+                this.$nextTick(() => adjustScrollTop());
             }
         });
 
-        EventBus.$on(Event.CHAT_MESSAGE, data => {
+        EventBus.$on(Event.CHAT_MESSAGE, (data) => {
             this.chatLog.push([data.sender.nickname, data.message]);
-            this.$nextTick(() => {
-                let chatBox = this.$refs.chatbox;
-                if (chatBox) {
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }
-            });
+            this.$nextTick(() => adjustScrollTop());
         });
 
         if (this.$webSocketService.isConnected()) {
@@ -51,6 +41,13 @@ export default {
             EventBus.$on(Event.WEBSOCKET_CONNECTED, () => {
                 this.$chatApiService.requestChatHistory();
             });
+        }
+
+        function adjustScrollTop() {
+            const chatBox = this.$refs.chatbox;
+            if (chatBox) {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
         }
     },
 };
