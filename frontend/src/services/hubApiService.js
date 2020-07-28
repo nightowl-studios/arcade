@@ -3,22 +3,18 @@ import axios from "axios";
 // Service for making REST API requests to HubAPI
 export default class HubApiService {
     constructor(httpUrl) {
-        this.apiUrl = httpUrl + "/hub";
+        this.apiUrl = `${httpUrl}/hub`;
     }
 
     async createLobby() {
-        let url = this.apiUrl;
-        let response = await axios.get(url);
+        const url = this.apiUrl;
+        const response = await axios.get(url);
         return response.data.hubID;
     }
 
     async checkLobbyExists(lobbyId) {
-        let url = this.apiUrl + "/" + lobbyId;
-        let response = await axios.get(url);
-        if (response.data.exists) {
-            return true;
-        } else {
-            return false;
-        }
+        const url = `${this.apiUrl}/${lobbyId}`;
+        const response = await axios.get(url);
+        return response.data.exists;
     }
 }

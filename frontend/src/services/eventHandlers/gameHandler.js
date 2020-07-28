@@ -10,6 +10,10 @@ import { store } from "@/store";
 
 // Event handler for Game API
 export default class GameHandler {
+    constructor() {
+        this.setGameStateKey = "scribble/setGameState";
+    }
+
     handle(payload) {
         if (payload.gameMasterAPI === "wordSelect") {
             const playerUuid = store.getters["application/getPlayerUuid"];
@@ -21,13 +25,13 @@ export default class GameHandler {
                     player,
                     payload.wordSelect.choices
                 );
-                store.commit("scribble/setGameState", state);
+                store.commit(this.setGameStateKey, state);
             } else {
                 const player = store.getters["application/getPlayerWithUuid"](
                     playerUuid
                 );
                 const state = new WaitingForPlayerToChooseWord(player);
-                store.commit("scribble/setGameState", state);
+                store.commit(this.setGameStateKey, state);
             }
 
             EventBus.$emit(Event.START_GAME);
@@ -35,12 +39,12 @@ export default class GameHandler {
             const currentState = store.getters["scribble/getGameState"];
             if (currentState.state === ChoosingWord.STATE) {
                 const state = new Drawing(payload.playTimeSend.hint);
-                store.commit("scribble/setGameState", state);
+                store.commit(this.setGameStateKey, state);
             } else if (
                 currentState.state === WaitingForPlayerToChooseWord.STATE
             ) {
                 const state = new Guessing(payload.playTimeSend.hint);
-                store.commit("scribble/setGameState", state);
+                store.commit(this.setGameStateKey, state);
             }
         }
     }
