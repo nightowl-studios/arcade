@@ -15,7 +15,10 @@ export default {
 
 <style scoped>
 .header {
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin: 0;
+}
+
+.header h1 {
+    margin: 0;
 }
 </style>
