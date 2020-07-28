@@ -19,6 +19,9 @@
 <script>
 export default {
     name: "ChatInput",
+    props: {
+        sendToScribbleApi: Boolean,
+    },
     data: function () {
         return {
             message: "",
@@ -27,10 +30,8 @@ export default {
     methods: {
         onSendMessage: function () {
             console.log(`Sending message ${this.message}`);
-            if (this.message !== "") {
-                this.$chatApiService.sendChatMessage(this.message);
-                this.message = "";
-            }
+            this.$chatApiService.sendChatMessage(this.message);
+            this.message = "";
         },
     },
 };

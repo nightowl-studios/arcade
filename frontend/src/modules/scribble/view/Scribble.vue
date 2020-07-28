@@ -32,7 +32,7 @@
                         <LobbyId />
                     </b-row>
                     <b-row class="scribble__container__body__chat">
-                        <Chat />
+                        <Chat :sendToScribbleApi="isGuessing" />
                     </b-row>
                 </b-col>
             </b-row>
@@ -53,6 +53,7 @@ import LobbyId from "../components/LobbyId.vue";
 import PlayerList from "../components/PlayerList.vue";
 import WordChoiceModal from "../components/WordChoiceModal.vue";
 import { mapState } from "vuex";
+import { Guessing } from "../stores/states/gamestates";
 import Word from "../components/Word.vue";
 
 export default {
@@ -80,6 +81,9 @@ export default {
         ...mapState("scribble", {
             gameState: (state) => state.gameState,
         }),
+        isGuessing() {
+            return this.gameState.state === Guessing.STATE;
+        },
     },
 };
 </script>

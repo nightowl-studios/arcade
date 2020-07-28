@@ -1,7 +1,7 @@
 <template>
     <div id="chat">
         <ChatLog />
-        <ChatInput />
+        <ChatInput :sendToScribbleApi="sendToScribbleApi" />
     </div>
 </template>
 
@@ -11,6 +11,9 @@ import ChatLog from "./ChatLog.vue";
 
 export default {
     name: "Chat",
+    props: {
+        sendToScribbleApi: Boolean,
+    },
     components: {
         ChatInput,
         ChatLog,

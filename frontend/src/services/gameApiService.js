@@ -30,4 +30,15 @@ export default class GameApiService {
         };
         this.webSocketService.send(message);
     }
+
+    sendGuessMessage(guess) {
+        const message = {
+            api: "game",
+            payload: {
+                gameMasterAPI: "playTimeReceive",
+                message: guess,
+            },
+        };
+        this.webSocketService.send(message);
+    }
 }
