@@ -12,6 +12,7 @@
                         :word="gameState.word"
                         :isGuessing="gameState.lockCanvas"
                     />
+                    <Timer startTime="180000000000" />
                 </b-col>
             </b-row>
             <b-row class="scribble__container__body">
@@ -54,6 +55,7 @@ import PlayerList from "../components/PlayerList.vue";
 import WordChoiceModal from "../components/WordChoiceModal.vue";
 import { mapState } from "vuex";
 import Word from "../components/Word.vue";
+import Timer from "../components/Timer.vue";
 
 export default {
     mixins: [WebSocketMixin],
@@ -66,6 +68,7 @@ export default {
         PlayerList,
         WordChoiceModal,
         Word,
+        Timer,
     },
     data: function () {
         return {
