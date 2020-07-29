@@ -1,5 +1,5 @@
 <template>
-    <div class="word-choice-modal">
+    <div class="word-choice-modal" v-if="words">
         <b-modal
             v-model="modalShow"
             ref="word-choice-modal"

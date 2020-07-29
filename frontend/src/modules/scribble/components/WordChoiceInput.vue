@@ -2,25 +2,28 @@
     <div class="word-choice-input">
         <b-row>
             <b-col class="word-choice-input__col text-center">
-                <b-button class="scribble-button" variant="primary">{{
-                    words[0]
-                }}</b-button>
+                <b-button
+                    class="scribble-button"
+                    variant="primary"
+                    v-on:click="sendWord(1)"
+                    >{{ words[0] }}</b-button
+                >
             </b-col>
             <b-col class="word-choice-input__col text-center">
-                <b-button class="scribble-button" variant="primary">{{
-                    words[1]
-                }}</b-button>
+                <b-button
+                    class="scribble-button"
+                    variant="primary"
+                    v-on:click="sendWord(2)"
+                    >{{ words[1] }}</b-button
+                >
             </b-col>
             <b-col class="word-choice-input__col text-center">
-                <b-button class="scribble-button" variant="primary">{{
-                    words[2]
-                }}</b-button>
-            </b-col>
-        </b-row>
-        <!-- Test button to be removed when rick does this -->
-        <b-row>
-            <b-col class="text-center">
-                <b-button v-on:click="sendWord">TEST</b-button>
+                <b-button
+                    class="scribble-button"
+                    variant="primary"
+                    v-on:click="sendWord(3)"
+                    >{{ words[2] }}</b-button
+                >
             </b-col>
         </b-row>
     </div>
@@ -33,9 +36,9 @@ export default {
         words: Array,
     },
     methods: {
-        sendWord() {
+        sendWord(index) {
             // Select the first choice
-            this.$gameApiService.selectWord(0);
+            this.$gameApiService.selectWord(index);
         },
     },
 };
