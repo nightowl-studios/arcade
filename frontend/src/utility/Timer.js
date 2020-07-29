@@ -6,7 +6,12 @@ export default class Timer {
     }
 
     timeLeft() {
-        return this.timeLimit - this.timePassed;
+        if (this.timePassed === this.timeLimit) {
+            this.onTimesUp();
+            return 0;
+        } else {
+            return this.timeLimit - this.timePassed;
+        }
     }
     startTimer() {
         this.timerInterval = setInterval(() => (this.timePassed += 1), 1000);

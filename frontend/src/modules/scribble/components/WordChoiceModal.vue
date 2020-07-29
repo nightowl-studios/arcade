@@ -66,14 +66,5 @@ export default {
             return this.timer.timeLeft();
         },
     },
-
-    watch: {
-        timeLeft(newValue) {
-            console.log("Hi");
-            if (newValue === 0) {
-                this.timer.onTimesUp();
-            }
-        },
-    },
 };
 </script>
