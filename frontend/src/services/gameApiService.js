@@ -16,4 +16,18 @@ export default class GameApiService {
         };
         this.webSocketService.send(message);
     }
+
+    selectWord(index) {
+        const message = {
+            api: "game",
+            payload: {
+                gameMasterAPI: "wordSelectReceive",
+                wordSelectReceive: {
+                    wordChosen: true,
+                    choice: index,
+                },
+            },
+        };
+        this.webSocketService.send(message);
+    }
 }

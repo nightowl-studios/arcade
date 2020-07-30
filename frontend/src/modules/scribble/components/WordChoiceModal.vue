@@ -1,19 +1,13 @@
 <template>
-    <div>
-        <b-button
-            class="scribble-button"
-            variant="primary"
-            v-b-modal.wordChoiceModalh
-            >Choice</b-button
-        >
-
+    <div class="word-choice-modal" v-if="words">
         <b-modal
-            ref="wordChoiceModal"
-            id="wordChoiceModalh"
+            v-model="modalShow"
+            ref="word-choice-modal"
+            centered
             title="Choose a word to draw"
             hide-footer
         >
-            <WordChoiceInput ref="wordChoiceInput" :words="words" />
+            <WordChoiceInput :words="words" />
         </b-modal>
     </div>
 </template>
@@ -25,6 +19,7 @@ export default {
 
     props: {
         words: Array,
+        modalShow: Boolean,
     },
     components: {
         WordChoiceInput,
