@@ -7,7 +7,7 @@
             title="Choose a word to draw"
             hide-footer
         >
-            <b-row class="mb-4">
+            <b-row>
                 <b-col class="word-choice-modal__col text-center">
                     <WordChoiceInput :words="words" />
                 </b-col>
@@ -35,12 +35,6 @@ export default {
     components: {
         WordChoiceInput,
         BaseTimerBar,
-    },
-
-    data() {
-        return {
-            timer: null,
-        };
     },
 };
 </script>
