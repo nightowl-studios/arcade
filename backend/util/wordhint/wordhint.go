@@ -3,6 +3,8 @@ package wordhint
 import (
 	"math/rand"
 	"time"
+
+	"github.com/bseto/arcade/backend/log"
 )
 
 func randInt(min int, max int) int {
@@ -32,6 +34,10 @@ func Find(slice []int, val int) bool {
 }
 
 func (w wordHint) GiveHint(word string) string {
+	if word == "" {
+		log.Errorf("Give hint cannot operate on an empty word")
+		return ""
+	}
 	hint := ""
 	hintIndex := randInt(1, len(word))
 	found := Find(w.previousHintIndexes, hintIndex)
