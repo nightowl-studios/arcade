@@ -90,7 +90,7 @@ func TestWordSelect(t *testing.T) {
 		playTimeChan:     make(chan PlayTimeChanReceive),
 		selectTopicChan:  make(chan WordSelectReceive),
 		waitForStartChan: make(chan WaitForStartReceive),
-		EndChan:          make(chan bool),
+		endChan:          make(chan bool),
 		pointHandler:     point.Get(),
 		wordFactory:      &wordFactory,
 	}
@@ -180,7 +180,7 @@ func TestAllClientsQuit(t *testing.T) {
 		playTimeChan:     make(chan PlayTimeChanReceive),
 		selectTopicChan:  make(chan WordSelectReceive),
 		waitForStartChan: make(chan WaitForStartReceive),
-		EndChan:          make(chan bool),
+		endChan:          make(chan bool),
 		pointHandler:     point.Get(),
 		wordFactory:      &wordFactory,
 	}
