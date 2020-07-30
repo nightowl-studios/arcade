@@ -1,10 +1,10 @@
 = Arcade
 
-https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=alert_status
-https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=coverage
-https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=bugs
-https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=vulnerabilities
-https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=ncloc
+image::https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=alert_status[alert status]
+image::https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=coverage[coverage]
+image::https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=bugs[bugs]
+image::https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=vulnerabilities[vulnerabilities]
+image::https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=ncloc[lines of code]
 
 = What is Arcade
 
