@@ -16,7 +16,7 @@ export default class WebSocketService {
 
     connect(lobbyId) {
         console.log("Connecting to websocket...");
-        let webSocketURL = this.webSocketURL + "/" + lobbyId;
+        const webSocketURL = `${this.webSocketURL}/${lobbyId}`;
         this.webSocket = new WebSocket(webSocketURL);
         this.initWebSocket(this.webSocket, lobbyId);
     }
@@ -29,11 +29,11 @@ export default class WebSocketService {
 
     initWebSocket(webSocket, lobbyId) {
         webSocket.onopen = () => {
-            let arcadeSession = this.cookieService.getArcadeCookie();
+            const arcadeSession = this.cookieService.getArcadeCookie();
             if (arcadeSession != null && arcadeSession.ContainsToken != false) {
                 this.send(arcadeSession);
             } else {
-                let noToken = {
+                const noToken = {
                     api: "auth",
                     payload: {
                         ContainsToken: false,
@@ -43,27 +43,27 @@ export default class WebSocketService {
             }
 
             console.log(
-                "Successfully connected to the websocket. ID: " + lobbyId
+                `Successfully connected to the websocket. ID: ${lobbyId}`
             );
             EventBus.$emit(Event.WEBSOCKET_CONNECTED, lobbyId);
         };
 
         webSocket.onmessage = (event) => {
-            let json = JSON.parse(event.data);
-            let api = json.api;
-            let payload = json.payload;
+            const json = JSON.parse(event.data);
+            const api = json.api;
+            const payload = json.payload;
 
             this.eventHandlerService.handle(api, payload);
         };
 
         webSocket.onclose = () => {
             console.log("Websocket connection is closed");
-        }
+        };
     }
 
     send(data) {
         if (this.isConnected()) {
-            let json = JSON.stringify(data);
+            const json = JSON.stringify(data);
             this.webSocket.send(json);
         } else {
             console.error("NOT CONNECTED");

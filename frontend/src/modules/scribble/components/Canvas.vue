@@ -64,7 +64,7 @@ export default {
             if (this.mouseDown) {
                 const rect = this.canvas.getBoundingClientRect();
 
-                let currentPosition = {
+                const currentPosition = {
                     x:
                         (event.clientX - rect.left) *
                         (this.canvas.width / rect.width),
@@ -113,7 +113,7 @@ export default {
 
         handleDrawInput: function (from, to, brushStyle) {
             if (!this.drawingLocked) {
-                let drawAction = {
+                const drawAction = {
                     from: from,
                     to: to,
                     brushStyle: brushStyle,
