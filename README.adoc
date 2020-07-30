@@ -1,1 +1,18 @@
-initial commit
+= Arcade
+
+https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=alert_status
+https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=coverage
+https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=bugs
+https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=vulnerabilities
+https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=ncloc
+
+= What is Arcade
+
+Arcade is a webapp that will host random party games that we like to play.
+
+== Drawing Game (no finalized name)
+
+The Drawing game is a game where a single person in a group of players will
+draw a word that is given to them, and the other users will try to guess what
+the drawing is.
+
