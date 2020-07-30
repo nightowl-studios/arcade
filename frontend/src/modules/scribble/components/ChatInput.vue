@@ -8,7 +8,9 @@
                 placeholder="Enter message"
             ></b-form-input>
             <b-input-group-append>
-                <b-button v-on:click="onSendMessage()" variant="info">Send</b-button>
+                <b-button v-on:click="onSendMessage()" variant="info"
+                    >Send</b-button
+                >
             </b-input-group-append>
         </b-input-group>
     </div>
@@ -17,14 +19,14 @@
 <script>
 export default {
     name: "ChatInput",
-    data: function() {
+    data: function () {
         return {
             message: "",
         };
     },
     methods: {
-        onSendMessage: function() {
-            console.log("Sending message " + this.message);
+        onSendMessage: function () {
+            console.log(`Sending message ${this.message}`);
             if (this.message !== "") {
                 this.$chatApiService.sendChatMessage(this.message);
                 this.message = "";
