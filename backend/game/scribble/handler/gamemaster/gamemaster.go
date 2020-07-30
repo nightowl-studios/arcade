@@ -192,6 +192,7 @@ func Get(reg registry.Registry) *Handler {
 		endChan:          make(chan bool),
 		pointHandler:     point.Get(),
 		wordFactory:      wordfactory.GetWordFactory(),
+		wordHint:         wordhint.Get(),
 	}
 	go handler.run()
 	return handler

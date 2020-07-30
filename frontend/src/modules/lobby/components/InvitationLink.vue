@@ -70,6 +70,6 @@ export default {
 }
 
 .invitation-link__button {
-    border-radius: 0 10px 10px 0;
+    border-radius: 0 9px 9px 0;
 }
 </style>
