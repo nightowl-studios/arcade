@@ -7,7 +7,7 @@
         >
             <path class="base-timer__path-elapsed" d="M 1, 1 L 49, 1"></path>
             <path
-                :stroke-dasharray="Dasharray"
+                :stroke-dasharray="dasharray"
                 class="base-timer__path-remaining"
                 :class="remainingPathColor"
                 d="M 1, 1 L 49, 1"
@@ -21,7 +21,6 @@
 
 <script>
 const FULL_DASH_ARRAY = 48;
-const TIME_LIMIT = 10;
 const WARNING_THRESHOLD = 5;
 const DANGER_THRESHOLD = 2;
 const COLOR_CODES = {
@@ -38,10 +37,10 @@ const COLOR_CODES = {
     },
 };
 export default {
-    name: "BaseTimerLine",
-
+    name: "BaseTimerBar",
     props: {
         timeLimit: Number,
+        size: String,
     },
 
     data() {
@@ -51,14 +50,14 @@ export default {
         };
     },
     computed: {
-        dashArray() {
+        dasharray() {
             return `${(this.timeFraction * FULL_DASH_ARRAY).toFixed(0)} 48`;
         },
         timeFraction() {
-            return this.timeLeft / TIME_LIMIT;
+            return this.timeLeft / this.timeLimit;
         },
         timeLeft() {
-            return TIME_LIMIT - this.timePassed;
+            return this.timeLimit - this.timePassed;
         },
         remainingPathColor() {
             const { healthy, warning, danger } = COLOR_CODES;
@@ -82,16 +81,14 @@ export default {
         this.startTimer();
     },
     methods: {
-        onTimesUp() {
-            clearInterval(this.timerInterval);
-            this.$emit("onTimesUp");
-        },
-
         startTimer() {
             this.timerInterval = setInterval(
                 () => (this.timePassed += 1),
                 1000
             );
+        },
+        onTimesUp() {
+            clearInterval(this.timerInterval);
         },
     },
 };

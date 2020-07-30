@@ -14,15 +14,7 @@
             </b-row>
             <b-row>
                 <b-col class="word-choice-modal__col text-center">
-                    <TimerBar
-                        :timeLeft="timer.timeLeft()"
-                        :timeLimit="timer.timeLimit"
-                    />
-                </b-col>
-            </b-row>
-            <b-row>
-                <b-col class="word-choice-modal__col text-center">
-                    <TimerCountdown :timeLeft="timer.timeLeft()" />
+                    <BaseTimerBar timeLimit="10" />
                 </b-col>
             </b-row>
         </b-modal>
@@ -30,12 +22,8 @@
 </template>
 
 <script>
-const TIME_LIMIT = 10;
-
 import WordChoiceInput from "@/modules/scribble/components/WordChoiceInput.vue";
-import TimerBar from "@/modules/scribble/components/TimerBar.vue";
-import TimerCountdown from "@/modules/scribble/components/TimerCountdown.vue";
-import Timer from "@/utility/Timer.js";
+import BaseTimerBar from "@/modules/common/components/BaseTimerBar.vue";
 export default {
     name: "WordChoice",
 
@@ -46,25 +34,13 @@ export default {
 
     components: {
         WordChoiceInput,
-        TimerBar,
-        TimerCountdown,
+        BaseTimerBar,
     },
 
     data() {
         return {
             timer: null,
         };
-    },
-
-    created() {
-        this.timer = new Timer(TIME_LIMIT);
-        this.timer.startTimer();
-    },
-
-    computed: {
-        timeLeft() {
-            return this.timer.timeLeft();
-        },
     },
 };
 </script>
