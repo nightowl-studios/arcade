@@ -19,6 +19,7 @@ import (
 	"github.com/bseto/arcade/backend/game/scribble/handler/gamemaster/util/point"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/util/wordfactory"
+	"github.com/bseto/arcade/backend/util/wordhint"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/bseto/arcade/backend/websocket/registry"
 )
@@ -139,13 +140,13 @@ type client struct {
 // ClientList is a struct used internally to track what users are available
 // to select from, and their points
 type ClientList struct {
-	nextToBeSelected int
-	clients          []client
+	currentlySelected int
+	clients           []client
 
 	// Do not delete from this map even when a player quits. They can reconnect
-	totalScore map[identifier.ClientUUIDStruct]int
+	totalScore map[string]int
 	// This is what we use to display to the user when a round ends
-	roundScore map[identifier.ClientUUIDStruct]int
+	roundScore map[string]int
 }
 
 type Handler struct {
@@ -156,6 +157,7 @@ type Handler struct {
 	gameState     State
 	round         int
 	chosenWord    string
+	hintString    string
 
 	waitForStartChan (chan WaitForStartReceive)
 	selectTopicChan  (chan WordSelectReceive)
@@ -171,6 +173,7 @@ type Handler struct {
 	// util things
 	pointHandler point.Handler
 	wordFactory  wordfactory.WordFactory
+	wordHint     wordhint.WordHint
 }
 
 func Get(reg registry.Registry) *Handler {
@@ -192,6 +195,38 @@ func Get(reg registry.Registry) *Handler {
 	}
 	go handler.run()
 	return handler
+}
+
+// run is the function that should be called as a thread
+// It will handle the state machine
+func (h *Handler) run() {
+	// don't need to RLock for h.gameState in run() because run() is the only
+	// thread that writes to it
+	for {
+		switch h.gameState {
+		case WaitForStart:
+			log.Infof("waiting for start....")
+			h.waitForStart()
+		case WordSelect:
+			h.wordSelect()
+		case PlayTime:
+			h.playTime()
+		case ScoreTime:
+			h.scoreTime()
+			// I have nothing else coded for after scoreTime(). Run loop will exit for now
+			return
+		case ShowResults:
+			h.showResults()
+			h.gameState = EndGame
+		case EndGame:
+		default:
+		}
+
+		if h.gameState == EndGame {
+			h.changeGameStateTo(Ended)
+			break
+		}
+	}
 }
 
 // HandleInteraction will be given the tools it needs to handle
@@ -218,7 +253,7 @@ func (h *Handler) HandleInteraction(
 		}
 	case WordSelect:
 		if api == h.Name() {
-			if caller.ClientUUID != h.clientList.clients[h.clientList.nextToBeSelected].ClientUUIDStruct {
+			if caller.ClientUUID != h.clientList.clients[h.clientList.currentlySelected].ClientUUIDStruct {
 				log.Errorf("client: %v tried to send to gamemaster out of turn", caller)
 				return
 			}
@@ -234,6 +269,14 @@ func (h *Handler) NewClient(
 	clientID identifier.Client,
 	reg registry.Registry,
 ) {
+
+	if h.clientList.roundScore == nil {
+		h.clientList.roundScore = make(map[string]int)
+	}
+
+	if h.clientList.totalScore == nil {
+		h.clientList.totalScore = make(map[string]int)
+	}
 	// if a user joins halfway, they'll be appended to the end of the
 	// clientList
 	h.clientList.clients = append(
@@ -258,7 +301,7 @@ func (h *Handler) ClientQuit(
 	userShifted := false
 	for i, client := range h.clientList.clients {
 		if clientID.ClientUUID.UUID == client.UUID {
-			if i < h.clientList.nextToBeSelected {
+			if i < h.clientList.currentlySelected {
 				// userShifted is true if the players who came before
 				// the nextToBeSelected left the game
 				userShifted = true
@@ -271,14 +314,14 @@ func (h *Handler) ClientQuit(
 		}
 	}
 
-	if len(h.clientList.clients) == h.clientList.nextToBeSelected {
+	if len(h.clientList.clients) == h.clientList.currentlySelected {
 		// if the last user left (len clients == nextToBeSelected only happens
 		// in this case) then we want to wrap the order and potentially increment
 		// the round
 		h.WrapUserAndRound()
 	} else if userShifted {
 		// we have to shift back down to stay with the same person
-		h.clientList.nextToBeSelected--
+		h.clientList.currentlySelected--
 	} else {
 		// the person who left was after the selected user so no shift needs to
 		// happen
@@ -291,36 +334,6 @@ func (h *Handler) ListensTo() []string {
 
 func (h *Handler) Name() string {
 	return name
-}
-
-// run is the function that should be called as a thread
-// It will handle the state machine
-func (h *Handler) run() {
-	// don't need to RLock for h.gameState in run() because run() is the only
-	// thread that writes to it
-	for {
-		switch h.gameState {
-		case WaitForStart:
-			log.Infof("waiting for start....")
-			h.waitForStart()
-		case WordSelect:
-			h.wordSelect()
-		case PlayTime:
-			h.playTime()
-		case ScoreTime:
-			h.scoreTime()
-		case ShowResults:
-			h.showResults()
-			h.gameState = EndGame
-		case EndGame:
-		default:
-		}
-
-		if h.gameState == EndGame {
-			h.changeGameStateTo(Ended)
-			break
-		}
-	}
 }
 
 type WaitForStartReceive struct {
@@ -376,7 +389,7 @@ type WordSelectReceive struct {
 // is currently choosing a word
 func (h *Handler) wordSelect() {
 	wordChoices := h.wordFactory.GenerateWordList(h.wordChoices)
-	selectedClient := h.clientList.clients[h.clientList.nextToBeSelected]
+	selectedClient := h.clientList.clients[h.clientList.currentlySelected]
 	selectedPlayerMsg := Send{
 		GameMasterAPI: WordSelect,
 		WordSelectSend: WordSelectSend{
@@ -423,11 +436,11 @@ func (h *Handler) wordSelect() {
 }
 
 type PlayTimeSend struct {
-	Hint          string                              `json:"hint,omitempty"`
-	Duration      time.Duration                       `json:"duration,omitempty"`
-	TotalScore    map[identifier.ClientUUIDStruct]int `json:"totalScore,omitempty"`
-	RoundScore    map[identifier.ClientUUIDStruct]int `json:"roundScore,omitempty"`
-	CorrectClient identifier.ClientUUIDStruct         `json:"correctClient,omitempty"`
+	Hint          string                      `json:"hint,omitempty"`
+	Duration      time.Duration               `json:"duration,omitempty"`
+	TotalScore    map[string]int              `json:"totalScore,omitempty"`
+	RoundScore    map[string]int              `json:"roundScore,omitempty"`
+	CorrectClient identifier.ClientUUIDStruct `json:"correctClient,omitempty"`
 }
 
 type PlayTimeReceive struct {
@@ -442,10 +455,12 @@ type PlayTimeChanReceive struct {
 func (h *Handler) playTime() {
 	// Send the frontend the hint and the duration
 
+	h.hintString = h.wordHint.GiveHint(h.chosenWord)
+
 	send := Send{
 		GameMasterAPI: PlayTime,
 		PlayTimeSend: PlayTimeSend{
-			Hint:     "TODO",
+			Hint:     h.hintString,
 			Duration: h.playTimeTimer,
 		},
 	}
@@ -470,6 +485,7 @@ func (h *Handler) playTime() {
 		}
 	case <-h.endChan:
 		// we need to enter the run() loop so we can exit
+		// don't use break or else we go to ScoreTime
 		return
 	}
 	h.changeGameStateTo(ScoreTime)
@@ -503,15 +519,17 @@ func (h *Handler) handlePlayChatMessages(
 	}
 
 	equal := strings.EqualFold(msg.Message, h.chosenWord)
-	if equal {
-		points := h.pointHandler.GetPoints()
-		h.clientList.totalScore[caller.ClientUUID] += points
-		h.clientList.roundScore[caller.ClientUUID] = points
+	if !equal {
+		return
 	}
+	points := h.pointHandler.GetPoints()
+	h.clientList.totalScore[caller.ClientUUID.UUID] += points
+	h.clientList.roundScore[caller.ClientUUID.UUID] = points
 
 	send := Send{
 		GameMasterAPI: PlayTime,
 		PlayTimeSend: PlayTimeSend{
+			Hint:          h.hintString,
 			TotalScore:    h.clientList.totalScore,
 			RoundScore:    h.clientList.roundScore,
 			CorrectClient: caller.ClientUUID,
@@ -526,8 +544,17 @@ func (h *Handler) handlePlayChatMessages(
 
 	// if everyone guessed right, then let playTime know
 	allCorrect := true
-	for _, client := range h.clientList.clients {
-		if client.guessedRight != true {
+	for index, client := range h.clientList.clients {
+		if client.UUID == caller.ClientUUID.UUID {
+			h.clientList.clients[index].guessedRight = true
+		}
+
+		if client.UUID == h.clientList.clients[h.clientList.currentlySelected].UUID {
+			// we do not want to check if the person drawing guessed it right
+			continue
+		}
+
+		if h.clientList.clients[index].guessedRight != true {
 			allCorrect = false
 			break
 		}
@@ -544,13 +571,13 @@ type ScoreTimeSend struct {
 }
 
 func (h *Handler) scoreTime() {
-	h.clientList.nextToBeSelected++
+	h.clientList.currentlySelected++
 	h.WrapUserAndRound()
 
 	if h.round >= h.maxRounds {
-		h.gameState = ShowResults
+		h.changeGameStateTo(ShowResults)
 	} else {
-		h.gameState = WordSelect
+		h.changeGameStateTo(WordSelect)
 	}
 	selectedClient := h.clientList.clients[0]
 	scoreTimeMsg := Send{
@@ -585,8 +612,8 @@ func (h *Handler) changeGameStateTo(state State) {
 // If the nextToBeSelected is greater than the length of clients, it will
 // wrap the users and increment the round
 func (h *Handler) WrapUserAndRound() {
-	if len(h.clientList.clients) <= h.clientList.nextToBeSelected {
-		h.clientList.nextToBeSelected = 0
+	if len(h.clientList.clients) <= h.clientList.currentlySelected {
+		h.clientList.currentlySelected = 0
 		h.round++
 	}
 }
