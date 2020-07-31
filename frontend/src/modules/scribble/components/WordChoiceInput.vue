@@ -37,6 +37,7 @@ export default {
     },
     methods: {
         sendWord(index) {
+            this.$store.commit("scribble/setWordSelected", this.words[index]);
             this.$gameApiService.selectWord(index);
         },
     },
