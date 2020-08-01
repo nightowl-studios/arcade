@@ -294,6 +294,7 @@ func TestPlayTime(t *testing.T) {
 	gameMaster.NewClient(ID, &reg)
 	gameMaster.NewClient(ID2, &reg)
 	gameMaster.NewClient(ID3, &reg)
+	wordFactory.On("GenerateWordList", 3).Return([]string{"a", "b", "c"})
 	wordHint.On("GiveHint", mock.Anything).Return(wordHintString)
 	reg.On("SendToSameHub", mock.Anything, mock.MatchedBy(
 		// The message that everyone gets with word hint
@@ -391,6 +392,8 @@ func TestPlayTime(t *testing.T) {
 			return true
 		},
 	))
+	reg.On("SendToSameHubExceptCaller", mock.Anything, mock.Anything).Return(nil)
+	reg.On("SendToCaller", mock.Anything, mock.Anything).Return(nil)
 
 	sendChat := chat.ReceiveChat{
 		Message: "helloworld",
