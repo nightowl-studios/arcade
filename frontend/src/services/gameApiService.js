@@ -22,7 +22,7 @@ export default class GameApiService {
             api: "game",
             payload: {
                 gameMasterAPI: "wordSelect",
-                wordSelectReceive: {
+                wordSelect: {
                     wordChosen: true,
                     choice: index,
                 },
