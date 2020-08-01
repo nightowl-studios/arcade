@@ -430,6 +430,27 @@ func TestPlayTime(t *testing.T) {
 
 }
 
+var TestGetGameInfoProvider = []struct {
+	currentRount int
+	chosenWord   string
+	hintString   string
+	clientList   ClientList
+}{
+	{
+		currentRount: 1,
+		chosenWord:   "hello",
+		hintString:   "_ e _ _ _",
+		clientList: ClientList{
+			currentlySelected: 1,
+			clients: []client{
+				client{
+					guessedRight: true,
+				},
+			},
+		},
+	},
+}
+
 // TestGetGameInfo will test that when a user joins an 'existing' game session,
 // they can ask the Gamemaster for all relevant info to support someone joining
 // for the first time, or re-joining the game after disconnecting
@@ -438,6 +459,7 @@ func TestGetGameInfo(t *testing.T) {
 	var wordFactory mockWf.WordFactory
 	var wordHint mockWh.WordHint
 
+	// expected values
 	currentRound := 1
 	chosenWord := "hello"
 	hintString := "_ e _ _ _"
