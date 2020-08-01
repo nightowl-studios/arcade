@@ -59,6 +59,9 @@ export default {
         timeLeft() {
             return this.timeLimit - this.timePassed;
         },
+        watchTimeLimit() {
+            return this.timeLimit;
+        },
         remainingPathColor() {
             const { healthy, warning, danger } = COLOR_CODES;
             if (this.timeLeft <= DANGER_THRESHOLD) {
@@ -76,19 +79,25 @@ export default {
                 this.onTimesUp();
             }
         },
+        watchTimeLimit() {
+            this.onTimesUp();
+            this.startTimer();
+        },
     },
     mounted() {
         this.startTimer();
     },
     methods: {
+        onTimesUp() {
+            clearInterval(this.timerInterval);
+            this.$emit("onTimesUp");
+        },
         startTimer() {
+            this.timePassed = 0;
             this.timerInterval = setInterval(
                 () => (this.timePassed += 1),
                 1000
             );
-        },
-        onTimesUp() {
-            clearInterval(this.timerInterval);
         },
     },
 };

@@ -57,6 +57,7 @@ export default {
         return {
             timePassed: 0,
             timerInterval: null,
+            enableTimer: true,
         };
     },
 
@@ -81,6 +82,10 @@ export default {
 
         timeLeft() {
             return this.timeLimit - this.timePassed;
+        },
+
+        watchTimeLimit() {
+            return this.timeLimit;
         },
 
         timeFraction() {
@@ -109,6 +114,10 @@ export default {
                 this.onTimesUp();
             }
         },
+        watchTimeLimit() {
+            this.onTimesUp();
+            this.startTimer();
+        },
     },
 
     mounted() {
@@ -122,6 +131,7 @@ export default {
         },
 
         startTimer() {
+            this.timePassed = 0;
             this.timerInterval = setInterval(
                 () => (this.timePassed += 1),
                 1000
