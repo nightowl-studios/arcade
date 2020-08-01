@@ -427,8 +427,8 @@ func (h *Handler) wordSelect() {
 			h.changeGameStateTo(WordSelect)
 		} else {
 			h.chosenWord = wordChoices[msg.Choice]
+			h.changeGameStateTo(PlayTime)
 		}
-		h.changeGameStateTo(PlayTime)
 	case <-h.endChan:
 		// we need to enter the run() loop so we can exit
 		return
