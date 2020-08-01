@@ -14,7 +14,7 @@
             </b-row>
             <b-row>
                 <b-col class="word-choice-modal__col text-center">
-                    <BaseTimerBar timeLimit="10" />
+                    <BaseTimerBar :timeLimit="timeLimit" />
                 </b-col>
             </b-row>
         </b-modal>
@@ -30,6 +30,7 @@ export default {
     props: {
         words: Array,
         modalShow: Boolean,
+        timeLimit: Number,
     },
 
     components: {

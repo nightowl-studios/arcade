@@ -17,10 +17,11 @@ class GameState {
 
 export class ChoosingWord extends GameState {
     static STATE = "ChoosingWord";
-    constructor(player, words) {
+    constructor(player, words, duration) {
         super(ChoosingWord.STATE, true, true, true, false);
         this.player = player;
         this.words = words;
+        this.duration = duration;
     }
 }
 

@@ -39,12 +39,14 @@
             <WordChoiceModal
                 :words="gameState.words"
                 :modalShow="gameState.showWordChoices"
+                :timeLimit="timeLimit"
             />
         </b-container>
     </div>
 </template>
 
 <script>
+const NANOSECOND_TO_SECOND_CONVERSION_FACTOR = 1000000000;
 import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 import Chat from "../components/Chat.vue";
 import CanvasPanel from "../components/CanvasPanel.vue";
@@ -80,6 +82,11 @@ export default {
         ...mapState("scribble", {
             gameState: (state) => state.gameState,
         }),
+        timeLimit() {
+            return (
+                this.gameState.duration / NANOSECOND_TO_SECOND_CONVERSION_FACTOR
+            );
+        },
     },
 };
 </script>
