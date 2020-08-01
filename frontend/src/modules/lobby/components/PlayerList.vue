@@ -33,11 +33,6 @@ export default {
     },
     methods: {
         isCurrentPlayer: function (playerUuid) {
-            console.log(
-                "this player uuid : " +
-                    store.getters["application/getPlayerUuid"]
-            );
-            console.log("other player uuid : " + playerUuid);
             return store.getters["application/getPlayerUuid"] === playerUuid;
         },
     },

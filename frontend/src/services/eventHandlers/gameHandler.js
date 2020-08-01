@@ -39,7 +39,8 @@ export default class GameHandler {
         } else if (payload.gameMasterAPI === "playTime") {
             const currentState = store.getters["scribble/getGameState"];
             if (currentState.state === ChoosingWord.STATE) {
-                const state = new Drawing(payload.playTimeSend.hint);
+                const selectedWord = store.getters["scribble/getWordSelected"];
+                const state = new Drawing(selectedWord);
                 store.commit(this.setGameStateKey, state);
             } else if (
                 currentState.state === WaitingForPlayerToChooseWord.STATE

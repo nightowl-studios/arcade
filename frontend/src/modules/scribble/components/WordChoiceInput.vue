@@ -5,7 +5,7 @@
                 <b-button
                     class="scribble-button"
                     variant="primary"
-                    v-on:click="sendWord(1)"
+                    v-on:click="sendWord(0)"
                     >{{ words[0] }}</b-button
                 >
             </b-col>
@@ -13,7 +13,7 @@
                 <b-button
                     class="scribble-button"
                     variant="primary"
-                    v-on:click="sendWord(2)"
+                    v-on:click="sendWord(1)"
                     >{{ words[1] }}</b-button
                 >
             </b-col>
@@ -21,7 +21,7 @@
                 <b-button
                     class="scribble-button"
                     variant="primary"
-                    v-on:click="sendWord(3)"
+                    v-on:click="sendWord(2)"
                     >{{ words[2] }}</b-button
                 >
             </b-col>
@@ -37,6 +37,7 @@ export default {
     },
     methods: {
         sendWord(index) {
+            this.$store.commit("scribble/setWordSelected", this.words[index]);
             this.$gameApiService.selectWord(index);
         },
     },

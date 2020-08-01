@@ -192,6 +192,7 @@ func Get(reg registry.Registry) *Handler {
 		endChan:          make(chan bool),
 		pointHandler:     point.Get(),
 		wordFactory:      wordfactory.GetWordFactory(),
+		wordHint:         wordhint.Get(),
 	}
 	go handler.run()
 	return handler
@@ -213,8 +214,6 @@ func (h *Handler) run() {
 			h.playTime()
 		case ScoreTime:
 			h.scoreTime()
-			// I have nothing else coded for after scoreTime(). Run loop will exit for now
-			return
 		case ShowResults:
 			h.showResults()
 			h.gameState = EndGame
@@ -426,8 +425,8 @@ func (h *Handler) wordSelect() {
 			h.changeGameStateTo(WordSelect)
 		} else {
 			h.chosenWord = wordChoices[msg.Choice]
+			h.changeGameStateTo(PlayTime)
 		}
-		h.changeGameStateTo(PlayTime)
 	case <-h.endChan:
 		// we need to enter the run() loop so we can exit
 		return

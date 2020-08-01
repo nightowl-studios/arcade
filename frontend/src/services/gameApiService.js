@@ -21,8 +21,8 @@ export default class GameApiService {
         const message = {
             api: "game",
             payload: {
-                gameMasterAPI: "wordSelectReceive",
-                wordSelectReceive: {
+                gameMasterAPI: "wordSelect",
+                wordSelect: {
                     wordChosen: true,
                     choice: index,
                 },
