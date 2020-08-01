@@ -5,7 +5,7 @@
                 <b-col>
                     <Header
                         v-if="gameState.showPlayerChoosing"
-                        nickname="gameState.player.nickname"
+                        :nickname="gameState.player.nickname"
                     />
                     <Word
                         v-if="gameState.showWordToGuess"
@@ -29,7 +29,15 @@
                 </b-col>
                 <b-col>
                     <b-row class="scribble__container__body__lobbyid">
-                        <LobbyId />
+                        <b-col cols="2">
+                            <BaseTimerCircle
+                                size="sm"
+                                :timeLimit="gameState.duration"
+                            />
+                        </b-col>
+                        <b-col cols="6">
+                            <LobbyId />
+                        </b-col>
                     </b-row>
                     <b-row class="scribble__container__body__chat">
                         <Chat />
@@ -46,7 +54,6 @@
 </template>
 
 <script>
-const NANOSECOND_TO_SECOND_CONVERSION_FACTOR = 1000000000;
 import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 import Chat from "../components/Chat.vue";
 import CanvasPanel from "../components/CanvasPanel.vue";
@@ -56,6 +63,7 @@ import PlayerList from "../components/PlayerList.vue";
 import WordChoiceModal from "../components/WordChoiceModal.vue";
 import { mapState } from "vuex";
 import Word from "../components/Word.vue";
+import BaseTimerCircle from "@/modules/common/components/BaseTimerCircle.vue";
 
 export default {
     mixins: [WebSocketMixin],
@@ -68,6 +76,7 @@ export default {
         PlayerList,
         WordChoiceModal,
         Word,
+        BaseTimerCircle,
     },
     data: function () {
         return {
@@ -83,9 +92,7 @@ export default {
             gameState: (state) => state.gameState,
         }),
         timeLimit() {
-            return (
-                this.gameState.duration / NANOSECOND_TO_SECOND_CONVERSION_FACTOR
-            );
+            return this.gameState.duration;
         },
     },
 };
@@ -107,7 +114,6 @@ export default {
             }
 
             &__lobbyid {
-                margin-left: 25px;
             }
 
             &__chat {

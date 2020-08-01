@@ -1,3 +1,5 @@
+const NANOSECOND_TO_SECONDS_FACTOR = 1000000000;
+
 class GameState {
     constructor(
         state,
@@ -21,30 +23,33 @@ export class ChoosingWord extends GameState {
         super(ChoosingWord.STATE, true, true, true, false);
         this.player = player;
         this.words = words;
-        this.duration = duration;
+        this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
     }
 }
 
 export class WaitingForPlayerToChooseWord extends GameState {
     static STATE = "WaitingForPlayerToChooseWord";
-    constructor(player) {
+    constructor(player, duration) {
         super(WaitingForPlayerToChooseWord.STATE, true, false, true, false);
         this.player = player;
+        this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
     }
 }
 
 export class Drawing extends GameState {
     static STATE = "Drawing";
-    constructor(word) {
+    constructor(word, duration) {
         super(Drawing.STATE, false, false, false, true);
         this.word = word;
+        this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
     }
 }
 
 export class Guessing extends GameState {
     static STATE = "Guessing";
-    constructor(word) {
+    constructor(word, duration) {
         super(Guessing.STATE, true, false, false, true);
         this.word = word;
+        this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
     }
 }
