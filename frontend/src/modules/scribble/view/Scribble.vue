@@ -80,7 +80,7 @@ export default {
     },
     data: function () {
         return {
-            colors: ["#000000", "#4287f5", "#da42f5", "#7ef542"],
+            colors: ["#000000", "#4287f5", "#da42f5", "#7ef542", "#ffffff"],
             sizes: [8, 16, 32, 64],
         };
     },
