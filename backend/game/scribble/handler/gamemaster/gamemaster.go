@@ -214,8 +214,6 @@ func (h *Handler) run() {
 			h.playTime()
 		case ScoreTime:
 			h.scoreTime()
-			// I have nothing else coded for after scoreTime(). Run loop will exit for now
-			return
 		case ShowResults:
 			h.showResults()
 			h.gameState = EndGame
