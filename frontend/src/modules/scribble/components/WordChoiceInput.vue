@@ -37,7 +37,6 @@ export default {
     },
     methods: {
         sendWord(index) {
-            // Select the first choice
             this.$gameApiService.selectWord(index);
         },
     },
