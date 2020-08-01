@@ -5,7 +5,7 @@
                 <b-col>
                     <Header
                         v-if="gameState.showPlayerChoosing"
-                        nickname="gameState.player.nickname"
+                        :nickname="gameState.player.nickname"
                     />
                     <Word
                         v-if="gameState.showWordToGuess"
