@@ -31,7 +31,10 @@ export default class GameHandler {
                 const player = store.getters["application/getPlayerWithUuid"](
                     playerUuid
                 );
-                const state = new WaitingForPlayerToChooseWord(player);
+                const state = new WaitingForPlayerToChooseWord(
+                    player,
+                    payload.wordSelect.duration
+                );
                 store.commit(this.setGameStateKey, state);
             }
 
@@ -40,12 +43,18 @@ export default class GameHandler {
             const currentState = store.getters["scribble/getGameState"];
             if (currentState.state === ChoosingWord.STATE) {
                 const selectedWord = store.getters["scribble/getWordSelected"];
-                const state = new Drawing(selectedWord);
+                const state = new Drawing(
+                    selectedWord,
+                    payload.playTimeSend.duration
+                );
                 store.commit(this.setGameStateKey, state);
             } else if (
                 currentState.state === WaitingForPlayerToChooseWord.STATE
             ) {
-                const state = new Guessing(payload.playTimeSend.hint);
+                const state = new Guessing(
+                    payload.playTimeSend.hint,
+                    payload.playTimeSend.duration
+                );
                 store.commit(this.setGameStateKey, state);
             }
         }
