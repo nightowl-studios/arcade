@@ -150,15 +150,17 @@ type ClientList struct {
 }
 
 type Handler struct {
-	reg        registry.Registry
-	clientList ClientList
+	// current states
+	reg            registry.Registry
+	clientList     ClientList
+	gameStateLock  sync.RWMutex
+	gameState      State
+	round          int
+	chosenWord     string
+	hintString     string
+	timerStartTime time.Time // used to track the most recent timer
 
-	gameStateLock sync.RWMutex
-	gameState     State
-	round         int
-	chosenWord    string
-	hintString    string
-
+	// communication
 	waitForStartChan (chan WaitForStartReceive)
 	selectTopicChan  (chan WordSelectReceive)
 	playTimeChan     (chan PlayTimeChanReceive)

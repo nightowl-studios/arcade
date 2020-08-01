@@ -429,3 +429,44 @@ func TestPlayTime(t *testing.T) {
 	wordFactory.AssertExpectations(t)
 
 }
+
+// TestGetGameInfo will test that when a user joins an 'existing' game session,
+// they can ask the Gamemaster for all relevant info to support someone joining
+// for the first time, or re-joining the game after disconnecting
+func TestGetGameInfo(t *testing.T) {
+	var reg mocks.Registry
+	var wordFactory mockWf.WordFactory
+	var wordHint mockWh.WordHint
+
+	currentRound := 1
+	chosenWord := "hello"
+	hintString := "_ e _ _ _"
+
+	gameMaster := &Handler{
+		reg:        &reg,
+		gameState:  WordSelect,
+		round:      currentRound,
+		chosenWord: chosenWord,
+		hintString: hintString,
+
+		playTimeChan:     make(chan PlayTimeChanReceive),
+		selectTopicChan:  make(chan WordSelectReceive),
+		waitForStartChan: make(chan WaitForStartReceive),
+		endChan:          make(chan bool),
+
+		maxRounds:        3,
+		wordChoices:      3,
+		playTimeTimer:    time.Second * 60,
+		selectTopicTimer: time.Second * 10,
+
+		pointHandler: point.Get(),
+		wordFactory:  &wordFactory,
+		wordHint:     &wordHint,
+	}
+
+	ID := identifier.Client{
+		ClientUUID: identifier.ClientUUIDStruct{"AAA"},
+		HubName:    identifier.HubNameStruct{"BBB"},
+	}
+	gameMaster.NewClient(ID, &reg)
+}
