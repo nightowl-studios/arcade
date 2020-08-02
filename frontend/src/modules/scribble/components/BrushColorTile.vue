@@ -14,6 +14,7 @@ export default {
                 height: "20px",
                 width: "20px",
                 borderRadius: "30%",
+                border: "1px #000000 solid",
                 backgroundColor: this.color,
                 float: "left",
             };

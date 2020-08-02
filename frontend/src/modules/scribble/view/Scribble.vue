@@ -5,7 +5,7 @@
                 <b-col>
                     <Header
                         v-if="gameState.showPlayerChoosing"
-                        nickname="gameState.player.nickname"
+                        :nickname="gameState.player.nickname"
                     />
                     <Word
                         v-if="gameState.showWordToGuess"
@@ -30,7 +30,15 @@
                 </b-col>
                 <b-col>
                     <b-row class="scribble__container__body__lobbyid">
-                        <LobbyId />
+                        <b-col cols="2">
+                            <BaseTimerCircle
+                                size="sm"
+                                :timeLimit="gameState.duration"
+                            />
+                        </b-col>
+                        <b-col cols="6">
+                            <LobbyId />
+                        </b-col>
                     </b-row>
                     <b-row class="scribble__container__body__chat">
                         <Chat />
@@ -40,6 +48,7 @@
             <WordChoiceModal
                 :words="gameState.words"
                 :modalShow="gameState.showWordChoices"
+                :timeLimit="timeLimit"
             />
         </b-container>
     </div>
@@ -56,6 +65,7 @@ import PlayerList from "../components/PlayerList.vue";
 import WordChoiceModal from "../components/WordChoiceModal.vue";
 import { mapState } from "vuex";
 import Word from "../components/Word.vue";
+import BaseTimerCircle from "@/modules/common/components/BaseTimerCircle.vue";
 
 export default {
     mixins: [WebSocketMixin],
@@ -69,10 +79,11 @@ export default {
         PlayerList,
         WordChoiceModal,
         Word,
+        BaseTimerCircle,
     },
     data: function () {
         return {
-            colors: ["#000000", "#4287f5", "#da42f5", "#7ef542"],
+            colors: ["#000000", "#4287f5", "#da42f5", "#7ef542", "#ffffff"],
             sizes: [8, 16, 32, 64],
         };
     },
@@ -83,6 +94,9 @@ export default {
         ...mapState("scribble", {
             gameState: (state) => state.gameState,
         }),
+        timeLimit() {
+            return this.gameState.duration;
+        },
     },
 };
 </script>
@@ -102,9 +116,7 @@ export default {
                 float: right;
             }
 
-            &__lobbyid,
-            &__ {
-                margin-left: 25px;
+            &__lobbyid {
             }
 
             &__chat {
