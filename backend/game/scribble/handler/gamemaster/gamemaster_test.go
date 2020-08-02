@@ -439,15 +439,15 @@ var TestGetGameInfoProvider = []Handler{
 			clients: []client{
 				{
 					ClientUUIDStruct: identifier.ClientUUIDStruct{"AAA"},
-					guessedRight:     false,
+					GuessedRight:     false,
 				},
 				{
 					ClientUUIDStruct: identifier.ClientUUIDStruct{"BBB"},
-					guessedRight:     false,
+					GuessedRight:     false,
 				},
 				{
 					ClientUUIDStruct: identifier.ClientUUIDStruct{"CCC"},
-					guessedRight:     true,
+					GuessedRight:     true,
 				},
 			},
 			totalScore: map[string]int{
@@ -509,26 +509,27 @@ func TestGetGameInfo(t *testing.T) {
 						t.Fatalf("unable to unmarshal send: %v", err)
 						return false
 					}
-					var sent RequestCurrentGameInfoSend
-					err = json.Unmarshal(gameMsg.Payload, &sent)
+					var send Send
+					err = json.Unmarshal(gameMsg.Payload, &send)
 					if err != nil {
 						t.Fatalf("unable to unmarshal: %v", err)
 						return false
 					}
-					if !reflect.DeepEqual(sent.clients, gameMaster.clientList.clients) {
-						t.Errorf("got: %v, expected: %v", sent.clients, gameMaster.clientList)
+					sent := send.CurrentGameInfo
+					if !reflect.DeepEqual(sent.Clients, gameMaster.clientList.clients) {
+						t.Errorf("got: %v, expected: %v", sent.Clients, gameMaster.clientList.clients)
 					}
-					if sent.gameState != gameMaster.gameState {
-						t.Errorf("got: %v, expected: %v", sent.gameState, gameMaster.gameState)
+					if sent.GameState != gameMaster.gameState {
+						t.Errorf("got: %v, expected: %v", sent.GameState, gameMaster.gameState)
 					}
-					if sent.round != gameMaster.round {
-						t.Errorf("got: %v, expected: %v", sent.round, gameMaster.round)
+					if sent.Round != gameMaster.round {
+						t.Errorf("got: %v, expected: %v", sent.Round, gameMaster.round)
 					}
-					if sent.hintString != gameMaster.hintString {
-						t.Errorf("got: %v, expected: %v", sent.hintString, gameMaster.hintString)
+					if sent.HintString != gameMaster.hintString {
+						t.Errorf("got: %v, expected: %v", sent.HintString, gameMaster.hintString)
 					}
-					if sent.maxRounds != gameMaster.maxRounds {
-						t.Errorf("got: %v, expected: %v", sent.maxRounds, gameMaster.maxRounds)
+					if sent.MaxRounds != gameMaster.maxRounds {
+						t.Errorf("got: %v, expected: %v", sent.MaxRounds, gameMaster.maxRounds)
 					}
 
 					return true
