@@ -23,7 +23,8 @@ export default class GameHandler {
                 );
                 const state = new ChoosingWord(
                     player,
-                    payload.wordSelect.choices
+                    payload.wordSelect.choices,
+                    payload.scoreTime.round
                 );
                 store.commit(this.setGameStateKey, state);
             } else {

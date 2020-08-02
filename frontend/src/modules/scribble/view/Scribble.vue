@@ -21,6 +21,7 @@
                     </b-row>
                 </b-col>
                 <b-col>
+                    <RoundNumber :roundNumber="gameState.roundNumber" />
                     <CanvasPanel
                         :colors="colors"
                         :sizes="sizes"
@@ -50,6 +51,7 @@ import Chat from "../components/Chat.vue";
 import CanvasPanel from "../components/CanvasPanel.vue";
 import Header from "../components/Header.vue";
 import LobbyId from "../components/LobbyId.vue";
+import RoundNumber from "../components/RoundNumber.vue";
 import PlayerList from "../components/PlayerList.vue";
 import WordChoiceModal from "../components/WordChoiceModal.vue";
 import { mapState } from "vuex";
@@ -63,6 +65,7 @@ export default {
         Chat,
         Header,
         LobbyId,
+        RoundNumber,
         PlayerList,
         WordChoiceModal,
         Word,
@@ -99,7 +102,8 @@ export default {
                 float: right;
             }
 
-            &__lobbyid {
+            &__lobbyid,
+            &__ {
                 margin-left: 25px;
             }
 
