@@ -24,14 +24,20 @@ func TestWaitForStart(t *testing.T) {
 	var wordFactory mockWf.WordFactory
 	reg.On("SendToSameHubExceptCaller", mock.Anything, mock.Anything)
 	reg.On("SendToCaller", mock.Anything, mock.Anything)
+	reg.On("SendToSameHub", mock.Anything, mock.Anything).Times(2)
 	wordFactory.On("GenerateWordList", 3).Return([]string{"a", "b", "c"})
 
 	gameMaster := Get(&reg)
-	ID := identifier.Client{
+	ID1 := identifier.Client{
 		ClientUUID: identifier.ClientUUIDStruct{"AAA"},
-		HubName:    identifier.HubNameStruct{"BBB"},
+		HubName:    identifier.HubNameStruct{"ZZZ"},
 	}
-	gameMaster.NewClient(ID, &reg)
+	ID2 := identifier.Client{
+		ClientUUID: identifier.ClientUUIDStruct{"BBB"},
+		HubName:    identifier.HubNameStruct{"ZZZ"},
+	}
+	gameMaster.NewClient(ID1, &reg)
+	gameMaster.NewClient(ID2, &reg)
 	gameMaster.wordFactory = &wordFactory
 
 	if gameMaster.gameState != WaitForStart {
@@ -41,33 +47,28 @@ func TestWaitForStart(t *testing.T) {
 	receivedStruct := Receive{
 		GameMasterAPI: WaitForStart,
 		WaitForStartReceive: WaitForStartReceive{
-			StartGame: false,
+			IsReady: true,
 		},
 	}
+
 	b, err := json.Marshal(receivedStruct)
 	if err != nil {
 		t.Fatalf("unable to marshal struct: %v", err)
 	}
-	gameMaster.HandleInteraction(gameMaster.Name(), b, ID, &reg)
+
+	gameMaster.HandleInteraction(gameMaster.Name(), b, ID1, &reg)
 	if gameMaster.gameState != WaitForStart {
 		t.Errorf("got state: %v, expected: %v", gameMaster.gameState, WaitForStart)
 	}
 
-	receivedStruct.WaitForStartReceive.StartGame = true
-	b, err = json.Marshal(receivedStruct)
-	if err != nil {
-		t.Fatalf("unable to marshal struct: %v", err)
-	}
-
-	gameMaster.HandleInteraction(gameMaster.Name(), b, ID, &reg)
+	gameMaster.HandleInteraction(gameMaster.Name(), b, ID2, &reg)
 	time.Sleep(time.Millisecond * 100)
-
 	if gameMaster.gameState != WordSelect {
 		t.Errorf("got state: %v, expected: %v", gameMaster.gameState, WordSelect)
 	}
 
-	gameMaster.ClientQuit(ID, &reg)
-
+	gameMaster.ClientQuit(ID1, &reg)
+	gameMaster.ClientQuit(ID2, &reg)
 	reg.AssertExpectations(t)
 	wordFactory.AssertExpectations(t)
 }
