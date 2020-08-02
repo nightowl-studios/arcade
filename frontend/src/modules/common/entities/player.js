@@ -3,5 +3,6 @@ export default class Player {
         this.uuid = uuid;
         this.nickname = nickname;
         this.joinOrder = joinOrder;
+        this.isReady = false;
     }
 }

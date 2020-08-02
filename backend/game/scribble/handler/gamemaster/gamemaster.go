@@ -116,10 +116,11 @@ var (
 // For example, if "wordSelect" was sending a message with the "wordSelect"
 // field, the "gameMasterAPI" field will be "wordSelect"
 type Send struct {
-	GameMasterAPI  State          `json:"gameMasterAPI"`
-	WordSelectSend WordSelectSend `json:"wordSelect,omitempty"`
-	ScoreTimeSend  ScoreTimeSend  `json:"scoreTime,omitempty"`
-	PlayTimeSend   PlayTimeSend   `json:"playTimeSend,omitempty"`
+	GameMasterAPI    State            `json:"gameMasterAPI"`
+	WaitForStartSend WaitForStartSend `json:"waitForStart,omitempty"`
+	WordSelectSend   WordSelectSend   `json:"wordSelect,omitempty"`
+	ScoreTimeSend    ScoreTimeSend    `json:"scoreTime,omitempty"`
+	PlayTimeSend     PlayTimeSend     `json:"playTimeSend,omitempty"`
 }
 
 // Receive is a struct that defines what the gamemaster expected to
@@ -134,6 +135,7 @@ type Receive struct {
 
 type client struct {
 	identifier.ClientUUIDStruct
+	isReady      bool
 	guessedRight bool
 }
 
@@ -248,6 +250,7 @@ func (h *Handler) HandleInteraction(
 	case WaitForStart:
 		if api == h.Name() {
 			log.Infof("sending thing to start channel")
+			receive.WaitForStartReceive.clientUUID = caller.ClientUUID.UUID
 			h.waitForStartChan <- receive.WaitForStartReceive
 		}
 	case WordSelect:
@@ -282,6 +285,7 @@ func (h *Handler) NewClient(
 		h.clientList.clients,
 		client{
 			ClientUUIDStruct: clientID.ClientUUID,
+			isReady:          false,
 			guessedRight:     false,
 		},
 	)
@@ -335,8 +339,14 @@ func (h *Handler) Name() string {
 	return name
 }
 
+type WaitForStartSend struct {
+	ClientUUID string `json:"clientUUID"`
+	IsReady    bool   `json:"isReady"`
+}
+
 type WaitForStartReceive struct {
-	StartGame bool `json:"startGame"`
+	clientUUID string
+	IsReady    bool `json:"isReady"`
 }
 
 // waitForStart will wait for the leader to press the start button.
@@ -344,14 +354,47 @@ type WaitForStartReceive struct {
 // incoming message on the h.waitForStartChan in which we can
 // continue onto the next gamestate
 func (h *Handler) waitForStart() {
-	select {
-	case msg := <-h.waitForStartChan:
-		if msg.StartGame == true {
-			h.changeGameStateTo(WordSelect)
+	for {
+		select {
+		case msg := <-h.waitForStartChan:
+			for idx, client := range h.clientList.clients {
+				if client.UUID == msg.clientUUID {
+					h.clientList.clients[idx].isReady = msg.IsReady
+					playerReadyStateChangedMsg := Send{
+						GameMasterAPI: WaitForStart,
+						WaitForStartSend: WaitForStartSend{
+							ClientUUID: msg.clientUUID,
+							IsReady:    msg.IsReady,
+						},
+					}
+					playerReadyStateChangedBytes, err :=
+						game.MessageBuild("game", playerReadyStateChangedMsg)
+					if err != nil {
+						log.Fatalf("unable to marshal: %v", err)
+						return
+					}
+					h.reg.SendToSameHub(
+						client.ClientUUIDStruct,
+						playerReadyStateChangedBytes)
+				}
+			}
+		case <-h.endChan:
+			// we need to enter the run() loop so we can exit
+			return
 		}
-	case <-h.endChan:
-		// we need to enter the run() loop so we can exit
-		return
+
+		allReady := true
+		for _, client := range h.clientList.clients {
+			if !client.isReady {
+				allReady = false
+				break
+			}
+		}
+
+		if allReady {
+			h.changeGameStateTo(WordSelect)
+			break
+		}
 	}
 }
 

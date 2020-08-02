@@ -5,12 +5,6 @@
         <InvitationLink />
         <div class="lobby-buttons">
             <b-button
-                class="lobby-button"
-                variant="success"
-                v-on:click="startGame"
-                >Start game</b-button
-            >
-            <b-button
                 class="exit-button"
                 variant="danger"
                 v-on:click="exitToHome"
@@ -47,10 +41,6 @@ export default {
     mixins: [WebSocketMixin],
 
     methods: {
-        startGame: function () {
-            this.$gameApiService.startGame();
-        },
-
         exitToHome: function () {
             this.$webSocketService.disconnect();
             this.$router.push({ name: "home" });

@@ -15,6 +15,32 @@
                         : 'hidden',
                 }"
             />
+            <p v-if="player.isReady" class="ready-icon">✔️</p>
+            <p v-else class="not-ready-icon">❌</p>
+            <b-button
+                v-if="player.isReady"
+                :style="{
+                    visibility: isCurrentPlayer(player.uuid)
+                        ? 'visible'
+                        : 'hidden',
+                }"
+                class="ready-button"
+                variant="danger"
+                v-on:click="setIsNotReady"
+                >Not Ready</b-button
+            >
+            <b-button
+                v-else
+                :style="{
+                    visibility: isCurrentPlayer(player.uuid)
+                        ? 'visible'
+                        : 'hidden',
+                }"
+                class="ready-button"
+                variant="success"
+                v-on:click="setIsReady"
+                >Ready</b-button
+            >
         </div>
     </div>
 </template>
@@ -35,6 +61,12 @@ export default {
         isCurrentPlayer: function (playerUuid) {
             return store.getters["application/getPlayerUuid"] === playerUuid;
         },
+        setIsReady: function () {
+            this.$gameApiService.setIsReady(true);
+        },
+        setIsNotReady: function () {
+            this.$gameApiService.setIsReady(false);
+        },
     },
 };
 </script>
@@ -51,7 +83,7 @@ export default {
 
 .player-list__row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 0.5fr 1fr 1fr 0.3fr 0.7fr;
     justify-items: center;
     align-items: center;
     border: 1px solid black;

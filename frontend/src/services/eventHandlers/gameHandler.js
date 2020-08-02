@@ -15,7 +15,12 @@ export default class GameHandler {
     }
 
     handle(payload) {
-        if (payload.gameMasterAPI === "wordSelect") {
+        if (payload.gameMasterAPI === "waitForStart") {
+            store.commit(
+                "application/setPlayerReadyState",
+                payload.waitForStart
+            );
+        } else if (payload.gameMasterAPI === "wordSelect") {
             const playerUuid = store.getters["application/getPlayerUuid"];
             if (playerUuid === payload.wordSelect.chosenUUID) {
                 const player = store.getters["application/getPlayerWithUuid"](
