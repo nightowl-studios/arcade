@@ -2,6 +2,8 @@ package gamemaster
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"reflect"
 	"testing"
 	"time"
@@ -45,7 +47,7 @@ func TestWaitForStart(t *testing.T) {
 	}
 
 	receivedStruct := Receive{
-		GameMasterAPI: WaitForStart,
+		GameMasterAPI: string(WaitForStart),
 		WaitForStartReceive: WaitForStartReceive{
 			IsReady: true,
 		},
@@ -170,7 +172,7 @@ func TestWordSelect(t *testing.T) {
 	// Now check that if a user selects an option, that the selected option is
 	// made into the gamemaster
 	receivedStruct := Receive{
-		GameMasterAPI: WaitForStart,
+		GameMasterAPI: string(WaitForStart),
 		WordSelectReceive: WordSelectReceive{
 			WordChosen: true,
 			Choice:     1,
@@ -430,24 +432,43 @@ func TestPlayTime(t *testing.T) {
 
 }
 
-var TestGetGameInfoProvider = []struct {
-	currentRount int
-	chosenWord   string
-	hintString   string
-	clientList   ClientList
-}{
+var TestGetGameInfoProvider = []Handler{
 	{
-		currentRount: 1,
-		chosenWord:   "hello",
-		hintString:   "_ e _ _ _",
 		clientList: ClientList{
 			currentlySelected: 1,
 			clients: []client{
-				client{
-					guessedRight: true,
+				{
+					ClientUUIDStruct: identifier.ClientUUIDStruct{"AAA"},
+					guessedRight:     false,
+				},
+				{
+					ClientUUIDStruct: identifier.ClientUUIDStruct{"BBB"},
+					guessedRight:     false,
+				},
+				{
+					ClientUUIDStruct: identifier.ClientUUIDStruct{"CCC"},
+					guessedRight:     true,
 				},
 			},
+			totalScore: map[string]int{
+				"AAA": 500,
+				"BBB": 500,
+				"CCC": 400,
+			},
+			roundScore: map[string]int{
+				"AAA": 0,
+				"BBB": 0,
+				"CCC": 200,
+			},
 		},
+		gameState:        WordSelect,
+		round:            1,
+		chosenWord:       "hello",
+		hintString:       "_ e _ _ _",
+		maxRounds:        3,
+		wordChoices:      3,
+		selectTopicTimer: time.Second * 10,
+		playTimeTimer:    time.Second * 30,
 	},
 }
 
@@ -455,40 +476,68 @@ var TestGetGameInfoProvider = []struct {
 // they can ask the Gamemaster for all relevant info to support someone joining
 // for the first time, or re-joining the game after disconnecting
 func TestGetGameInfo(t *testing.T) {
-	var reg mocks.Registry
-	var wordFactory mockWf.WordFactory
-	var wordHint mockWh.WordHint
-
-	// expected values
-	currentRound := 1
-	chosenWord := "hello"
-	hintString := "_ e _ _ _"
-
-	gameMaster := &Handler{
-		reg:        &reg,
-		gameState:  WordSelect,
-		round:      currentRound,
-		chosenWord: chosenWord,
-		hintString: hintString,
-
-		playTimeChan:     make(chan PlayTimeChanReceive),
-		selectTopicChan:  make(chan WordSelectReceive),
-		waitForStartChan: make(chan WaitForStartReceive),
-		endChan:          make(chan bool),
-
-		maxRounds:        3,
-		wordChoices:      3,
-		playTimeTimer:    time.Second * 60,
-		selectTopicTimer: time.Second * 10,
-
-		pointHandler: point.Get(),
-		wordFactory:  &wordFactory,
-		wordHint:     &wordHint,
+	requestGameMsg := Receive{
+		GameMasterAPI: RequestCurrentGameInfo,
 	}
-
+	requestGameMsgByte, err := json.Marshal(requestGameMsg)
+	if err != nil {
+		log.Fatalf("unable to marshal message :%v", err)
+	}
 	ID := identifier.Client{
 		ClientUUID: identifier.ClientUUIDStruct{"AAA"},
 		HubName:    identifier.HubNameStruct{"BBB"},
 	}
-	gameMaster.NewClient(ID, &reg)
+
+	for testTrial, gameMaster := range TestGetGameInfoProvider {
+		testName := fmt.Sprintf("testTrial :%v", testTrial)
+		t.Run(testName, func(t *testing.T) {
+			var reg mocks.Registry
+			reg.On(
+				"SendToCaller",
+				// ID
+				mock.MatchedBy(func(client identifier.ClientUUIDStruct) bool {
+					if client.UUID == ID.ClientUUID.UUID {
+						return true
+					}
+					return false
+				}),
+				// RequestCurrentGameInfoSend bytes
+				mock.MatchedBy(func(sentBytes []byte) bool {
+					var gameMsg game.Message
+					err := json.Unmarshal(sentBytes, &gameMsg)
+					if err != nil {
+						t.Fatalf("unable to unmarshal send: %v", err)
+						return false
+					}
+					var sent RequestCurrentGameInfoSend
+					err = json.Unmarshal(gameMsg.Payload, &sent)
+					if err != nil {
+						t.Fatalf("unable to unmarshal: %v", err)
+						return false
+					}
+					if !reflect.DeepEqual(sent.clients, gameMaster.clientList.clients) {
+						t.Errorf("got: %v, expected: %v", sent.clients, gameMaster.clientList)
+					}
+					if sent.gameState != gameMaster.gameState {
+						t.Errorf("got: %v, expected: %v", sent.gameState, gameMaster.gameState)
+					}
+					if sent.round != gameMaster.round {
+						t.Errorf("got: %v, expected: %v", sent.round, gameMaster.round)
+					}
+					if sent.hintString != gameMaster.hintString {
+						t.Errorf("got: %v, expected: %v", sent.hintString, gameMaster.hintString)
+					}
+					if sent.maxRounds != gameMaster.maxRounds {
+						t.Errorf("got: %v, expected: %v", sent.maxRounds, gameMaster.maxRounds)
+					}
+
+					return true
+				}),
+			)
+
+			gameMaster.reg = &reg
+			gameMaster.HandleInteraction(name, requestGameMsgByte, ID, &reg)
+			reg.AssertExpectations(t)
+		})
+	}
 }

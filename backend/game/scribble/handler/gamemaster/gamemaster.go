@@ -93,6 +93,13 @@ const (
 	Ended State = "ended"
 )
 
+// Commands that can be used on the gamemaster
+const (
+	// RequestCurrentGameInfo can be sent into the `GameMasterAPI`, and the
+	// gamemaster will return an assortment of game info
+	RequestCurrentGameInfo = "requestCurrentGameInfo"
+)
+
 var (
 	// api's we want to listen to
 	listensTo []string = []string{
@@ -126,7 +133,7 @@ type Send struct {
 // All possible messages (from every state) is defined in this Receive struct.
 // The "GameMasterAPI" field should be used the same way as the Send struct
 type Receive struct {
-	GameMasterAPI       State               `json:"gameMasterAPI"`
+	GameMasterAPI       string              `json:"gameMasterAPI"`
 	WaitForStartReceive WaitForStartReceive `json:"waitForStart"`
 	WordSelectReceive   WordSelectReceive   `json:"wordSelect"`
 }
@@ -145,7 +152,7 @@ type ClientList struct {
 
 	// Do not delete from this map even when a player quits. They can reconnect
 	totalScore map[string]int
-	// This is what we use to display to the user when a round ends
+	// This is the scores that each player gained in the round
 	roundScore map[string]int
 }
 
@@ -242,6 +249,14 @@ func (h *Handler) HandleInteraction(
 	err := json.Unmarshal(message, &receive)
 	if err != nil {
 		log.Fatalf("unable to unmarshal message: %v", err)
+	}
+
+	switch receive.GameMasterAPI {
+	case RequestCurrentGameInfo:
+		h.RequestCurrentGameInfo()
+		return
+	default:
+		// skip and continue
 	}
 
 	h.gameStateLock.RLock()
