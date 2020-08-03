@@ -3,14 +3,6 @@
         <Header title="Sketch Night" />
         <Header class="lobby-header-room-id" :title="lobbyId" />
         <InvitationLink />
-        <div class="lobby-buttons">
-            <b-button
-                class="exit-button"
-                variant="danger"
-                v-on:click="exitToHome"
-                >Exit Lobby</b-button
-            >
-        </div>
         <PlayerList class="player-list" :players="players" />
     </div>
 </template>
@@ -40,12 +32,6 @@ export default {
 
     mixins: [WebSocketMixin],
 
-    methods: {
-        exitToHome: function () {
-            this.$webSocketService.disconnect();
-            this.$router.push({ name: "home" });
-        },
-    },
     created() {
         EventBus.$on(Event.START_GAME, () => {
             this.$router.push({ path: `/scribble/${this.lobbyId}` });
@@ -56,13 +42,6 @@ export default {
 <style scoped>
 #lobby {
     display: grid;
-    justify-items: center;
-    grid-gap: 1em;
-}
-
-.lobby-buttons {
-    display: grid;
-    grid-template-columns: auto auto;
     justify-items: center;
     grid-gap: 1em;
 }
