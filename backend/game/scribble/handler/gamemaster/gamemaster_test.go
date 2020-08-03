@@ -632,6 +632,8 @@ var TestGetRemainingTimeProvider = []struct {
 	},
 }
 
+// TestGetRemainingTime will unit test the function to make sure it outputs
+// the right durations
 func TestGetRemainingTime(t *testing.T) {
 	for testNum, testVal := range TestGetRemainingTimeProvider {
 		testName := fmt.Sprintf("%v", testNum)
@@ -652,6 +654,70 @@ func TestGetRemainingTime(t *testing.T) {
 			}
 
 		})
+	}
+}
+
+// TestWordSelectTimeout will test the timeout functionality of WordSelect
+func TestWordSelectTimeout(t *testing.T) {
+	wordSelectTimer := time.Second * 3 // to make the test not too long
+	wordChoices := []string{"a", "b", "c"}
+
+	var reg mocks.Registry
+	var wordFactory mockWf.WordFactory
+	var wordHint mockWh.WordHint
+
+	gameMaster := &Handler{
+		reg:              &reg,
+		maxRounds:        3,
+		wordChoices:      3,
+		round:            0,
+		gameState:        WordSelect,
+		selectTopicTimer: wordSelectTimer,
+		playTimeTimer:    180 * time.Second,
+		playTimeChan:     make(chan PlayTimeChanReceive),
+		selectTopicChan:  make(chan WordSelectReceive),
+		waitForStartChan: make(chan WaitForStartReceive),
+		endChan:          make(chan bool),
+		pointHandler:     point.Get(),
+		wordFactory:      &wordFactory,
+		wordHint:         &wordHint,
+	}
+	ID1 := identifier.Client{
+		ClientUUID: identifier.ClientUUIDStruct{"AAA"},
+		HubName:    identifier.HubNameStruct{"BBB"},
+	}
+	ID2 := identifier.Client{
+		ClientUUID: identifier.ClientUUIDStruct{"AAA"},
+		HubName:    identifier.HubNameStruct{"BBB"},
+	}
+	gameMaster.NewClient(ID1, &reg)
+	gameMaster.NewClient(ID2, &reg)
+
+	wordHint.On("GiveHint", mock.Anything).Return("hello")
+	wordFactory.On("GenerateWordList", 3).Return(wordChoices)
+	reg.On("SendToSameHubExceptCaller", mock.Anything, mock.Anything)
+	reg.On("SendToCaller", mock.Anything, mock.Anything)
+	reg.On("SendToSameHub", mock.Anything, mock.Anything)
+
+	go gameMaster.run()
+	time.Sleep(time.Millisecond * 100)
+
+	if gameMaster.clientList.currentlySelected != 0 {
+		t.Errorf(
+			"got currentlySelected: %v, expected: %v",
+			gameMaster.clientList.currentlySelected,
+			0,
+		)
+	}
+
+	time.Sleep(wordSelectTimer)
+
+	if gameMaster.clientList.currentlySelected != 1 {
+		t.Errorf(
+			"got currentlySelected: %v, expected: %v",
+			gameMaster.clientList.currentlySelected,
+			1,
+		)
 	}
 
 }

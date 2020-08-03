@@ -72,6 +72,7 @@ func (h *Handler) wordSelect() {
 	h.timerStartTime = time.Now()
 	select {
 	case <-selectTopicTime.C:
+		h.clientList.currentlySelected++
 		h.WrapUserAndRound()
 		h.changeGameStateTo(WordSelect)
 	case msg := <-h.selectTopicChan:
