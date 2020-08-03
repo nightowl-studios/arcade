@@ -432,43 +432,91 @@ func TestPlayTime(t *testing.T) {
 
 }
 
-var TestGetGameInfoProvider = []Handler{
+var TestGetGameInfoProvider = []struct {
+	handler                   Handler
+	expectedRemainingDuration time.Duration
+}{
 	{
-		clientList: ClientList{
-			currentlySelected: 1,
-			clients: []client{
-				{
-					ClientUUIDStruct: identifier.ClientUUIDStruct{"AAA"},
-					GuessedRight:     false,
+		handler: Handler{
+			clientList: ClientList{
+				currentlySelected: 1,
+				clients: []client{
+					{
+						ClientUUIDStruct: identifier.ClientUUIDStruct{"AAA"},
+						GuessedRight:     false,
+					},
+					{
+						ClientUUIDStruct: identifier.ClientUUIDStruct{"BBB"},
+						GuessedRight:     false,
+					},
+					{
+						ClientUUIDStruct: identifier.ClientUUIDStruct{"CCC"},
+						GuessedRight:     true,
+					},
 				},
-				{
-					ClientUUIDStruct: identifier.ClientUUIDStruct{"BBB"},
-					GuessedRight:     false,
+				totalScore: map[string]int{
+					"AAA": 500,
+					"BBB": 500,
+					"CCC": 400,
 				},
-				{
-					ClientUUIDStruct: identifier.ClientUUIDStruct{"CCC"},
-					GuessedRight:     true,
+				roundScore: map[string]int{
+					"AAA": 0,
+					"BBB": 0,
+					"CCC": 200,
 				},
 			},
-			totalScore: map[string]int{
-				"AAA": 500,
-				"BBB": 500,
-				"CCC": 400,
-			},
-			roundScore: map[string]int{
-				"AAA": 0,
-				"BBB": 0,
-				"CCC": 200,
-			},
+			gameState:        WordSelect,
+			round:            1,
+			chosenWord:       "hello",
+			hintString:       "_ e _ _ _",
+			maxRounds:        3,
+			wordChoices:      3,
+			selectTopicTimer: time.Second * 10,
+			playTimeTimer:    time.Second * 30,
+			timerStartTime:   time.Now().Add(time.Second * -5),
 		},
-		gameState:        WordSelect,
-		round:            1,
-		chosenWord:       "hello",
-		hintString:       "_ e _ _ _",
-		maxRounds:        3,
-		wordChoices:      3,
-		selectTopicTimer: time.Second * 10,
-		playTimeTimer:    time.Second * 30,
+		expectedRemainingDuration: time.Second * 5, // selectTopicTimer == 10s - 5s
+	},
+	{
+		handler: Handler{
+			clientList: ClientList{
+				currentlySelected: 1,
+				clients: []client{
+					{
+						ClientUUIDStruct: identifier.ClientUUIDStruct{"AAA"},
+						GuessedRight:     false,
+					},
+					{
+						ClientUUIDStruct: identifier.ClientUUIDStruct{"BBB"},
+						GuessedRight:     false,
+					},
+					{
+						ClientUUIDStruct: identifier.ClientUUIDStruct{"CCC"},
+						GuessedRight:     true,
+					},
+				},
+				totalScore: map[string]int{
+					"AAA": 100,
+					"BBB": 200,
+					"CCC": 300,
+				},
+				roundScore: map[string]int{
+					"AAA": 10,
+					"BBB": 20,
+					"CCC": 200,
+				},
+			},
+			gameState:        PlayTime,
+			round:            1,
+			chosenWord:       "happy",
+			hintString:       "_ _ p p _",
+			maxRounds:        2,
+			wordChoices:      2,
+			selectTopicTimer: time.Second * 10,
+			playTimeTimer:    time.Second * 30,
+			timerStartTime:   time.Now().Add(time.Second * -15),
+		},
+		expectedRemainingDuration: time.Second * 15, // playTime == 30s - 15s
 	},
 }
 
@@ -488,7 +536,8 @@ func TestGetGameInfo(t *testing.T) {
 		HubName:    identifier.HubNameStruct{"BBB"},
 	}
 
-	for testTrial, gameMaster := range TestGetGameInfoProvider {
+	for testTrial, testVal := range TestGetGameInfoProvider {
+		gameMaster := testVal.handler
 		testName := fmt.Sprintf("testTrial :%v", testTrial)
 		t.Run(testName, func(t *testing.T) {
 			var reg mocks.Registry
@@ -531,6 +580,14 @@ func TestGetGameInfo(t *testing.T) {
 					if sent.MaxRounds != gameMaster.maxRounds {
 						t.Errorf("got: %v, expected: %v", sent.MaxRounds, gameMaster.maxRounds)
 					}
+					durationDiff := testVal.expectedRemainingDuration - sent.TimerRemaining
+					if durationDiff > time.Second {
+						t.Errorf(
+							"got: %v(s), expected: %v(s)",
+							sent.TimerRemaining.Seconds(),
+							testVal.expectedRemainingDuration.Seconds(),
+						)
+					}
 
 					return true
 				}),
@@ -541,4 +598,60 @@ func TestGetGameInfo(t *testing.T) {
 			reg.AssertExpectations(t)
 		})
 	}
+}
+
+var TestGetRemainingTimeProvider = []struct {
+	startTime     time.Time
+	now           time.Time
+	timerDuration time.Duration
+	expectedDur   time.Duration
+}{
+	{
+		startTime:     time.Date(2020, 10, 10, 10, 10, 10, 10, time.UTC), // 10s
+		now:           time.Date(2020, 10, 10, 10, 10, 30, 10, time.UTC), // 30s - diff of 20s
+		timerDuration: time.Second * 60,
+		expectedDur:   time.Second * 40, // diff of 20s
+	},
+	{
+		startTime:     time.Date(2020, 10, 10, 10, 10, 10, 10, time.UTC),
+		now:           time.Date(2020, 10, 10, 10, 11, 9, 10, time.UTC),
+		timerDuration: time.Second * 60,
+		expectedDur:   time.Second * 1,
+	},
+	{
+		startTime:     time.Date(2020, 10, 10, 10, 10, 10, 10, time.UTC),
+		now:           time.Date(2020, 10, 10, 10, 11, 10, 10, time.UTC),
+		timerDuration: time.Second * 60,
+		expectedDur:   time.Second * 0,
+	},
+	{
+		startTime:     time.Date(2020, 10, 10, 10, 10, 10, 10, time.UTC),
+		now:           time.Date(2020, 10, 10, 10, 11, 11, 10, time.UTC),
+		timerDuration: time.Second * 60,
+		expectedDur:   time.Second * 0,
+	},
+}
+
+func TestGetRemainingTime(t *testing.T) {
+	for testNum, testVal := range TestGetRemainingTimeProvider {
+		testName := fmt.Sprintf("%v", testNum)
+		t.Run(testName, func(t *testing.T) {
+
+			outDuration := getRemainingTime(
+				testVal.startTime,
+				testVal.now,
+				testVal.timerDuration,
+			)
+
+			if outDuration != testVal.expectedDur {
+				t.Errorf(
+					"got: %v(s), expected: %v(s)",
+					outDuration.Seconds(),
+					testVal.expectedDur.Seconds(),
+				)
+			}
+
+		})
+	}
+
 }

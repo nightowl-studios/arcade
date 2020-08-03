@@ -368,14 +368,34 @@ type RequestCurrentGameInfoSend struct {
 func (h *Handler) RequestCurrentGameInfo(
 	caller identifier.Client,
 ) {
+
+	var remainingTime time.Duration
+	h.gameStateLock.RLock()
+	defer h.gameStateLock.RUnlock()
+	switch h.gameState {
+	case WordSelect:
+		remainingTime = getRemainingTime(
+			h.timerStartTime,
+			time.Now(),
+			h.selectTopicTimer,
+		)
+	case PlayTime:
+		remainingTime = getRemainingTime(
+			h.timerStartTime,
+			time.Now(),
+			h.playTimeTimer,
+		)
+	}
+
 	send := Send{
 		GameMasterAPI: RequestCurrentGameInfo,
 		CurrentGameInfo: RequestCurrentGameInfoSend{
-			Clients:    h.clientList.clients,
-			GameState:  h.gameState,
-			Round:      h.round,
-			HintString: h.hintString,
-			MaxRounds:  h.maxRounds,
+			Clients:        h.clientList.clients,
+			GameState:      h.gameState,
+			Round:          h.round,
+			HintString:     h.hintString,
+			MaxRounds:      h.maxRounds,
+			TimerRemaining: remainingTime,
 		},
 	}
 	selectedPlayerBytes, err := game.MessageBuild(h.Name(), send)
@@ -384,6 +404,23 @@ func (h *Handler) RequestCurrentGameInfo(
 		return
 	}
 	h.reg.SendToCaller(caller.ClientUUID, selectedPlayerBytes)
+}
+
+// getRemainingTime will calculate how much time is remaining on the timer
+func getRemainingTime(
+	startTime time.Time,
+	now time.Time,
+	timerDuration time.Duration,
+) time.Duration {
+
+	timeElapsed := now.Sub(startTime)
+	remainingTime := timerDuration - timeElapsed
+
+	if remainingTime < 0 {
+		remainingTime = 0
+	}
+
+	return remainingTime
 }
 
 func (h *Handler) changeGameStateTo(state State) {

@@ -52,9 +52,11 @@ func (h *Handler) playTime() {
 	// 2) everyone guessed correctly
 
 	// adding 1 for tolerance
-	playTime := time.NewTimer(h.playTimeTimer + 1)
+	playTime := time.NewTimer(h.playTimeTimer)
+	h.timerStartTime = time.Now()
 	select {
 	case <-playTime.C:
+		// exit select and go to changeGameState call
 	case msg := <-h.playTimeChan:
 		if msg.AllCorrect {
 			// we gucci
