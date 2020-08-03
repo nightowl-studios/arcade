@@ -25,7 +25,7 @@ func (h *Handler) waitForStart() {
 		case msg := <-h.waitForStartChan:
 			for idx, client := range h.clientList.clients {
 				if client.UUID == msg.clientUUID {
-					h.clientList.clients[idx].isReady = msg.IsReady
+					h.clientList.clients[idx].IsReady = msg.IsReady
 					playerReadyStateChangedMsg := Send{
 						GameMasterAPI: WaitForStart,
 						WaitForStartSend: WaitForStartSend{
@@ -51,7 +51,7 @@ func (h *Handler) waitForStart() {
 
 		allReady := true
 		for _, client := range h.clientList.clients {
-			if !client.isReady {
+			if !client.IsReady {
 				allReady = false
 				break
 			}

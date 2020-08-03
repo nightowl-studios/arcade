@@ -122,12 +122,12 @@ var (
 // For example, if "wordSelect" was sending a message with the "wordSelect"
 // field, the "gameMasterAPI" field will be "wordSelect"
 type Send struct {
-	GameMasterAPI   State                      `json:"gameMasterAPI"`
-	WordSelectSend  WordSelectSend             `json:"wordSelect,omitempty"`
-	ScoreTimeSend   ScoreTimeSend              `json:"scoreTime,omitempty"`
-	PlayTimeSend    PlayTimeSend               `json:"playTimeSend,omitempty"`
-	ScoreTimeSend   ScoreTimeSend              `json:"scoreTime,omitempty"`
-	CurrentGameInfo RequestCurrentGameInfoSend `json:"requestCurrentGameInfo,omitempty"`
+	GameMasterAPI    State                      `json:"gameMasterAPI"`
+	WordSelectSend   WordSelectSend             `json:"wordSelect,omitempty"`
+	PlayTimeSend     PlayTimeSend               `json:"playTimeSend,omitempty"`
+	ScoreTimeSend    ScoreTimeSend              `json:"scoreTime,omitempty"`
+	CurrentGameInfo  RequestCurrentGameInfoSend `json:"requestCurrentGameInfo,omitempty"`
+	WaitForStartSend WaitForStartSend           `json:"waitForStart,omitempty"`
 }
 
 // Receive is a struct that defines what the gamemaster expected to

@@ -122,7 +122,7 @@ func (h *Handler) handlePlayChatMessages(
 	allCorrect := true
 	for index, client := range h.clientList.clients {
 		if client.UUID == caller.ClientUUID.UUID {
-			h.clientList.clients[index].guessedRight = true
+			h.clientList.clients[index].GuessedRight = true
 		}
 
 		if client.UUID == h.clientList.clients[h.clientList.currentlySelected].UUID {
@@ -130,7 +130,7 @@ func (h *Handler) handlePlayChatMessages(
 			continue
 		}
 
-		if h.clientList.clients[index].guessedRight != true {
+		if h.clientList.clients[index].GuessedRight != true {
 			allCorrect = false
 			break
 		}
