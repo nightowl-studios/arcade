@@ -35,6 +35,11 @@ export default {
             this.$nextTick(() => adjustScrollTop());
         });
 
+        EventBus.$on(Event.CORRECT_GUESS, (data) => {
+            this.chatLog.push([data.nickname, "guessed correctly"]);
+            this.$nextTick(() => adjustScrollTop());
+        });
+
         if (this.$webSocketService.isConnected()) {
             this.$chatApiService.requestChatHistory();
         } else {
