@@ -3,8 +3,8 @@ package gamemaster
 import (
 	"time"
 
-	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/game"
+	"github.com/bseto/arcade/backend/log"
 )
 
 // WordSelectSend defines the message that the "wordSelect" state
@@ -41,6 +41,7 @@ type WordSelectReceive struct {
 func (h *Handler) wordSelect() {
 	wordChoices := h.wordFactory.GenerateWordList(h.wordChoices)
 	selectedClient := h.clientList.clients[h.clientList.currentlySelected]
+
 	selectedPlayerMsg := Send{
 		GameMasterAPI: WordSelect,
 		WordSelectSend: WordSelectSend{
@@ -67,10 +68,11 @@ func (h *Handler) wordSelect() {
 	}
 	h.reg.SendToCaller(selectedClient.ClientUUIDStruct, selectedPlayerBytes)
 
-	// adding 1 for tolerance
-	selectTopicTime := time.NewTimer(h.selectTopicTimer + 1)
+	selectTopicTime := time.NewTimer(h.selectTopicTimer)
+	h.timerStartTime = time.Now()
 	select {
 	case <-selectTopicTime.C:
+		h.WrapUserAndRound()
 		h.changeGameStateTo(WordSelect)
 	case msg := <-h.selectTopicChan:
 		if msg.WordChosen == false {
