@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bseto/arcade/backend/game"
 	"github.com/bseto/arcade/backend/game/scribble/handler/gamemaster/util/point"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/util/wordfactory"
@@ -93,6 +94,13 @@ const (
 	Ended State = "ended"
 )
 
+// Commands that can be used on the gamemaster
+const (
+	// RequestCurrentGameInfo can be sent into the `GameMasterAPI`, and the
+	// gamemaster will return an assortment of game info
+	RequestCurrentGameInfo = "requestCurrentGameInfo"
+)
+
 var (
 	// api's we want to listen to
 	listensTo []string = []string{
@@ -114,11 +122,12 @@ var (
 // For example, if "wordSelect" was sending a message with the "wordSelect"
 // field, the "gameMasterAPI" field will be "wordSelect"
 type Send struct {
-	GameMasterAPI    State            `json:"gameMasterAPI"`
-	WaitForStartSend WaitForStartSend `json:"waitForStart,omitempty"`
-	WordSelectSend   WordSelectSend   `json:"wordSelect,omitempty"`
-	ScoreTimeSend    ScoreTimeSend    `json:"scoreTime,omitempty"`
-	PlayTimeSend     PlayTimeSend     `json:"playTimeSend,omitempty"`
+	GameMasterAPI    State                      `json:"gameMasterAPI"`
+	WordSelectSend   WordSelectSend             `json:"wordSelect,omitempty"`
+	PlayTimeSend     PlayTimeSend               `json:"playTimeSend,omitempty"`
+	ScoreTimeSend    ScoreTimeSend              `json:"scoreTime,omitempty"`
+	CurrentGameInfo  RequestCurrentGameInfoSend `json:"requestCurrentGameInfo,omitempty"`
+	WaitForStartSend WaitForStartSend           `json:"waitForStart,omitempty"`
 }
 
 // Receive is a struct that defines what the gamemaster expected to
@@ -126,15 +135,15 @@ type Send struct {
 // All possible messages (from every state) is defined in this Receive struct.
 // The "GameMasterAPI" field should be used the same way as the Send struct
 type Receive struct {
-	GameMasterAPI       State               `json:"gameMasterAPI"`
+	GameMasterAPI       string              `json:"gameMasterAPI"`
 	WaitForStartReceive WaitForStartReceive `json:"waitForStart"`
 	WordSelectReceive   WordSelectReceive   `json:"wordSelect"`
 }
 
 type client struct {
 	identifier.ClientUUIDStruct
-	isReady      bool
-	guessedRight bool
+	IsReady      bool `json:"isReady"`
+	GuessedRight bool `json:"guessedRight"`
 }
 
 // ClientList is a struct used internally to track what users are available
@@ -145,20 +154,22 @@ type ClientList struct {
 
 	// Do not delete from this map even when a player quits. They can reconnect
 	totalScore map[string]int
-	// This is what we use to display to the user when a round ends
+	// This is the scores that each player gained in the round
 	roundScore map[string]int
 }
 
 type Handler struct {
-	reg        registry.Registry
-	clientList ClientList
+	// current states
+	reg            registry.Registry
+	clientList     ClientList
+	gameStateLock  sync.RWMutex
+	gameState      State
+	round          int
+	chosenWord     string
+	hintString     string
+	timerStartTime time.Time // used to track the most recent timer
 
-	gameStateLock sync.RWMutex
-	gameState     State
-	round         int
-	chosenWord    string
-	hintString    string
-
+	// communication
 	waitForStartChan (chan WaitForStartReceive)
 	selectTopicChan  (chan WordSelectReceive)
 	playTimeChan     (chan PlayTimeChanReceive)
@@ -242,6 +253,14 @@ func (h *Handler) HandleInteraction(
 		log.Fatalf("unable to unmarshal message: %v", err)
 	}
 
+	switch receive.GameMasterAPI {
+	case RequestCurrentGameInfo:
+		h.RequestCurrentGameInfo(caller)
+		return
+	default:
+		// skip and continue
+	}
+
 	h.gameStateLock.RLock()
 	defer h.gameStateLock.RUnlock()
 	switch h.gameState {
@@ -283,8 +302,8 @@ func (h *Handler) NewClient(
 		h.clientList.clients,
 		client{
 			ClientUUIDStruct: clientID.ClientUUID,
-			isReady:          false,
-			guessedRight:     false,
+			IsReady:          false,
+			GuessedRight:     false,
 		},
 	)
 }
@@ -335,6 +354,73 @@ func (h *Handler) ListensTo() []string {
 
 func (h *Handler) Name() string {
 	return name
+}
+
+type RequestCurrentGameInfoSend struct {
+	Clients        []client      `json:"clients"`
+	GameState      State         `json:"gameState"`
+	Round          int           `json:"round"`
+	HintString     string        `json:"hintString"`
+	MaxRounds      int           `json:"maxRounds"`
+	TimerRemaining time.Duration `json:"timerRemaining"`
+}
+
+func (h *Handler) RequestCurrentGameInfo(
+	caller identifier.Client,
+) {
+
+	var remainingTime time.Duration
+	h.gameStateLock.RLock()
+	defer h.gameStateLock.RUnlock()
+	switch h.gameState {
+	case WordSelect:
+		remainingTime = getRemainingTime(
+			h.timerStartTime,
+			time.Now(),
+			h.selectTopicTimer,
+		)
+	case PlayTime:
+		remainingTime = getRemainingTime(
+			h.timerStartTime,
+			time.Now(),
+			h.playTimeTimer,
+		)
+	}
+
+	send := Send{
+		GameMasterAPI: RequestCurrentGameInfo,
+		CurrentGameInfo: RequestCurrentGameInfoSend{
+			Clients:        h.clientList.clients,
+			GameState:      h.gameState,
+			Round:          h.round,
+			HintString:     h.hintString,
+			MaxRounds:      h.maxRounds,
+			TimerRemaining: remainingTime,
+		},
+	}
+	selectedPlayerBytes, err := game.MessageBuild(h.Name(), send)
+	if err != nil {
+		log.Fatalf("unable to marshal: %v", err)
+		return
+	}
+	h.reg.SendToCaller(caller.ClientUUID, selectedPlayerBytes)
+}
+
+// getRemainingTime will calculate how much time is remaining on the timer
+func getRemainingTime(
+	startTime time.Time,
+	now time.Time,
+	timerDuration time.Duration,
+) time.Duration {
+
+	timeElapsed := now.Sub(startTime)
+	remainingTime := timerDuration - timeElapsed
+
+	if remainingTime < 0 {
+		remainingTime = 0
+	}
+
+	return remainingTime
 }
 
 func (h *Handler) changeGameStateTo(state State) {

@@ -48,7 +48,7 @@ func (u *UserDetails) ChangeNickName(newName string) {
 }
 
 type ClientUUIDStruct struct {
-	UUID string
+	UUID string `json:"UUID"`
 }
 
 type HubNameStruct struct {

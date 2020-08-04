@@ -52,9 +52,11 @@ func (h *Handler) playTime() {
 	// 2) everyone guessed correctly
 
 	// adding 1 for tolerance
-	playTime := time.NewTimer(h.playTimeTimer + 1)
+	playTime := time.NewTimer(h.playTimeTimer)
+	h.timerStartTime = time.Now()
 	select {
 	case <-playTime.C:
+		// exit select and go to changeGameState call
 	case msg := <-h.playTimeChan:
 		if msg.AllCorrect {
 			// we gucci
@@ -122,7 +124,7 @@ func (h *Handler) handlePlayChatMessages(
 	allCorrect := true
 	for index, client := range h.clientList.clients {
 		if client.UUID == caller.ClientUUID.UUID {
-			h.clientList.clients[index].guessedRight = true
+			h.clientList.clients[index].GuessedRight = true
 		}
 
 		if client.UUID == h.clientList.clients[h.clientList.currentlySelected].UUID {
@@ -130,7 +132,7 @@ func (h *Handler) handlePlayChatMessages(
 			continue
 		}
 
-		if h.clientList.clients[index].guessedRight != true {
+		if h.clientList.clients[index].GuessedRight != true {
 			allCorrect = false
 			break
 		}
