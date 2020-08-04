@@ -113,9 +113,6 @@ export default {
                 float: right;
             }
 
-            &__lobbyid {
-            }
-
             &__chat {
                 height: 50%;
                 float: left;
