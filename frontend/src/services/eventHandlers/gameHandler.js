@@ -61,6 +61,13 @@ export default class GameHandler {
                     payload.playTimeSend.duration
                 );
                 store.commit(this.setGameStateKey, state);
+            } else {
+                let correctClientUuid = payload.playTimeSend.correctClient.UUID;
+
+                const player = store.getters["application/getPlayerWithUuid"](
+                    correctClientUuid
+                );
+                EventBus.$emit(Event.CORRECT_GUESS, player);
             }
         }
     }
