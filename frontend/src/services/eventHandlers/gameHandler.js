@@ -70,6 +70,13 @@ export default class GameHandler {
                     };
                     store.commit("application/setPlayerScore", playerScore);
                 });
+
+                let correctClientUuid = payload.playTimeSend.correctClient.UUID;
+
+                const player = store.getters["application/getPlayerWithUuid"](
+                    correctClientUuid
+                );
+                EventBus.$emit(Event.CORRECT_GUESS, player);
             }
         }
     }
