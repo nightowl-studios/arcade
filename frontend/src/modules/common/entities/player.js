@@ -4,5 +4,6 @@ export default class Player {
         this.nickname = nickname;
         this.joinOrder = joinOrder;
         this.isReady = false;
+        this.score = 0;
     }
 }
