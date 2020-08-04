@@ -1,8 +1,8 @@
 package gamemaster
 
 import (
-	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/game"
+	"github.com/bseto/arcade/backend/log"
 )
 
 type ScoreTimeSend struct {
@@ -12,6 +12,7 @@ type ScoreTimeSend struct {
 func (h *Handler) scoreTime() {
 	h.clientList.currentlySelected++
 	h.WrapUserAndRound()
+	h.pointHandler.ResetPoints()
 
 	if h.round >= h.maxRounds {
 		h.changeGameStateTo(ShowResults)
