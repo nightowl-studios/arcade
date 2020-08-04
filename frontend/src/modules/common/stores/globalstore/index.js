@@ -30,6 +30,17 @@ export default {
         setPlayerUuid: (state, payload) => {
             state.playerUuid = payload;
         },
+        setPlayerScore: (state, payload) => {
+            const playerUuid = payload.uuid;
+            const score = payload.score;
+
+            for (let index = 0; index < state.players.length; index++) {
+                if (state.players[index].uuid === playerUuid) {
+                    state.players[index].score = score;
+                    break;
+                }
+            }
+        },
     },
     actions: {},
 };
