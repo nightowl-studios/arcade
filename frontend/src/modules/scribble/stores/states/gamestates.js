@@ -19,12 +19,11 @@ class GameState {
 
 export class ChoosingWord extends GameState {
     static STATE = "ChoosingWord";
-    constructor(player, words, duration, roundNumber) {
+    constructor(player, words, duration) {
         super(ChoosingWord.STATE, true, true, true, false);
         this.player = player;
         this.words = words;
         this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
-        this.roundNumber = roundNumber;
     }
 }
 
@@ -52,5 +51,13 @@ export class Guessing extends GameState {
         super(Guessing.STATE, true, false, false, true);
         this.word = word;
         this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
+    }
+}
+
+export class ScoreTime extends GameState {
+    static STATE = "ScoreTime";
+    constructor(roundNumber) {
+        super(ScoreTime.STATE, true, false, false, false);
+        this.roundNumber = roundNumber;
     }
 }

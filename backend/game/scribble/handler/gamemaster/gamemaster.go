@@ -11,7 +11,6 @@ package gamemaster
 
 import (
 	"encoding/json"
-	"strings"
 	"sync"
 	"time"
 
@@ -95,6 +94,13 @@ const (
 	Ended State = "ended"
 )
 
+// Commands that can be used on the gamemaster
+const (
+	// RequestCurrentGameInfo can be sent into the `GameMasterAPI`, and the
+	// gamemaster will return an assortment of game info
+	RequestCurrentGameInfo = "requestCurrentGameInfo"
+)
+
 var (
 	// api's we want to listen to
 	listensTo []string = []string{
@@ -116,11 +122,12 @@ var (
 // For example, if "wordSelect" was sending a message with the "wordSelect"
 // field, the "gameMasterAPI" field will be "wordSelect"
 type Send struct {
-	GameMasterAPI    State            `json:"gameMasterAPI"`
-	WaitForStartSend WaitForStartSend `json:"waitForStart,omitempty"`
-	WordSelectSend   WordSelectSend   `json:"wordSelect,omitempty"`
-	ScoreTimeSend    ScoreTimeSend    `json:"scoreTime,omitempty"`
-	PlayTimeSend     PlayTimeSend     `json:"playTimeSend,omitempty"`
+	GameMasterAPI    State                      `json:"gameMasterAPI"`
+	WordSelectSend   WordSelectSend             `json:"wordSelect,omitempty"`
+	PlayTimeSend     PlayTimeSend               `json:"playTimeSend,omitempty"`
+	ScoreTimeSend    ScoreTimeSend              `json:"scoreTime,omitempty"`
+	CurrentGameInfo  RequestCurrentGameInfoSend `json:"requestCurrentGameInfo,omitempty"`
+	WaitForStartSend WaitForStartSend           `json:"waitForStart,omitempty"`
 }
 
 // Receive is a struct that defines what the gamemaster expected to
@@ -128,15 +135,15 @@ type Send struct {
 // All possible messages (from every state) is defined in this Receive struct.
 // The "GameMasterAPI" field should be used the same way as the Send struct
 type Receive struct {
-	GameMasterAPI       State               `json:"gameMasterAPI"`
+	GameMasterAPI       string              `json:"gameMasterAPI"`
 	WaitForStartReceive WaitForStartReceive `json:"waitForStart"`
 	WordSelectReceive   WordSelectReceive   `json:"wordSelect"`
 }
 
 type client struct {
 	identifier.ClientUUIDStruct
-	isReady      bool
-	guessedRight bool
+	IsReady      bool `json:"isReady"`
+	GuessedRight bool `json:"guessedRight"`
 }
 
 // ClientList is a struct used internally to track what users are available
@@ -147,20 +154,22 @@ type ClientList struct {
 
 	// Do not delete from this map even when a player quits. They can reconnect
 	totalScore map[string]int
-	// This is what we use to display to the user when a round ends
+	// This is the scores that each player gained in the round
 	roundScore map[string]int
 }
 
 type Handler struct {
-	reg        registry.Registry
-	clientList ClientList
+	// current states
+	reg            registry.Registry
+	clientList     ClientList
+	gameStateLock  sync.RWMutex
+	gameState      State
+	round          int
+	chosenWord     string
+	hintString     string
+	timerStartTime time.Time // used to track the most recent timer
 
-	gameStateLock sync.RWMutex
-	gameState     State
-	round         int
-	chosenWord    string
-	hintString    string
-
+	// communication
 	waitForStartChan (chan WaitForStartReceive)
 	selectTopicChan  (chan WordSelectReceive)
 	playTimeChan     (chan PlayTimeChanReceive)
@@ -244,6 +253,14 @@ func (h *Handler) HandleInteraction(
 		log.Fatalf("unable to unmarshal message: %v", err)
 	}
 
+	switch receive.GameMasterAPI {
+	case RequestCurrentGameInfo:
+		h.RequestCurrentGameInfo(caller)
+		return
+	default:
+		// skip and continue
+	}
+
 	h.gameStateLock.RLock()
 	defer h.gameStateLock.RUnlock()
 	switch h.gameState {
@@ -285,8 +302,8 @@ func (h *Handler) NewClient(
 		h.clientList.clients,
 		client{
 			ClientUUIDStruct: clientID.ClientUUID,
-			isReady:          false,
-			guessedRight:     false,
+			IsReady:          false,
+			GuessedRight:     false,
 		},
 	)
 }
@@ -339,305 +356,71 @@ func (h *Handler) Name() string {
 	return name
 }
 
-type WaitForStartSend struct {
-	ClientUUID string `json:"clientUUID"`
-	IsReady    bool   `json:"isReady"`
+type RequestCurrentGameInfoSend struct {
+	Clients        []client      `json:"clients"`
+	GameState      State         `json:"gameState"`
+	Round          int           `json:"round"`
+	HintString     string        `json:"hintString"`
+	MaxRounds      int           `json:"maxRounds"`
+	TimerRemaining time.Duration `json:"timerRemaining"`
 }
 
-type WaitForStartReceive struct {
-	clientUUID string
-	IsReady    bool `json:"isReady"`
-}
+func (h *Handler) RequestCurrentGameInfo(
+	caller identifier.Client,
+) {
 
-// waitForStart will wait for the leader to press the start button.
-// when the leader has pressed the start button, there should be a
-// incoming message on the h.waitForStartChan in which we can
-// continue onto the next gamestate
-func (h *Handler) waitForStart() {
-	for {
-		select {
-		case msg := <-h.waitForStartChan:
-			for idx, client := range h.clientList.clients {
-				if client.UUID == msg.clientUUID {
-					h.clientList.clients[idx].isReady = msg.IsReady
-					playerReadyStateChangedMsg := Send{
-						GameMasterAPI: WaitForStart,
-						WaitForStartSend: WaitForStartSend{
-							ClientUUID: msg.clientUUID,
-							IsReady:    msg.IsReady,
-						},
-					}
-					playerReadyStateChangedBytes, err :=
-						game.MessageBuild("game", playerReadyStateChangedMsg)
-					if err != nil {
-						log.Fatalf("unable to marshal: %v", err)
-						return
-					}
-					h.reg.SendToSameHub(
-						client.ClientUUIDStruct,
-						playerReadyStateChangedBytes)
-				}
-			}
-		case <-h.endChan:
-			// we need to enter the run() loop so we can exit
-			return
-		}
-
-		allReady := true
-		for _, client := range h.clientList.clients {
-			if !client.isReady {
-				allReady = false
-				break
-			}
-		}
-
-		if allReady {
-			h.changeGameStateTo(WordSelect)
-			break
-		}
+	var remainingTime time.Duration
+	h.gameStateLock.RLock()
+	defer h.gameStateLock.RUnlock()
+	switch h.gameState {
+	case WordSelect:
+		remainingTime = getRemainingTime(
+			h.timerStartTime,
+			time.Now(),
+			h.selectTopicTimer,
+		)
+	case PlayTime:
+		remainingTime = getRemainingTime(
+			h.timerStartTime,
+			time.Now(),
+			h.playTimeTimer,
+		)
 	}
-}
-
-// WordSelectSend defines the message that the "wordSelect" state
-// will send to the front end
-type WordSelectSend struct {
-	// ChosenUUID is the UUID of the client that was chosen
-	// to pick a word
-	ChosenUUID string `json:"chosenUUID"`
-	// Choices is a slice of strings that the Chosen client is allowed to choose
-	// from. This Choices field is only sent to the Chosen client
-	Choices []string `json:"choices,omitempty"`
-
-	// Duration is the duration in nanoseconds that the user is allowed to
-	// have to choose a word from the 'choices'
-	Duration time.Duration `json:"duration"`
-
-	LockCanvas bool `json:"lockCanvas"`
-}
-
-type WordSelectReceive struct {
-	// If the user chose a word, set this bool to true
-	// If the user did not choose a word and timed out, then set this bool to false
-	WordChosen bool `json:"wordChosen"`
-	// Choice is given back to the gamemaster as an int. If the user selected
-	// the first option, give this back in terms of slice (list) indices - So
-	// the front end should give 0.
-	Choice int `json:"choice"`
-}
-
-// wordSelect will in-order select a user from the clientList
-// and then provide them with 3 word choices.
-// this function will also let the other players know that the selected player
-// is currently choosing a word
-func (h *Handler) wordSelect() {
-	wordChoices := h.wordFactory.GenerateWordList(h.wordChoices)
-	selectedClient := h.clientList.clients[h.clientList.currentlySelected]
-	selectedPlayerMsg := Send{
-		GameMasterAPI: WordSelect,
-		WordSelectSend: WordSelectSend{
-			LockCanvas: true,
-			Duration:   h.selectTopicTimer,
-			ChosenUUID: selectedClient.UUID,
-		},
-	}
-	selectedPlayerBytes, err := game.MessageBuild("game", selectedPlayerMsg)
-	if err != nil {
-		log.Fatalf("unable to marshal: %v", err)
-		return
-	}
-	h.reg.SendToSameHubExceptCaller(selectedClient.ClientUUIDStruct, selectedPlayerBytes)
-
-	// We did not want to send the other players the wordChoices just in case
-	// they're (zachary) snooping the websocket messages :P
-	selectedPlayerMsg.WordSelectSend.Choices = wordChoices
-	selectedPlayerMsg.WordSelectSend.LockCanvas = false
-	selectedPlayerBytes, err = game.MessageBuild("game", selectedPlayerMsg)
-	if err != nil {
-		log.Fatalf("unable to marshal: %v", err)
-		return
-	}
-	h.reg.SendToCaller(selectedClient.ClientUUIDStruct, selectedPlayerBytes)
-
-	// adding 1 for tolerance
-	selectTopicTime := time.NewTimer(h.selectTopicTimer + 1)
-	select {
-	case <-selectTopicTime.C:
-		h.changeGameStateTo(WordSelect)
-	case msg := <-h.selectTopicChan:
-		if msg.WordChosen == false {
-			h.changeGameStateTo(WordSelect)
-		} else {
-			h.chosenWord = wordChoices[msg.Choice]
-			h.changeGameStateTo(PlayTime)
-		}
-	case <-h.endChan:
-		// we need to enter the run() loop so we can exit
-		return
-	}
-	return
-}
-
-type PlayTimeSend struct {
-	Hint          string                      `json:"hint,omitempty"`
-	Duration      time.Duration               `json:"duration,omitempty"`
-	TotalScore    map[string]int              `json:"totalScore,omitempty"`
-	RoundScore    map[string]int              `json:"roundScore,omitempty"`
-	CorrectClient identifier.ClientUUIDStruct `json:"correctClient,omitempty"`
-}
-
-type PlayTimeReceive struct {
-	Message string `json:"message"`
-}
-
-type PlayTimeChanReceive struct {
-	Timeout    bool `json:"timeout"`
-	AllCorrect bool `json:"allCorrect"`
-}
-
-func (h *Handler) playTime() {
-	// Send the frontend the hint and the duration
-
-	h.hintString = h.wordHint.GiveHint(h.chosenWord)
 
 	send := Send{
-		GameMasterAPI: PlayTime,
-		PlayTimeSend: PlayTimeSend{
-			Hint:     h.hintString,
-			Duration: h.playTimeTimer,
+		GameMasterAPI: RequestCurrentGameInfo,
+		CurrentGameInfo: RequestCurrentGameInfoSend{
+			Clients:        h.clientList.clients,
+			GameState:      h.gameState,
+			Round:          h.round,
+			HintString:     h.hintString,
+			MaxRounds:      h.maxRounds,
+			TimerRemaining: remainingTime,
 		},
 	}
-
-	playTimeSendBytes, err := game.MessageBuild(h.Name(), send)
-	if err != nil {
-		log.Fatalf("unable to marshal: %v", err)
-	}
-	h.reg.SendToSameHub(h.clientList.clients[0].ClientUUIDStruct, playTimeSendBytes)
-
-	// stop here until
-	// 1) playTime limit up
-	// 2) everyone guessed correctly
-
-	// adding 1 for tolerance
-	playTime := time.NewTimer(h.playTimeTimer + 1)
-	select {
-	case <-playTime.C:
-	case msg := <-h.playTimeChan:
-		if msg.AllCorrect {
-			// we gucci
-		}
-	case <-h.endChan:
-		// we need to enter the run() loop so we can exit
-		// don't use break or else we go to ScoreTime
-		return
-	}
-	h.changeGameStateTo(ScoreTime)
-	return
-}
-
-// snooping in on "chat"
-func (h *Handler) handlePlayMessages(
-	api string,
-	message json.RawMessage,
-	caller identifier.Client,
-	registry registry.Registry,
-) {
-	switch api {
-	case "chat":
-		h.handlePlayChatMessages(message, caller, registry)
-	default:
-		log.Errorf("unknown api :'%v' inside gamemaster", api)
-	}
-}
-
-func (h *Handler) handlePlayChatMessages(
-	message json.RawMessage,
-	caller identifier.Client,
-	registry registry.Registry,
-) {
-	var msg PlayTimeReceive
-	err := json.Unmarshal(message, &msg)
-	if err != nil {
-		log.Fatalf("unable to unmarshal message: %v", err)
-	}
-
-	equal := strings.EqualFold(msg.Message, h.chosenWord)
-	if !equal {
-		return
-	}
-	points := h.pointHandler.GetPoints()
-	h.clientList.totalScore[caller.ClientUUID.UUID] += points
-	h.clientList.roundScore[caller.ClientUUID.UUID] = points
-
-	send := Send{
-		GameMasterAPI: PlayTime,
-		PlayTimeSend: PlayTimeSend{
-			Hint:          h.hintString,
-			TotalScore:    h.clientList.totalScore,
-			RoundScore:    h.clientList.roundScore,
-			CorrectClient: caller.ClientUUID,
-		},
-	}
-
-	sendBytes, err := game.MessageBuild(h.Name(), send)
-	if err != nil {
-		log.Fatalf("unable to marshal: %v", err)
-	}
-	h.reg.SendToSameHub(caller.ClientUUID, sendBytes)
-
-	// if everyone guessed right, then let playTime know
-	allCorrect := true
-	for index, client := range h.clientList.clients {
-		if client.UUID == caller.ClientUUID.UUID {
-			h.clientList.clients[index].guessedRight = true
-		}
-
-		if client.UUID == h.clientList.clients[h.clientList.currentlySelected].UUID {
-			// we do not want to check if the person drawing guessed it right
-			continue
-		}
-
-		if h.clientList.clients[index].guessedRight != true {
-			allCorrect = false
-			break
-		}
-	}
-	if allCorrect {
-		h.playTimeChan <- PlayTimeChanReceive{
-			AllCorrect: true,
-		}
-	}
-}
-
-type ScoreTimeSend struct {
-	Round int `json:"round"`
-}
-
-func (h *Handler) scoreTime() {
-	h.clientList.currentlySelected++
-	h.WrapUserAndRound()
-
-	if h.round >= h.maxRounds {
-		h.changeGameStateTo(ShowResults)
-	} else {
-		h.changeGameStateTo(WordSelect)
-	}
-	selectedClient := h.clientList.clients[0]
-	scoreTimeMsg := Send{
-		GameMasterAPI: ScoreTime,
-		ScoreTimeSend: ScoreTimeSend{
-			Round: h.round,
-		},
-	}
-	scoreTimeBytes, err := game.MessageBuild("game", scoreTimeMsg)
+	selectedPlayerBytes, err := game.MessageBuild(h.Name(), send)
 	if err != nil {
 		log.Fatalf("unable to marshal: %v", err)
 		return
 	}
-	h.reg.SendToSameHub(selectedClient.ClientUUIDStruct, scoreTimeBytes)
+	h.reg.SendToCaller(caller.ClientUUID, selectedPlayerBytes)
 }
 
-func (h *Handler) showResults() {
+// getRemainingTime will calculate how much time is remaining on the timer
+func getRemainingTime(
+	startTime time.Time,
+	now time.Time,
+	timerDuration time.Duration,
+) time.Duration {
 
+	timeElapsed := now.Sub(startTime)
+	remainingTime := timerDuration - timeElapsed
+
+	if remainingTime < 0 {
+		remainingTime = 0
+	}
+
+	return remainingTime
 }
 
 func (h *Handler) changeGameStateTo(state State) {
