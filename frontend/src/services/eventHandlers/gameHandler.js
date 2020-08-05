@@ -15,7 +15,12 @@ export default class GameHandler {
     }
 
     handle(payload) {
-        if (payload.gameMasterAPI === "wordSelect") {
+        if (payload.gameMasterAPI === "waitForStart") {
+            store.commit(
+                "application/setPlayerReadyState",
+                payload.waitForStart
+            );
+        } else if (payload.gameMasterAPI === "wordSelect") {
             const playerUuid = store.getters["application/getPlayerUuid"];
             if (playerUuid === payload.wordSelect.chosenUUID) {
                 const player = store.getters["application/getPlayerWithUuid"](
@@ -56,6 +61,22 @@ export default class GameHandler {
                     payload.playTimeSend.duration
                 );
                 store.commit(this.setGameStateKey, state);
+            } else {
+                const totalScores = payload.playTimeSend.totalScore;
+                Object.keys(totalScores).forEach((key) => {
+                    const playerScore = {
+                        uuid: key,
+                        score: totalScores[key],
+                    };
+                    store.commit("application/setPlayerScore", playerScore);
+                });
+
+                let correctClientUuid = payload.playTimeSend.correctClient.UUID;
+
+                const player = store.getters["application/getPlayerWithUuid"](
+                    correctClientUuid
+                );
+                EventBus.$emit(Event.CORRECT_GUESS, player);
             }
         }
     }

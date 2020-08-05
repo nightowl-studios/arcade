@@ -4,13 +4,13 @@ export default class GameApiService {
         this.webSocketService = webSocketService;
     }
 
-    startGame() {
+    setIsReady(isReady) {
         const message = {
             api: "game",
             payload: {
                 gameMasterAPI: "waitForStart",
                 waitForStart: {
-                    startGame: true,
+                    isReady: isReady,
                 },
             },
         };
