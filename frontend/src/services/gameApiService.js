@@ -14,7 +14,7 @@ export default class GameApiService {
                 },
             },
         };
-        this.webSocketService.send(message);
+        this.sendMessage(message);
     }
 
     selectWord(index) {
@@ -28,6 +28,20 @@ export default class GameApiService {
                 },
             },
         };
+        this.sendMessage(message);
+    }
+
+    requestCurrentGameInfo() {
+        const message = {
+            api: "game",
+            payload: {
+                gameMasterAPI: "gameMasterAPI",
+            },
+        };
+        this.sendMessage(message);
+    }
+
+    sendMessage(message) {
         this.webSocketService.send(message);
     }
 }

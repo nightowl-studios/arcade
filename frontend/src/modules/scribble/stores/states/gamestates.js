@@ -6,7 +6,8 @@ class GameState {
         lockCanvas,
         showWordChoices,
         showPlayerChoosing,
-        showWordToGuess
+        showWordToGuess,
+        showLobby
     ) {
         this.state = state;
 
@@ -14,13 +15,21 @@ class GameState {
         this.showWordChoices = showWordChoices;
         this.showPlayerChoosing = showPlayerChoosing;
         this.showWordToGuess = showWordToGuess;
+        this.showLobby = showLobby;
+    }
+}
+
+export class WaitingInLobby extends GameState {
+    static STATE = "WaitingInLobby";
+    constructor() {
+        super(WaitingInLobby.STATE, true, false, false, false, true);
     }
 }
 
 export class ChoosingWord extends GameState {
     static STATE = "ChoosingWord";
     constructor(player, words, duration) {
-        super(ChoosingWord.STATE, true, true, true, false);
+        super(ChoosingWord.STATE, true, true, true, false, false);
         this.player = player;
         this.words = words;
         this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
@@ -30,7 +39,14 @@ export class ChoosingWord extends GameState {
 export class WaitingForPlayerToChooseWord extends GameState {
     static STATE = "WaitingForPlayerToChooseWord";
     constructor(player, duration) {
-        super(WaitingForPlayerToChooseWord.STATE, true, false, true, false);
+        super(
+            WaitingForPlayerToChooseWord.STATE,
+            true,
+            false,
+            true,
+            false,
+            false
+        );
         this.player = player;
         this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
     }
@@ -39,7 +55,7 @@ export class WaitingForPlayerToChooseWord extends GameState {
 export class Drawing extends GameState {
     static STATE = "Drawing";
     constructor(word, duration) {
-        super(Drawing.STATE, false, false, false, true);
+        super(Drawing.STATE, false, false, false, true, false);
         this.word = word;
         this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
     }
@@ -48,7 +64,7 @@ export class Drawing extends GameState {
 export class Guessing extends GameState {
     static STATE = "Guessing";
     constructor(word, duration) {
-        super(Guessing.STATE, true, false, false, true);
+        super(Guessing.STATE, true, false, false, true, false);
         this.word = word;
         this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
     }

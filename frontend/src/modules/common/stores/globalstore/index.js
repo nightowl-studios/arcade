@@ -1,6 +1,7 @@
 export default {
     namespaced: true,
     state: {
+        lobbyId: "",
         playerUuid: "",
         players: [],
     },
@@ -13,6 +14,9 @@ export default {
         },
     },
     mutations: {
+        setLobbyId: (state, payload) => {
+            state.lobbyId = payload;
+        },
         setPlayers: (state, payload) => {
             state.players = payload;
         },
