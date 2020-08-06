@@ -2,8 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 import PageNotFound from "./modules/common/view/PageNotFound.vue";
 import Home from "./modules/home/view/Home.vue";
-import Lobby from "./modules/lobby/view/Lobby.vue";
-import Scribble from "./modules/scribble/view/Scribble.vue";
+import Scribble from "./modules/scribble/Scribble.vue";
 
 Vue.use(Router);
 
@@ -13,15 +12,6 @@ export default new Router({
             path: "/",
             name: "home",
             component: Home,
-        },
-        {
-            path: "/lobby",
-            redirect: "/",
-        },
-        {
-            path: "/lobby/:lobbyId",
-            name: "lobby",
-            component: Lobby,
         },
         {
             path: "/scribble",
