@@ -128,6 +128,7 @@ type Send struct {
 	ScoreTimeSend    ScoreTimeSend              `json:"scoreTime,omitempty"`
 	CurrentGameInfo  RequestCurrentGameInfoSend `json:"requestCurrentGameInfo,omitempty"`
 	WaitForStartSend WaitForStartSend           `json:"waitForStart,omitempty"`
+	ShowResults      ShowResultsSend            `json:"showResults,omitempty"`
 }
 
 // Receive is a struct that defines what the gamemaster expected to
