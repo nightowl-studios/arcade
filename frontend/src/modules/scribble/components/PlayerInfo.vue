@@ -1,10 +1,12 @@
 <template>
-    <div class="header">{{ nickname }} is currently selecting a word...</div>
+    <div class="player-info">
+        {{ nickname }} is currently selecting a word...
+    </div>
 </template>
 
 <script>
 export default {
-    name: "Header",
+    name: "PlayerInfo",
     props: {
         nickname: String,
     },
@@ -12,7 +14,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.header {
+.player-info {
     text-align: center;
 }
 </style>
