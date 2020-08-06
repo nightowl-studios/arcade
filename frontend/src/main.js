@@ -1,4 +1,5 @@
 import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
+import VueSimpleAlert from "vue-simple-alert";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Vue from "vue";
@@ -19,6 +20,8 @@ Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin);
+// Install VueSimpleAlert
+Vue.use(VueSimpleAlert);
 
 // Global Instance Properties
 Vue.prototype.$hubAPI = "hub";
@@ -39,7 +42,9 @@ Vue.prototype.$hubApiService = new HubApiService(httpURL);
 Vue.prototype.$gameApiService = new GameApiService(
     Vue.prototype.$webSocketService
 );
-Vue.prototype.$chatApiService = new ChatApiService(Vue.prototype.$webSocketService)
+Vue.prototype.$chatApiService = new ChatApiService(
+    Vue.prototype.$webSocketService
+);
 
 new Vue({
     store,
