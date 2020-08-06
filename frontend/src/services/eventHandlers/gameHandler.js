@@ -42,8 +42,6 @@ export default class GameHandler {
                 );
                 store.commit(this.setGameStateKey, state);
             }
-
-            EventBus.$emit(Event.START_GAME);
         } else if (payload.gameMasterAPI === "playTime") {
             const currentState = store.getters["scribble/getGameState"];
             if (currentState.state === ChoosingWord.STATE) {
