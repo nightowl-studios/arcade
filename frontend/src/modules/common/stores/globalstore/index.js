@@ -6,6 +6,9 @@ export default {
         players: [],
     },
     getters: {
+        getPlayers: (state) => {
+            return state.players;
+        },
         getPlayerUuid: (state) => {
             return state.playerUuid;
         },
