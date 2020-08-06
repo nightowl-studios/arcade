@@ -11,9 +11,7 @@
 import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
 import InvitationLink from "../components/InvitationLink.vue";
-import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
-import { Event } from "@/events";
-import { EventBus } from "@/eventBus.js";
+import { mapState } from "vuex";
 
 export default {
     name: "Lobby",
@@ -24,18 +22,11 @@ export default {
         InvitationLink,
     },
 
-    data: function () {
-        return {
-            lobbyId: "",
-        };
-    },
-
-    mixins: [WebSocketMixin],
-
-    created() {
-        EventBus.$on(Event.START_GAME, () => {
-            this.$router.push({ path: `/scribble/${this.lobbyId}` });
-        });
+    computed: {
+        ...mapState("application", {
+            lobbyId: (state) => state.lobbyId,
+            players: (state) => state.players,
+        }),
     },
 };
 </script>
