@@ -21,6 +21,19 @@
                 </b-row>
                 <Modal />
             </b-container>
+            <b-modal
+                v-model="showResults"
+                @ok="goHome"
+                title="Results"
+                centered
+                ok-only
+                size="lg"
+                no-close-on-esc
+                no-close-on-backdrop
+                hide-header-close
+            >
+                <Results></Results>
+            </b-modal>
         </div>
     </div>
 </template>
@@ -29,6 +42,7 @@
 import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 import Header from "../containers/Header.vue";
 import LeftSidePanel from "../containers/LeftSidePanel.vue";
+import Results from "../components/Results.vue";
 import MainContent from "../containers/MainContent.vue";
 import Modal from "../containers/Modal.vue";
 import RightSidePanel from "../containers/RightSidePanel.vue";
@@ -46,11 +60,19 @@ export default {
         MainContent,
         RightSidePanel,
         Modal,
+        Results,
     },
     computed: {
         ...mapState("scribble", {
             gameState: (state) => state.gameState,
+            showResults: (state) => state.gameState.showResults,
         }),
+    },
+    methods: {
+        goHome() {
+            this.$webSocketService.disconnect();
+            this.$router.push({ name: "home" });
+        },
     },
     created() {
         this.$store.commit("application/setLobbyId", this.lobbyId);
