@@ -22,6 +22,12 @@ export default {
             chatLog: [],
         };
     },
+    methods: {
+        playCorrectSound() {
+            let audio = new Audio(require("@/assets/audio/sound-correct.wav"));
+            audio.play();
+        },
+    },
     created() {
         EventBus.$on(Event.CHAT_HISTORY, (data) => {
             for (const messages of data) {
@@ -37,6 +43,7 @@ export default {
 
         EventBus.$on(Event.CORRECT_GUESS, (data) => {
             this.chatLog.push([data.nickname, "guessed correctly"]);
+            this.playCorrectSound();
             this.$nextTick(() => adjustScrollTop());
         });
 
