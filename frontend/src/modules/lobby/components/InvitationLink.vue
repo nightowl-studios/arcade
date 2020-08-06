@@ -31,9 +31,15 @@ export default {
             try {
                 var successful = document.execCommand("copy");
                 if (successful) {
-                    alert(`Invitation link copied!`);
+                    this.$fire({
+                        text: "Invitation Link copied to clipboard!",
+                        type: "success",
+                    });
                 } else {
-                    alert("Oops, unable to copy");
+                    this.$fire({
+                        text: "Failed to copy Invitation Link!",
+                        type: "warning",
+                    });
                 }
             } catch (err) {
                 alert("Oops, unable to copy");

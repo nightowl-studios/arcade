@@ -7,8 +7,10 @@
 <script>
 export default {
     name: "RoundNumber",
-    props: {
-        roundNumber: Number,
+    data: function () {
+        return {
+            roundNumber: this.$store.getters["scribble/getRoundNumber"],
+        };
     },
 };
 </script>

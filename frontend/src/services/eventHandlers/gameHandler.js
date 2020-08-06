@@ -5,7 +5,6 @@ import {
     Drawing,
     Guessing,
     WaitingForPlayerToChooseWord,
-    ScoreTime,
 } from "@/modules/scribble/stores/states/gamestates";
 import { store } from "@/store";
 
@@ -22,6 +21,7 @@ export default class GameHandler {
                 payload.waitForStart
             );
         } else if (payload.gameMasterAPI === "wordSelect") {
+            store.commit("scribble/setRoundNumber", payload.wordSelect.round);
             const playerUuid = store.getters["application/getPlayerUuid"];
             if (playerUuid === payload.wordSelect.chosenUUID) {
                 const player = store.getters["application/getPlayerWithUuid"](
@@ -30,8 +30,7 @@ export default class GameHandler {
                 const state = new ChoosingWord(
                     player,
                     payload.wordSelect.choices,
-                    payload.wordSelect.duration,
-                    payload.scoreTime.round
+                    payload.wordSelect.duration
                 );
                 store.commit(this.setGameStateKey, state);
             } else {
@@ -44,8 +43,6 @@ export default class GameHandler {
                 );
                 store.commit(this.setGameStateKey, state);
             }
-
-            EventBus.$emit(Event.START_GAME);
         } else if (payload.gameMasterAPI === "playTime") {
             const currentState = store.getters["scribble/getGameState"];
             if (currentState.state === ChoosingWord.STATE) {
@@ -81,8 +78,12 @@ export default class GameHandler {
                 EventBus.$emit(Event.CORRECT_GUESS, player);
             }
         } else if (payload.gameMasterAPI === "scoreTime") {
-            const state = new ScoreTime(payload.scoreTime.round);
-            store.commit(this.setGameStateKey, state);
+            store.commit("scribble/setRoundNumber", payload.scoreTime.round);
+        } else if (payload.gameMasterAPI === "requestCurrentGameInfo") {
+            store.commit(
+                "scribble/setRoundNumber",
+                payload.requestCurrentGameInfo.round
+            );
         }
     }
 }

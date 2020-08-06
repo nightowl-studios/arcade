@@ -1,102 +1,64 @@
 <template>
     <div class="scribble">
-        <b-container fluid class="scribble__container">
-            <b-row class="scribble__container__header" align-v="center">
-                <b-col>
-                    <Header
-                        v-if="gameState.showPlayerChoosing"
-                        :nickname="gameState.player.nickname"
-                    />
-                    <Word
-                        v-if="gameState.showWordToGuess"
-                        :word="gameState.word"
-                        :isGuessing="gameState.lockCanvas"
-                    />
-                </b-col>
-            </b-row>
-            <b-row class="scribble__container__body">
-                <b-col>
-                    <b-row class="scribble__container__body__players">
-                        <PlayerList :players="players" />
-                    </b-row>
-                </b-col>
-                <b-col>
-                    <RoundNumber :roundNumber="gameState.roundNumber" />
-                    <CanvasPanel
-                        :colors="colors"
-                        :sizes="sizes"
-                        :isCanvasLocked="gameState.lockCanvas"
-                    />
-                </b-col>
-                <b-col>
-                    <b-row class="scribble__container__body__lobbyid">
-                        <b-col cols="2">
-                            <BaseTimerCircle
-                                size="sm"
-                                :timeLimit="gameState.duration"
-                            />
-                        </b-col>
-                        <b-col cols="6">
-                            <LobbyId />
-                        </b-col>
-                    </b-row>
-                    <b-row class="scribble__container__body__chat">
-                        <Chat />
-                    </b-row>
-                </b-col>
-            </b-row>
-            <WordChoiceModal
-                :words="gameState.words"
-                :modalShow="gameState.showWordChoices"
-                :timeLimit="timeLimit"
-            />
-        </b-container>
+        <Lobby v-if="gameState.showLobby" />
+        <div v-else>
+            <b-container fluid class="scribble__container">
+                <b-row class="scribble__container__header" align-v="center">
+                    <b-col>
+                        <Header />
+                    </b-col>
+                </b-row>
+                <b-row class="scribble__container__body">
+                    <b-col>
+                        <LeftSidePanel />
+                    </b-col>
+                    <b-col>
+                        <MainContent />
+                    </b-col>
+                    <b-col>
+                        <RightSidePanel />
+                    </b-col>
+                </b-row>
+                <Modal />
+            </b-container>
+        </div>
     </div>
 </template>
 
 <script>
 import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
-import Chat from "../components/Chat.vue";
-import CanvasPanel from "../components/CanvasPanel.vue";
-import Header from "../components/Header.vue";
-import LobbyId from "../components/LobbyId.vue";
-import RoundNumber from "../components/RoundNumber.vue";
-import PlayerList from "../components/PlayerList.vue";
-import WordChoiceModal from "../components/WordChoiceModal.vue";
+import Header from "../containers/Header.vue";
+import LeftSidePanel from "../containers/LeftSidePanel.vue";
+import MainContent from "../containers/MainContent.vue";
+import Modal from "../containers/Modal.vue";
+import RightSidePanel from "../containers/RightSidePanel.vue";
+import Lobby from "@/modules/lobby/view/Lobby.vue";
 import { mapState } from "vuex";
-import Word from "../components/Word.vue";
-import BaseTimerCircle from "@/modules/common/components/BaseTimerCircle.vue";
+import { WaitingInLobby } from "@/modules/scribble/stores/states/gamestates";
 
 export default {
     mixins: [WebSocketMixin],
     name: "Scribble",
     components: {
-        CanvasPanel,
-        Chat,
         Header,
-        LobbyId,
-        RoundNumber,
-        PlayerList,
-        WordChoiceModal,
-        Word,
-        BaseTimerCircle,
-    },
-    data: function () {
-        return {
-            colors: ["#000000", "#4287f5", "#da42f5", "#7ef542", "#ffffff"],
-            sizes: [8, 16, 32, 64],
-        };
+        LeftSidePanel,
+        Lobby,
+        MainContent,
+        RightSidePanel,
+        Modal,
     },
     computed: {
-        ...mapState("application", {
-            players: (state) => state.players,
-        }),
         ...mapState("scribble", {
             gameState: (state) => state.gameState,
         }),
-        timeLimit() {
-            return this.gameState.duration;
-        },
+    },
+    created() {
+        this.$store.commit("application/setLobbyId", this.lobbyId);
+
+        const startState = new WaitingInLobby();
+        this.$store.commit("scribble/setGameState", startState);
+        // request info from backend (except it does not seem to work right now)
+        this.$gameApiService.requestCurrentGameInfo();
     },
 };
 </script>
@@ -110,16 +72,6 @@ export default {
 
         &__body {
             height: 100%;
-            &__players {
-                height: 50%;
-                width: 30%;
-                float: right;
-            }
-
-            &__chat {
-                height: 50%;
-                float: left;
-            }
         }
     }
 }
