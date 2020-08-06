@@ -1,5 +1,3 @@
-import { EventBus } from "../../../src/eventBus.js";
-import { Event } from "../../../src/events.js";
 import GameHandler from "../../../src/services/eventHandlers/gameHandler";
 import { store } from "../../../src/store.js";
 
@@ -34,7 +32,6 @@ describe("gameHandler", () => {
                     "scribble/setGameState",
                     expect.anything()
                 );
-                expect(EventBus.$emit).toBeCalledWith(Event.START_GAME);
             });
         });
     });
