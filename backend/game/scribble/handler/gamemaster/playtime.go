@@ -95,6 +95,12 @@ func (h *Handler) handlePlayChatMessages(
 	if err != nil {
 		log.Fatalf("unable to unmarshal message: %v", err)
 	}
+	currSelected := h.clientList.clients[h.clientList.currentlySelected]
+	if caller.ClientUUID.UUID == currSelected.ClientUUIDStruct.UUID {
+		// do not allow for the person drawing to receive points if they guess
+		// the correct word
+		return
+	}
 
 	equal := strings.EqualFold(msg.Message, h.chosenWord)
 	if !equal {
