@@ -2,7 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 import PageNotFound from "./modules/common/view/PageNotFound.vue";
 import Home from "./modules/home/view/Home.vue";
-import Scribble from "./modules/scribble/Scribble.vue";
+import Scribble from "./modules/scribble/view/Scribble.vue";
 
 Vue.use(Router);
 
