@@ -1,7 +1,11 @@
 <template>
     <div class="right-side-panel-header">
         <div class="right-side-panel-header__timer">
-            <BaseTimerCircle size="sm" :timeLimit="gameState.duration" />
+            <BaseTimerCircle
+                size="sm"
+                :timeLimit="gameState.durationSec"
+                :state="gameState.state"
+            />
         </div>
         <div class="right-side-panel-header__lobby-id">
             <LobbyId />

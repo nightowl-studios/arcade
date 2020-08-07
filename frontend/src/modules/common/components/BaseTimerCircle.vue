@@ -15,6 +15,7 @@
                 <path
                     :stroke-dasharray="circleDasharray"
                     class="base-timer__path-remaining"
+                    :style="transitionStyle"
                     :class="remainingPathColor"
                     d="M 50, 50 m -45, 0 a 45,45 0 1,0 90,0 a 45,45 0 1,0 -90,0"
                 ></path>
@@ -51,50 +52,47 @@ export default {
     props: {
         timeLimit: Number,
         size: String,
+        state: String,
     },
 
     data() {
         return {
             timePassed: 0,
             timerInterval: null,
-            enableTimer: true,
+            transitionTime: "1s linear all",
         };
     },
 
     computed: {
+        transitionStyle() {
+            return {
+                "--transitionTime-style": this.transitionTime,
+            };
+        },
         baseTimerClasses() {
             if (!this.size) {
                 return `base-timer--md`;
             }
             return `base-timer--${this.size}`;
         },
-
         baseTimerLabelClasses() {
             if (!this.size) {
                 return `base-timer__label--md`;
             }
             return `base-timer__label--${this.size}`;
         },
-
         circleDasharray() {
             return `${(this.timeFraction * FULL_DASH_ARRAY).toFixed(0)} 283`;
         },
-
         timeLeft() {
             return this.timeLimit - this.timePassed;
         },
-
-        watchTimeLimit() {
-            return this.timeLimit;
-        },
-
         timeFraction() {
             const rawTimeFraction = this.timeLeft / this.timeLimit;
             return (
                 rawTimeFraction - (1 / this.timeLimit) * (1 - rawTimeFraction)
             );
         },
-
         remainingPathColor() {
             const { alert, warning, info } = COLOR_CODES;
 
@@ -106,6 +104,12 @@ export default {
                 return info.color;
             }
         },
+        watchState() {
+            return this.state;
+        },
+        watchTimePassed() {
+            return this.timePassed;
+        },
     },
 
     watch: {
@@ -114,9 +118,15 @@ export default {
                 this.onTimesUp();
             }
         },
-        watchTimeLimit() {
+        watchState() {
             this.onTimesUp();
+            this.transitionTime = "333ms linear all";
             this.startTimer();
+        },
+        watchTimePassed(newValue) {
+            if (newValue > 0) {
+                this.transitionTime = "1s linear all";
+            }
         },
     },
 
@@ -180,7 +190,7 @@ export default {
         stroke-linecap: round;
         transform: rotate(90deg);
         transform-origin: center;
-        transition: 1s linear all;
+        transition: var(--transitionTime-style);
         fill-rule: nonzero;
         stroke: currentColor;
 
