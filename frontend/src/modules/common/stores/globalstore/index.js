@@ -15,9 +15,6 @@ export default {
         getPlayerWithUuid: (state) => {
             return (uuid) => state.players.filter((p) => p.uuid === uuid)[0];
         },
-        getPlayers: (state) => {
-            return state.players;
-        },
     },
     mutations: {
         setLobbyId: (state, payload) => {
