@@ -67,7 +67,7 @@ export class WaitingInLobby extends GameState {
 
 export class ChoosingWord extends GameState {
     static STATE = "ChoosingWord";
-    constructor(player, words, durationS) {
+    constructor(player, words, durationSec) {
         super(
             new GameStateFlags()
                 .forState(ChoosingWord.STATE)
@@ -77,13 +77,13 @@ export class ChoosingWord extends GameState {
         );
         this.player = player;
         this.words = words;
-        this.durationS = durationS;
+        this.durationSec = durationSec;
     }
 }
 
 export class WaitingForPlayerToChooseWord extends GameState {
     static STATE = "WaitingForPlayerToChooseWord";
-    constructor(player, durationS) {
+    constructor(player, durationSec) {
         super(
             new GameStateFlags()
                 .forState(WaitingForPlayerToChooseWord.STATE)
@@ -91,24 +91,24 @@ export class WaitingForPlayerToChooseWord extends GameState {
                 .showingPlayerChoosing()
         );
         this.player = player;
-        this.durationS = durationS;
+        this.durationSec = durationSec;
     }
 }
 
 export class Drawing extends GameState {
     static STATE = "Drawing";
-    constructor(word, durationS) {
+    constructor(word, durationSec) {
         super(
             new GameStateFlags().forState(Drawing.STATE).showingWordToGuess()
         );
         this.word = word;
-        this.durationS = durationS;
+        this.durationSec = durationSec;
     }
 }
 
 export class Guessing extends GameState {
     static STATE = "Guessing";
-    constructor(word, durationS) {
+    constructor(word, durationSec) {
         super(
             new GameStateFlags()
                 .forState(Guessing.STATE)
@@ -116,6 +116,6 @@ export class Guessing extends GameState {
                 .showingWordToGuess()
         );
         this.word = word;
-        this.durationS = durationS;
+        this.durationSec = durationSec;
     }
 }
