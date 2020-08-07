@@ -1,4 +1,5 @@
 import { EventBus } from "@/eventBus";
+import { Event } from "@/events.js";
 import Player from "@/modules/common/entities/player";
 import { store } from "@/store";
 
