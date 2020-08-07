@@ -1,4 +1,5 @@
 import { EventBus } from "../../../src/eventBus.js";
+import { Event } from "../../../src/events.js";
 import Player from "../../../src/modules/common/entities/player.js";
 import HubHandler from "../../../src/services/eventHandlers/hubHandler";
 import { store } from "../../../src/store.js";
