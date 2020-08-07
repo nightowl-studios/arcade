@@ -1,0 +1,13 @@
+<template>
+    <div>
+        <Header
+            v-if="gameState.showPlayerChoosing"
+            :nickname="gameState.player.nickname"
+        />
+        <Word
+            v-if="gameState.showWordToGuess"
+            :word="gameState.word"
+            :isGuessing="gameState.lockCanvas"
+        />
+    </div>
+</template>

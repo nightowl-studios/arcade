@@ -25,6 +25,7 @@ func (h *handler) GetPoints() int {
 	return retPoints
 }
 
+// ResetPoints will reset how the point system hands out points
 func (h *handler) ResetPoints() {
 	h.WordPointIndex = 0
 }

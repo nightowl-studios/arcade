@@ -1,55 +1,140 @@
-const NANOSECOND_TO_SECONDS_FACTOR = 1000000000;
+class GameStateFlags {
+    constructor() {
+        this.lockCanvas = false;
+        this.showWordChoices = false;
+        this.showPlayerChoosing = false;
+        this.showWordToGuess = false;
+        this.showLobby = false;
+        this.showResults = false;
+    }
+
+    forState(state) {
+        this.state = state;
+        return this;
+    }
+
+    lockedCanvas() {
+        this.lockCanvas = true;
+        return this;
+    }
+
+    showingWordChoices() {
+        this.showWordChoices = true;
+        return this;
+    }
+
+    showingPlayerChoosing() {
+        this.showPlayerChoosing = true;
+        return this;
+    }
+
+    showingWordToGuess() {
+        this.showWordToGuess = true;
+        return this;
+    }
+
+    showingLobby() {
+        this.showLobby = true;
+        return this;
+    }
+
+    showingResults() {
+        this.showResults = true;
+        return this;
+    }
+}
 
 class GameState {
-    constructor(
-        state,
-        lockCanvas,
-        showWordChoices,
-        showPlayerChoosing,
-        showWordToGuess
-    ) {
-        this.state = state;
+    constructor(gameStateFlags) {
+        if (gameStateFlags.state == null) {
+            throw new Error("GameState requires a state parameter");
+        }
+        this.state = gameStateFlags.state;
 
-        this.lockCanvas = lockCanvas;
-        this.showWordChoices = showWordChoices;
-        this.showPlayerChoosing = showPlayerChoosing;
-        this.showWordToGuess = showWordToGuess;
+        this.lockCanvas = gameStateFlags.lockCanvas;
+        this.showWordChoices = gameStateFlags.showWordChoices;
+        this.showPlayerChoosing = gameStateFlags.showPlayerChoosing;
+        this.showWordToGuess = gameStateFlags.showWordToGuess;
+        this.showLobby = gameStateFlags.showLobby;
+        this.showResults = gameStateFlags.showResults;
+    }
+}
+
+export class WaitingInLobby extends GameState {
+    static STATE = "WaitingInLobby";
+    constructor() {
+        super(
+            new GameStateFlags()
+                .forState(WaitingInLobby.STATE)
+                .lockedCanvas()
+                .showingLobby()
+        );
     }
 }
 
 export class ChoosingWord extends GameState {
     static STATE = "ChoosingWord";
-    constructor(player, words, duration) {
-        super(ChoosingWord.STATE, true, true, true, false);
+    constructor(player, words, durationSec) {
+        super(
+            new GameStateFlags()
+                .forState(ChoosingWord.STATE)
+                .lockedCanvas()
+                .showingWordChoices()
+                .showingPlayerChoosing()
+        );
         this.player = player;
         this.words = words;
-        this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
+        this.durationSec = durationSec;
     }
 }
 
 export class WaitingForPlayerToChooseWord extends GameState {
     static STATE = "WaitingForPlayerToChooseWord";
-    constructor(player, duration) {
-        super(WaitingForPlayerToChooseWord.STATE, true, false, true, false);
+    constructor(player, durationSec) {
+        super(
+            new GameStateFlags()
+                .forState(WaitingForPlayerToChooseWord.STATE)
+                .lockedCanvas()
+                .showingPlayerChoosing()
+        );
         this.player = player;
-        this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
+        this.durationSec = durationSec;
     }
 }
 
 export class Drawing extends GameState {
     static STATE = "Drawing";
-    constructor(word, duration) {
-        super(Drawing.STATE, false, false, false, true);
+    constructor(word, durationSec) {
+        super(
+            new GameStateFlags().forState(Drawing.STATE).showingWordToGuess()
+        );
         this.word = word;
-        this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
+        this.durationSec = durationSec;
     }
 }
 
 export class Guessing extends GameState {
     static STATE = "Guessing";
-    constructor(word, duration) {
-        super(Guessing.STATE, true, false, false, true);
+    constructor(word, durationSec) {
+        super(
+            new GameStateFlags()
+                .forState(Guessing.STATE)
+                .lockedCanvas()
+                .showingWordToGuess()
+        );
         this.word = word;
-        this.duration = duration / NANOSECOND_TO_SECONDS_FACTOR;
+        this.durationSec = durationSec;
+    }
+}
+
+export class GameOver extends GameState {
+    static STATE = "GameOver";
+    constructor() {
+        super(
+            new GameStateFlags()
+                .forState(GameOver.STATE)
+                .lockedCanvas()
+                .showingResults()
+        );
     }
 }

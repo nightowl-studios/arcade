@@ -22,6 +22,19 @@ export default {
             chatLog: [],
         };
     },
+    methods: {
+        playCorrectSound() {
+            let audio = new Audio(require("@/assets/audio/sound-correct.wav"));
+            audio.play();
+        },
+        playPlayerLeftSound() {
+            let audio = new Audio(require("@/assets/audio/player-leave.wav"));
+            audio.play();
+        },
+        playPlayerJoinSound() {
+            // TODO
+        }
+    },
     created() {
         EventBus.$on(Event.CHAT_HISTORY, (data) => {
             for (const messages of data) {
@@ -32,6 +45,24 @@ export default {
 
         EventBus.$on(Event.CHAT_MESSAGE, (data) => {
             this.chatLog.push([data.sender.nickname, data.message]);
+            this.$nextTick(() => adjustScrollTop());
+        });
+
+        EventBus.$on(Event.CORRECT_GUESS, (data) => {
+            this.chatLog.push([data.nickname, "guessed correctly"]);
+            this.playCorrectSound();
+            this.$nextTick(() => adjustScrollTop());
+        });
+
+        EventBus.$on(Event.PLAYER_LEFT, (data) => {
+            this.chatLog.push([data.nickname, "has left the game"]);
+            this.playPlayerLeftSound();
+            this.$nextTick(() => adjustScrollTop());
+        });
+
+        EventBus.$on(Event.PLAYER_JOIN, (data) => {
+            this.chatLog.push([data.nickname, "has joined the game"]);
+            this.playPlayerJoinSound();
             this.$nextTick(() => adjustScrollTop());
         });
 

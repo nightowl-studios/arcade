@@ -1,11 +1,4 @@
-import { mapState } from "vuex";
-
 export default {
-    computed: {
-        ...mapState('application', {
-            players: state => state.players,
-        }),
-    },
     created: async function () {
         this.lobbyId = this.$router.currentRoute.params.lobbyId;
         if (!this.$webSocketService.isConnected()) {
