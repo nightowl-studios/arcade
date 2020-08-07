@@ -9,10 +9,16 @@ import {
 } from "@/modules/scribble/stores/states/gamestates";
 import { store } from "@/store";
 
+const NANOSECOND_TO_SECONDS_FACTOR = 1000000000;
+
 // Event handler for Game API
 export default class GameHandler {
     constructor() {
         this.setGameStateKey = "scribble/setGameState";
+    }
+
+    _convertNanoSecsToSecs(durationNS) {
+        return durationNS / NANOSECOND_TO_SECONDS_FACTOR;
     }
 
     handle(payload) {
@@ -30,7 +36,7 @@ export default class GameHandler {
                 const state = new ChoosingWord(
                     player,
                     payload.wordSelect.choices,
-                    payload.wordSelect.duration
+                    this._convertNanoSecsToSecs(payload.wordSelect.duration)
                 );
                 store.commit(this.setGameStateKey, state);
             } else {
@@ -39,7 +45,7 @@ export default class GameHandler {
                 );
                 const state = new WaitingForPlayerToChooseWord(
                     player,
-                    payload.wordSelect.duration
+                    this._convertNanoSecsToSecs(payload.wordSelect.duration)
                 );
                 store.commit(this.setGameStateKey, state);
             }
@@ -49,7 +55,7 @@ export default class GameHandler {
                 const selectedWord = store.getters["scribble/getWordSelected"];
                 const state = new Drawing(
                     selectedWord,
-                    payload.playTimeSend.duration
+                    this._convertNanoSecsToSecs(payload.playTimeSend.duration)
                 );
                 store.commit(this.setGameStateKey, state);
             } else if (
@@ -57,7 +63,7 @@ export default class GameHandler {
             ) {
                 const state = new Guessing(
                     payload.playTimeSend.hint,
-                    payload.playTimeSend.duration
+                    this._convertNanoSecsToSecs(payload.playTimeSend.duration)
                 );
                 store.commit(this.setGameStateKey, state);
             } else {
