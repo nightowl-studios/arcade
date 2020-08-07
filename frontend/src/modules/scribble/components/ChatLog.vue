@@ -31,6 +31,9 @@ export default {
             let audio = new Audio(require("@/assets/audio/player-leave.wav"));
             audio.play();
         },
+        playPlayerJoinSound() {
+            // TODO
+        }
     },
     created() {
         EventBus.$on(Event.CHAT_HISTORY, (data) => {
@@ -59,7 +62,7 @@ export default {
 
         EventBus.$on(Event.PLAYER_JOIN, (data) => {
             this.chatLog.push([data.nickname, "has joined the game"]);
-            this.playPlayerLeftSound();
+            this.playPlayerJoinSound();
             this.$nextTick(() => adjustScrollTop());
         });
 
