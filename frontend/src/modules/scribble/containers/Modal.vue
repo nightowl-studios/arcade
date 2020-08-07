@@ -3,6 +3,7 @@
         :words="gameState.words"
         :modalShow="gameState.showWordChoices"
         :timeLimit="gameState.durationSec"
+        :state="gameState.state"
     />
 </template>
 

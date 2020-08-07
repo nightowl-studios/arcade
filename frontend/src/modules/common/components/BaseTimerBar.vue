@@ -59,8 +59,8 @@ export default {
         timeLeft() {
             return this.timeLimit - this.timePassed;
         },
-        watchTimeLimit() {
-            return this.timeLimit;
+        watchState() {
+            return this.state;
         },
         remainingPathColor() {
             const { healthy, warning, danger } = COLOR_CODES;
@@ -79,10 +79,6 @@ export default {
                 this.onTimesUp();
             }
         },
-        watchTimeLimit() {
-            this.onTimesUp();
-            this.startTimer();
-        },
     },
     mounted() {
         this.startTimer();
@@ -93,7 +89,6 @@ export default {
             this.$emit("onTimesUp");
         },
         startTimer() {
-            this.timePassed = 0;
             this.timerInterval = setInterval(
                 () => (this.timePassed += 1),
                 1000
