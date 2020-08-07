@@ -16,8 +16,6 @@ export default class HubHandler {
             );
 
             this.handlePlayersChanged(players);
-            this.handlePlayerJoined(players);
-            this.handlePlayerLeft(players);
 
             store.commit("application/setPlayers", players);
         }
