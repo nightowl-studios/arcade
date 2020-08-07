@@ -194,7 +194,7 @@ func Get(reg registry.Registry) *Handler {
 		reg:              reg,
 		maxRounds:        3,
 		wordChoices:      3,
-		round:            0,
+		round:            1,
 		gameState:        WaitForStart,
 		selectTopicTimer: 10 * time.Second,
 		playTimeTimer:    30 * time.Second,

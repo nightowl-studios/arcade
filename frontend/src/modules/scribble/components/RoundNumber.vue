@@ -1,16 +1,16 @@
 <template>
     <div class="round-number">
-        <span> Round {{ roundNumber }} </span>
+        <span> Round {{ round }} </span>
     </div>
 </template>
 
 <script>
 export default {
     name: "RoundNumber",
-    data: function () {
-        return {
-            roundNumber: this.$store.getters["scribble/getRoundNumber"],
-        };
+    computed: {
+        round() {
+            return this.$store.getters["scribble/getRoundNumber"];
+        },
     },
 };
 </script>

@@ -90,7 +90,7 @@ func TestWordSelect(t *testing.T) {
 		reg:              &reg,
 		maxRounds:        3,
 		wordChoices:      3,
-		round:            0,
+		round:            1,
 		gameState:        WordSelect,
 		selectTopicTimer: wordSelectTimer,
 		playTimeTimer:    180 * time.Second,
@@ -140,6 +140,13 @@ func TestWordSelect(t *testing.T) {
 					len(send.WordSelectSend.Choices),
 				)
 			}
+			if send.WordSelectSend.Round != 1 {
+				t.Errorf(
+					"got round: %v, expected: %v",
+					send.WordSelectSend.Round,
+					1,
+				)
+			}
 
 			return true
 		}),
@@ -162,6 +169,13 @@ func TestWordSelect(t *testing.T) {
 		}
 		if !reflect.DeepEqual(send.WordSelectSend.Choices, wordChoices) {
 			t.Errorf("got: %v, expected: %v", send.WordSelectSend.Choices, wordChoices)
+		}
+		if send.WordSelectSend.Round != 1 {
+			t.Errorf(
+				"got: %v for round number, expected: %v",
+				send.WordSelectSend.Round,
+				1,
+			)
 		}
 		return true
 	}))
@@ -209,7 +223,7 @@ func TestAllClientsQuit(t *testing.T) {
 		reg:              &reg,
 		maxRounds:        3,
 		wordChoices:      3,
-		round:            0,
+		round:            1,
 		gameState:        WaitForStart,
 		selectTopicTimer: time.Second * 10,
 		playTimeTimer:    180 * time.Second,
@@ -268,7 +282,7 @@ func TestPlayTime(t *testing.T) {
 		reg:              &reg,
 		maxRounds:        3,
 		wordChoices:      3,
-		round:            0,
+		round:            1,
 		gameState:        PlayTime,
 		selectTopicTimer: time.Second * 10,
 		playTimeTimer:    180 * time.Second,
@@ -389,7 +403,7 @@ func TestPlayTime(t *testing.T) {
 			if send.GameMasterAPI != ScoreTime {
 				return false
 			}
-			if send.ScoreTimeSend.Round != 0 {
+			if send.ScoreTimeSend.Round != 1 {
 				t.Errorf("got round: %v, expected: %v", send.ScoreTimeSend.Round, 1)
 			}
 			return true
@@ -670,7 +684,7 @@ func TestWordSelectTimeout(t *testing.T) {
 		reg:              &reg,
 		maxRounds:        3,
 		wordChoices:      3,
-		round:            0,
+		round:            1,
 		gameState:        WordSelect,
 		selectTopicTimer: wordSelectTimer,
 		playTimeTimer:    180 * time.Second,
