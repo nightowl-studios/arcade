@@ -6,14 +6,14 @@ export default {
         players: [],
     },
     getters: {
+        getPlayers: (state) => {
+            return state.players;
+        },
         getPlayerUuid: (state) => {
             return state.playerUuid;
         },
         getPlayerWithUuid: (state) => {
             return (uuid) => state.players.filter((p) => p.uuid === uuid)[0];
-        },
-        getPlayers: (state) => {
-            return state.players;
         },
     },
     mutations: {
