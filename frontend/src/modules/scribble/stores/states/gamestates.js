@@ -5,6 +5,7 @@ class GameStateFlags {
         this.showPlayerChoosing = false;
         this.showWordToGuess = false;
         this.showLobby = false;
+        this.showResults = false;
     }
 
     forState(state) {
@@ -36,6 +37,11 @@ class GameStateFlags {
         this.showLobby = true;
         return this;
     }
+
+    showingResults() {
+        this.showResults = true;
+        return this;
+    }
 }
 
 class GameState {
@@ -50,6 +56,7 @@ class GameState {
         this.showPlayerChoosing = gameStateFlags.showPlayerChoosing;
         this.showWordToGuess = gameStateFlags.showWordToGuess;
         this.showLobby = gameStateFlags.showLobby;
+        this.showResults = gameStateFlags.showResults;
     }
 }
 
@@ -117,5 +124,17 @@ export class Guessing extends GameState {
         );
         this.word = word;
         this.durationSec = durationSec;
+    }
+}
+
+export class GameOver extends GameState {
+    static STATE = "GameOver";
+    constructor() {
+        super(
+            new GameStateFlags()
+                .forState(GameOver.STATE)
+                .lockedCanvas()
+                .showingResults()
+        );
     }
 }

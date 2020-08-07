@@ -4,7 +4,7 @@
             href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap"
             rel="stylesheet"
         />
-        <header>
+        <header class="site-header">
             <p v-on:click="goHome" class="header__logo">nightowl studios</p>
         </header>
         <router-view />
@@ -32,7 +32,7 @@ export default {
     height: 100vh;
 }
 
-header {
+.site-header {
     background-color: black;
     text-align: left;
     text-decoration: none;

@@ -5,6 +5,7 @@ import {
     Drawing,
     Guessing,
     WaitingForPlayerToChooseWord,
+    GameOver,
 } from "@/modules/scribble/stores/states/gamestates";
 import { store } from "@/store";
 
@@ -82,6 +83,9 @@ export default class GameHandler {
                 );
                 EventBus.$emit(Event.CORRECT_GUESS, player);
             }
+        } else if (payload.gameMasterAPI === "showResults") {
+            const state = new GameOver();
+            store.commit(this.setGameStateKey, state);
         }
     }
 }
