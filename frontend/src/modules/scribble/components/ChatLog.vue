@@ -33,7 +33,7 @@ export default {
         },
         playPlayerJoinSound() {
             // TODO
-        }
+        },
     },
     created() {
         EventBus.$on(Event.CHAT_HISTORY, (data) => {

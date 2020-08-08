@@ -14,7 +14,7 @@ func (h *Handler) scoreTime() {
 	h.WrapUserAndRound()
 	h.pointHandler.ResetPoints()
 
-	if h.round >= h.maxRounds {
+	if h.round > h.maxRounds {
 		h.changeGameStateTo(ShowResults)
 	} else {
 		h.changeGameStateTo(WordSelect)

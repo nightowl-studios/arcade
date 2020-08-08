@@ -34,6 +34,7 @@ export default {
     padding-bottom: 5px;
     border-radius: 6px;
     margin: 5px 5px 5px 5px;
+    width: 200px;
 }
 
 .lobby-id__input {

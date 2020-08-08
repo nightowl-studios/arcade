@@ -79,6 +79,8 @@ export default {
 
         const startState = new WaitingInLobby();
         this.$store.commit("scribble/setGameState", startState);
+        // request info from backend (except it does not seem to work right now)
+        this.$gameApiService.requestCurrentGameInfo();
     },
 };
 </script>

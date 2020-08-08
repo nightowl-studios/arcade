@@ -28,6 +28,7 @@ export default class GameHandler {
                 payload.waitForStart
             );
         } else if (payload.gameMasterAPI === "wordSelect") {
+            store.commit("scribble/setRoundNumber", payload.wordSelect.round);
             const playerUuid = store.getters["application/getPlayerUuid"];
             if (playerUuid === payload.wordSelect.chosenUUID) {
                 const player = store.getters["application/getPlayerWithUuid"](
@@ -83,6 +84,8 @@ export default class GameHandler {
                 );
                 EventBus.$emit(Event.CORRECT_GUESS, player);
             }
+        } else if (payload.gameMasterAPI === "scoreTime") {
+            store.commit("scribble/setRoundNumber", payload.scoreTime.round);
         } else if (payload.gameMasterAPI === "showResults") {
             const state = new GameOver();
             store.commit(this.setGameStateKey, state);

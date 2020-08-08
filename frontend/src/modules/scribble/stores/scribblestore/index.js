@@ -3,6 +3,7 @@ export default {
     state: {
         gameState: null,
         wordSelected: "",
+        roundNumber: 0,
     },
     getters: {
         getGameState: (state) => {
@@ -11,6 +12,9 @@ export default {
         getWordSelected: (state) => {
             return state.wordSelected;
         },
+        getRoundNumber: (state) => {
+            return state.roundNumber;
+        },
     },
     mutations: {
         setGameState: (state, payload) => {
@@ -18,6 +22,9 @@ export default {
         },
         setWordSelected: (state, payload) => {
             state.wordSelected = payload;
+        },
+        setRoundNumber: (state, payload) => {
+            state.roundNumber = payload;
         },
     },
     actions: {},

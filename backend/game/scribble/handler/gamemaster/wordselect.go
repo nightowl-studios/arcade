@@ -22,6 +22,8 @@ type WordSelectSend struct {
 	Duration time.Duration `json:"duration"`
 
 	LockCanvas bool `json:"lockCanvas"`
+
+	Round int `json:"round"`
 }
 
 type WordSelectReceive struct {
@@ -48,6 +50,7 @@ func (h *Handler) wordSelect() {
 			LockCanvas: true,
 			Duration:   h.selectTopicTimer,
 			ChosenUUID: selectedClient.UUID,
+			Round:      h.round,
 		},
 	}
 	selectedPlayerBytes, err := game.MessageBuild("game", selectedPlayerMsg)
