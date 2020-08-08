@@ -41,6 +41,7 @@ export default {
     props: {
         timeLimit: Number,
         size: String,
+        state: String,
     },
 
     data() {
@@ -78,6 +79,10 @@ export default {
             if (newValue === 0) {
                 this.onTimesUp();
             }
+        },
+        watchState() {
+            this.onTimesUp();
+            this.startTimer();
         },
     },
     mounted() {
