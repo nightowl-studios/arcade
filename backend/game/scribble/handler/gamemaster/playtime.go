@@ -126,6 +126,17 @@ func (h *Handler) handlePlayChatMessages(
 	}
 	h.reg.SendToSameHub(caller.ClientUUID, sendBytes)
 
+	if h.allCorrect(caller) {
+		h.resetGuessRight()
+		h.playTimeChan <- PlayTimeChanReceive{
+			AllCorrect: true,
+		}
+	}
+}
+
+// allCorrect will return true if all the players other than the
+// caller has guessed the word correctly
+func (h *Handler) allCorrect(caller identifier.Client) bool {
 	// if everyone guessed right, then let playTime know
 	allCorrect := true
 	for index, client := range h.clientList.clients {
@@ -143,9 +154,12 @@ func (h *Handler) handlePlayChatMessages(
 			break
 		}
 	}
-	if allCorrect {
-		h.playTimeChan <- PlayTimeChanReceive{
-			AllCorrect: true,
-		}
+	return allCorrect
+}
+
+// resetGuessRight will set all the clients `GuessedRight` boolean to false
+func (h *Handler) resetGuessRight() {
+	for index := range h.clientList.clients {
+		h.clientList.clients[index].GuessedRight = false
 	}
 }
