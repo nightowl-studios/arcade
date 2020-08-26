@@ -6,10 +6,12 @@ export default class WebSocketConnection {
         this.webSocket = null;
     }
 
-    connect(url) {
-        this.url = url;
+    connect(url, lobbyId) {
+        const webSocketUrl = `${url}/${lobbyId}`;
+        this.url = webSocketUrl;
+        this.lobbyId = lobbyId;
         if (this.webSocket == null) {
-            this.webSocket = new WebSocket(url);
+            this.webSocket = new WebSocket(webSocketUrl);
             this.init();
         } else {
             console.log("There is an existing websocket");
@@ -28,7 +30,7 @@ export default class WebSocketConnection {
             );
 
             let eventType = WebSocketEvent.WEBSOCKET_CONNECTED;
-            let data = null;
+            let data = this.lobbyId;
             this.listeners.forEach(listener => listener.update(eventType, data))
         }
 

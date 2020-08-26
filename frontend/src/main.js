@@ -1,4 +1,5 @@
 import ApiSenderFacade from "@/backend/apiservice/send/apiSenderFacade";
+import GameApiService from "@/backend/apiservice/send/gameApiService";
 import HubApiService from "@/backend/apiservice/send/hubApiService";
 import WebSocketService from "@/backend/communication/webSocketService";
 import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
@@ -28,7 +29,12 @@ const httpUrl = `http://${document.location.hostname}:8081`;
 Vue.prototype.$webSocketService = new WebSocketService(webSocketUrl);
 
 const hubApiService = new HubApiService(httpUrl);
-Vue.prototype.$apiSenderFacade = new ApiSenderFacade(Vue.prototype.$webSocketService, hubApiService);
+const gameApiService = new GameApiService();
+Vue.prototype.$apiSenderFacade = ApiSenderFacade;
+ApiSenderFacade.setWebSocketService(Vue.prototype.$webSocketService);
+ApiSenderFacade.setHubApiService(hubApiService);
+ApiSenderFacade.setGameApiService(gameApiService);
+Object.freeze(ApiSenderFacade);
 
 
 /* DEPRECATED CODE */

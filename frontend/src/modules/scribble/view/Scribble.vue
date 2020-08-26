@@ -48,7 +48,7 @@ import Modal from "../containers/Modal.vue";
 import RightSidePanel from "../containers/RightSidePanel.vue";
 import Lobby from "@/modules/lobby/view/Lobby.vue";
 import { mapState } from "vuex";
-import { WaitingInLobby } from "@/modules/scribble/stores/states/gamestates";
+//import { WaitingInLobby } from "@/modules/scribble/stores/states/gamestates";
 
 export default {
     mixins: [WebSocketMixin],
@@ -77,10 +77,10 @@ export default {
     created() {
         this.$store.commit("application/setLobbyId", this.lobbyId);
 
-        const startState = new WaitingInLobby();
-        this.$store.commit("scribble/setGameState", startState);
-        // request info from backend (except it does not seem to work right now)
-        this.$gameApiService.requestCurrentGameInfo();
+        // const startState = new WaitingInLobby();
+        // this.$store.commit("scribble/setGameState", startState);
+        // // request info from backend (except it does not seem to work right now)
+        // this.$gameApiService.requestCurrentGameInfo();
     },
 };
 </script>

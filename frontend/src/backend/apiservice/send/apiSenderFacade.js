@@ -1,10 +1,14 @@
-export default class ApiSenderFacade {
-    constructor(webSocketService, hubApiService) {
+class ApiSenderFacade {
+    setWebSocketService(webSocketService) {
         this.webSocketService = webSocketService;
+    }
+
+    setHubApiService(hubApiService) {
         this.hubApiService = hubApiService;
-        // this.gameApiService;
-        // this.chatApiService;
-        // this.hubApiService;
+    }
+
+    setGameApiService(gameApiService) {
+        this.gameApiService = gameApiService;
     }
 
     createLobby() {
@@ -23,9 +27,9 @@ export default class ApiSenderFacade {
 
     // }
 
-    // requestCurrentGameInfo() {
-
-    // }
+    requestCurrentGameInfo() {
+        this.gameApiService.requestCurrentGameInfo(this.webSocketService.getConnection());
+    }
 
     // sendChatMessage(message) {
 
@@ -35,3 +39,8 @@ export default class ApiSenderFacade {
 
     // }
 }
+
+const singletonInstance = new ApiSenderFacade;
+
+export default singletonInstance;
+

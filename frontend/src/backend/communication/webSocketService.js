@@ -8,10 +8,9 @@ export default class WebSocketService {
     }
 
     createConnection(lobbyId) {
-        const webSocketURL = `${this.webSocketUrl}/${lobbyId}`;
         if (this.webSocketConnection == null) {
             this.webSocketConnection = new WebSocketConnection();
-            this.webSocketConnection.connect(webSocketURL);
+            this.webSocketConnection.connect(this.webSocketUrl, lobbyId);
 
             this.init();
         } else {
