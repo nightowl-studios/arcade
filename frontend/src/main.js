@@ -1,18 +1,17 @@
+import ApiSenderFacade from "@/backend/apiservice/send/apiSenderFacade";
+import HubApiService from "@/backend/apiservice/send/hubApiService";
+import WebSocketService from "@/backend/communication/webSocketService";
 import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
-import VueSimpleAlert from "vue-simple-alert";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Vue from "vue";
+import VueSimpleAlert from "vue-simple-alert";
 import App from "./App.vue";
 import "./index.scss";
 import router from "./router";
-import ChatApiService from "./services/chatApiService";
-import CookieService from "./services/cookieService";
-import EventHandlerService from "./services/eventHandlerService";
-import GameApiService from "./services/gameApiService";
-import HubApiService from "./services/hubApiService";
-import WebSocketService from "./services/webSocketService";
 import { store } from "./store";
+
+
 
 Vue.config.productionTip = false;
 
@@ -23,28 +22,39 @@ Vue.use(IconsPlugin);
 // Install VueSimpleAlert
 Vue.use(VueSimpleAlert);
 
+const webSocketUrl = `ws://${document.location.hostname}:8081/ws`;
+const httpUrl = `http://${document.location.hostname}:8081`;
+
+Vue.prototype.$webSocketService = new WebSocketService(webSocketUrl);
+
+const hubApiService = new HubApiService(httpUrl);
+Vue.prototype.$apiSenderFacade = new ApiSenderFacade(Vue.prototype.$webSocketService, hubApiService);
+
+
+/* DEPRECATED CODE */
 // Global Instance Properties
-Vue.prototype.$hubAPI = "hub";
+// Vue.prototype.$hubAPI = "hub";
 
-const webSocketURL = `ws://${document.location.hostname}:8081/ws`;
-const httpURL = `http://${document.location.hostname}:8081`;
+// const webSocketURL = `ws://${document.location.hostname}:8081/ws`;
+// const httpURL = `http://${document.location.hostname}:8081`;
 
-const cookieService = new CookieService();
-const eventHandlerService = new EventHandlerService();
-Vue.prototype.$webSocketService = new WebSocketService(
-    webSocketURL,
-    cookieService,
-    eventHandlerService
-);
+// const cookieService = new CookieService();
+// const eventHandlerService = new EventHandlerService();
+// Vue.prototype.$webSocketService = new WebSocketService(
+//     webSocketURL,
+//     cookieService,
+//     eventHandlerService
+// );
 
-// API Services
-Vue.prototype.$hubApiService = new HubApiService(httpURL);
-Vue.prototype.$gameApiService = new GameApiService(
-    Vue.prototype.$webSocketService
-);
-Vue.prototype.$chatApiService = new ChatApiService(
-    Vue.prototype.$webSocketService
-);
+// // API Services
+// Vue.prototype.$hubApiService = new HubApiService(httpURL);
+// Vue.prototype.$gameApiService = new GameApiService(
+//     Vue.prototype.$webSocketService
+// );
+// Vue.prototype.$chatApiService = new ChatApiService(
+//     Vue.prototype.$webSocketService
+// );
+/* END OF DEPRECATED CODE */
 
 new Vue({
     store,

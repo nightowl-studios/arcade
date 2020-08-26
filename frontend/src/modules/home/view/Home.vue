@@ -40,7 +40,7 @@ export default {
             if (!this.$refs["nicknameInput"].validateNickname()) {
                 return;
             }
-            this.$webSocketService.connect(lobbyId);
+            this.$webSocketService.createConnection(lobbyId);
         },
     },
     created() {

@@ -1,4 +1,4 @@
-import { createChatMessage } from "@/utility/WebSocketMessageUtils";
+import { createChatMessage } from "../backend/apiservice/send/node_modules/@/utility/WebSocketMessageUtils";
 // Service for making request to chat API.
 export default class GameApiService {
     constructor(webSocketService) {

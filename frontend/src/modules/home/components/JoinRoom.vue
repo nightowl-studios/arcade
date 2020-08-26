@@ -39,7 +39,7 @@ export default {
                 this.showError = true;
                 return;
             }
-            const lobbyExists = await this.$hubApiService.checkLobbyExists(
+            const lobbyExists = await this.$apiSenderFacade.checkLobbyExists(
                 this.lobbyId
             );
             if (lobbyExists) {
