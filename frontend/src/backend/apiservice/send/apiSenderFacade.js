@@ -38,6 +38,10 @@ class ApiSenderFacade {
     // requestChatHistory() {
 
     // }
+
+    changeNickname(nickname) {
+        this.hubApiService.changeNickname(this.webSocketService.getConnection(), nickname);
+    }
 }
 
 const singletonInstance = new ApiSenderFacade;

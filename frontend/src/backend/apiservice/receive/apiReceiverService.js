@@ -24,7 +24,7 @@ export default class ApiReceiverService {
             if (currentState == null) {
                 gameManager.initGame(data);
             } else {
-                console.log("Handling event")
+                gameManager.handleEvent(data);
             }
         }
     }

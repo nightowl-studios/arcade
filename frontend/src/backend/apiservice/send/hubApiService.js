@@ -17,4 +17,19 @@ export default class HubApiService {
         const response = await axios.get(url);
         return response.data.exists;
     }
+
+    changeNickname(webSocketConnection, nickname) {
+        const message = {
+            api: "hub",
+            payload: {
+                changeNameTo: nickname
+            }
+        };
+
+        this.sendMessage(webSocketConnection, message);
+    }
+
+    sendMessage(webSocketConnection, message) {
+        webSocketConnection.send(message);
+    }
 }

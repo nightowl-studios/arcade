@@ -7,4 +7,12 @@ export default class StoreService {
     setState(state) {
         store.commit("scribble/setGameState", state);
     }
+
+    setPlayers(players) {
+        store.commit("application/setPlayers", players);
+    }
+
+    setPlayerUuid(uuid) {
+        store.commit("application/setPlayerUuid", uuid);
+    }
 }
