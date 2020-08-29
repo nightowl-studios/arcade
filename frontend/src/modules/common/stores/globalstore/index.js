@@ -4,8 +4,12 @@ export default {
         lobbyId: "",
         playerUuid: "",
         players: [],
+        nickname: "",
     },
     getters: {
+        getLobbyId: (state) => {
+            return state.lobbyId;
+        },
         getPlayers: (state) => {
             return state.players;
         },
@@ -15,10 +19,19 @@ export default {
         getPlayerWithUuid: (state) => {
             return (uuid) => state.players.filter((p) => p.uuid === uuid)[0];
         },
+        getNickname: (state) => {
+            return state.nickname;
+        },
     },
     mutations: {
         setLobbyId: (state, payload) => {
             state.lobbyId = payload;
+        },
+        setNickname: (state, payload) => {
+            state.nickname = payload;
+        },
+        setPlayerUuid: (state, payload) => {
+            state.playerUuid = payload;
         },
         setPlayers: (state, payload) => {
             state.players = payload;
@@ -33,9 +46,6 @@ export default {
                     break;
                 }
             }
-        },
-        setPlayerUuid: (state, payload) => {
-            state.playerUuid = payload;
         },
         setPlayerScore: (state, payload) => {
             const playerUuid = payload.uuid;

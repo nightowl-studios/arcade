@@ -35,7 +35,7 @@ export default {
         },
 
         changeNickname: function () {
-            this.$apiSenderFacade.changeNickname(this.nickname);
+            this.$applicationController.changeNickname(this.nickname);
         },
     },
 };

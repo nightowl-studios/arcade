@@ -1,3 +1,4 @@
+import ApiReceiverService from "@/backend/apiservice/receive/apiReceiverService";
 import ApiSenderFacade from "@/backend/apiservice/send/apiSenderFacade";
 import GameApiService from "@/backend/apiservice/send/gameApiService";
 import HubApiService from "@/backend/apiservice/send/hubApiService";
@@ -8,6 +9,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Vue from "vue";
 import VueSimpleAlert from "vue-simple-alert";
 import App from "./App.vue";
+import ApplicationController from "./backend/application/applicationController";
+import ApplicationStoreService from "./backend/application/applicationStoreService";
+import ScribbleGameController from "./backend/scribble/scribbleGameController";
+import ScribbleStoreService from "./backend/scribble/scribbleStoreService";
 import "./index.scss";
 import router from "./router";
 import { store } from "./store";
@@ -26,15 +31,30 @@ Vue.use(VueSimpleAlert);
 const webSocketUrl = `ws://${document.location.hostname}:8081/ws`;
 const httpUrl = `http://${document.location.hostname}:8081`;
 
-Vue.prototype.$webSocketService = new WebSocketService(webSocketUrl);
-
+const apiSenderFacade = ApiSenderFacade;
+const webSocketService = new WebSocketService(webSocketUrl);
+apiSenderFacade.setWebSocketService(webSocketService);
 const hubApiService = new HubApiService(httpUrl);
+apiSenderFacade.setHubApiService(hubApiService);
 const gameApiService = new GameApiService();
-Vue.prototype.$apiSenderFacade = ApiSenderFacade;
-ApiSenderFacade.setWebSocketService(Vue.prototype.$webSocketService);
-ApiSenderFacade.setHubApiService(hubApiService);
-ApiSenderFacade.setGameApiService(gameApiService);
-Object.freeze(ApiSenderFacade);
+apiSenderFacade.setGameApiService(gameApiService);
+Object.freeze(apiSenderFacade);
+
+const scribbleStoreService = new ScribbleStoreService();
+Vue.prototype.$gameController = new ScribbleGameController(apiSenderFacade, scribbleStoreService);
+
+const applicationStoreService = new ApplicationStoreService();
+Vue.prototype.$applicationController = new ApplicationController(apiSenderFacade, applicationStoreService);
+
+const apiReceiverService = new ApiReceiverService(
+    Vue.prototype.$applicationController,
+    Vue.prototype.$gameController,
+    applicationStoreService,
+    scribbleStoreService);
+Object.freeze(apiReceiverService);
+
+webSocketService.getConnection().addListener(apiReceiverService);
+
 
 
 /* DEPRECATED CODE */

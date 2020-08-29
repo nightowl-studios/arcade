@@ -1,5 +1,5 @@
 import { store } from "@/store";
-export default class StoreService {
+export default class ScribbleStoreService {
     getState() {
         return store.getters["scribble/getGameState"];
     }
@@ -9,10 +9,10 @@ export default class StoreService {
     }
 
     setPlayers(players) {
-        store.commit("application/setPlayers", players);
+        store.commit("scribble/setPlayers", players);
     }
 
-    setPlayerUuid(uuid) {
-        store.commit("application/setPlayerUuid", uuid);
+    setLoading(isLoading) {
+        store.commit("scribble/setLoading", isLoading);
     }
 }

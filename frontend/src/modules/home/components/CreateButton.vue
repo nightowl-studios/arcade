@@ -14,7 +14,7 @@ export default {
     name: "CreateButton",
     methods: {
         createRoom: async function () {
-            let lobbyId = await this.$apiSenderFacade.createLobby();
+            let lobbyId = await this.$applicationController.createLobby();
             this.$emit("onCreateRoom", lobbyId);
         },
     },

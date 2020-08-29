@@ -15,9 +15,9 @@ class ApiSenderFacade {
         return this.hubApiService.createLobby();
     }
 
-    // checkLobbyExists(lobbyId) {
-
-    // }
+    checkLobbyExists(lobbyId) {
+        return this.hubApiService.checkLobbyExists(lobbyId);
+    }
 
     // setPlayerIsReadyState(isReady) {
 
@@ -41,6 +41,10 @@ class ApiSenderFacade {
 
     changeNickname(nickname) {
         this.hubApiService.changeNickname(this.webSocketService.getConnection(), nickname);
+    }
+
+    getWebSocketService() {
+        return this.webSocketService;
     }
 }
 

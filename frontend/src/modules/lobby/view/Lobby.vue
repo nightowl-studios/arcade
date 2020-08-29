@@ -25,6 +25,8 @@ export default {
     computed: {
         ...mapState("application", {
             lobbyId: (state) => state.lobbyId,
+        }),
+        ...mapState("scribble", {
             players: (state) => state.players,
         }),
     },

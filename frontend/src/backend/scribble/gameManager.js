@@ -11,16 +11,11 @@ export default class GameManager {
     }
 
     initGame(data) {
-        console.log("init game");
         const api = data.api;
         const payload = data.payload;
-        console.log(payload);
-
-        if (api === "auth") {
-            this.storeService.setPlayerUuid(payload.uuid)
-        }
 
         if (api === "hub") {
+            console.log("initializing game");
             const state = new WaitingInLobby();
             this.storeService.setState(state);
 
