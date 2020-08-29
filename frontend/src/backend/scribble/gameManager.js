@@ -1,8 +1,16 @@
+import {
+    ChoosingWord,
+    WaitingForPlayerToChooseWord
+} from "@/modules/scribble/stores/states/gamestates";
 import Player from "./entities/player";
 import { WaitingInLobby } from "./states/gameStates";
 
+const NANOSECOND_TO_SECONDS_FACTOR = 1000000000;
+
 export default class GameManager {
-    constructor(storeService) {
+    constructor(playerUuid, gameController, storeService) {
+        this.playerUuid = playerUuid;
+        this.gameController = gameController;
         this.storeService = storeService;
     }
 
@@ -16,10 +24,16 @@ export default class GameManager {
 
         if (api === "hub") {
             console.log("initializing game");
-            const state = new WaitingInLobby();
-            this.storeService.setState(state);
-
             this.setPlayers(payload);
+
+            this.gameController.initGame();
+        }
+
+        if (api === "game") {
+            if (payload.gameMasterAPI === "waitForStart") {
+                const state = new WaitingInLobby();
+                this.storeService.setState(state);
+            }
         }
     }
 
@@ -34,7 +48,31 @@ export default class GameManager {
             if (payload.gameMasterAPI === "waitForStart") {
                 this.storeService.setPlayerReadyState(payload.waitForStart);
             }
+            else if (payload.gameMasterAPI === "wordSelect") {
+                this.storeService.setRoundNumber(payload.wordSelect.round);
+                const playerUuid = this.playerUuid;
+                if (playerUuid === payload.wordSelect.chosenUUID) {
+                    const player = this.storeService.getPlayerWithUuid(playerUuid)
+                    const state = new ChoosingWord(
+                        player,
+                        payload.wordSelect.choices,
+                        this._convertNanoSecsToSecs(payload.wordSelect.duration)
+                    );
+                    this.storeService.setState(state);
+                } else {
+                    const player = this.storeService.getPlayerWithUuid(playerUuid)
+                    const state = new WaitingForPlayerToChooseWord(
+                        player,
+                        this._convertNanoSecsToSecs(payload.wordSelect.duration)
+                    );
+                    this.storeService.setState(state);
+                }
+            }
         }
+    }
+
+    _convertNanoSecsToSecs(durationNS) {
+        return durationNS / NANOSECOND_TO_SECONDS_FACTOR;
     }
 
     setPlayers(payload) {

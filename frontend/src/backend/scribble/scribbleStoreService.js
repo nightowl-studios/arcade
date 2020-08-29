@@ -19,4 +19,12 @@ export default class ScribbleStoreService {
     setPlayerReadyState(readyState) {
         store.commit("scribble/setPlayerReadyState", readyState);
     }
+
+    setRoundNumber(roundNumber) {
+        store.commit("scribble/setRoundNumber", roundNumber);
+    }
+
+    getPlayerWithUuid(uuid) {
+        return store.getters["scrrible/getPlayerWithUuid", uuid]
+    }
 }

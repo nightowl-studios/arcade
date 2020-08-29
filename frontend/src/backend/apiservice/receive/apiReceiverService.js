@@ -18,7 +18,6 @@ export default class ApiReceiverService {
 
         if (event === WebSocketEvent.WEBSOCKET_CONNECTED) {
             EventBus.$emit(Event.WEBSOCKET_CONNECTED, data);
-            this.gameController.initGame();
             const nickname = this.applicationStoreService.getNickname() == "" ? "RANDOM" : this.applicationStoreService.getNickname()
             this.applicationControler.changeNickname(nickname);
         }
@@ -28,17 +27,24 @@ export default class ApiReceiverService {
                 this.applicationStoreService.setPlayerUuid(data.payload.uuid)
             }
 
-            const gameManager = new GameManager(this.gameStoreService);
+            const playerUuid = this.applicationStoreService.getPlayerUuid();
+            const gameManager = new GameManager(playerUuid, this.gameController, this.gameStoreService);
             const currentState = gameManager.getCurrentState();
             if (currentState == null) {
-                gameManager.initGame(data);
-
-                if (this.gameStoreService.getState() != null) {
-                    this.gameStoreService.setLoading(false);
-                }
+                this.initApplication(gameManager, data);
             } else {
                 gameManager.handleEvent(data);
             }
+        }
+    }
+
+    initApplication(gameManager, data) {
+        gameManager.initGame(data);
+
+        if (this.gameStoreService.getState() != null) {
+            const nickname = this.applicationStoreService.getNickname() == "" ? "RANDOM" : this.applicationStoreService.getNickname()
+            this.applicationControler.changeNickname(nickname);
+            this.gameStoreService.setLoading(false);
         }
     }
 }

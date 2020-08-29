@@ -28,6 +28,7 @@ class ApiSenderFacade {
     // }
 
     requestCurrentGameInfo() {
+        console.log("requesting current game info");
         this.gameApiService.requestCurrentGameInfo(this.webSocketService.getConnection());
     }
 

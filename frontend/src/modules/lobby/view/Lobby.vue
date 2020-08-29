@@ -4,6 +4,7 @@
         <Header class="lobby-header-room-id" :title="lobbyId" />
         <InvitationLink />
         <PlayerList class="player-list" :players="players" />
+        <b-button v-on:click="requestGameInfo">Request</b-button>
     </div>
 </template>
 
@@ -29,6 +30,12 @@ export default {
         ...mapState("scribble", {
             players: (state) => state.players,
         }),
+    },
+    methods: {
+        requestGameInfo: function () {
+            console.log("requesting");
+            this.$scribbleGameController.initGame();
+        },
     },
 };
 </script>
