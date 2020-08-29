@@ -41,14 +41,14 @@ apiSenderFacade.setGameApiService(gameApiService);
 Object.freeze(apiSenderFacade);
 
 const scribbleStoreService = new ScribbleStoreService();
-Vue.prototype.$gameController = new ScribbleGameController(apiSenderFacade, scribbleStoreService);
+Vue.prototype.$scribbleGameController = new ScribbleGameController(apiSenderFacade, scribbleStoreService);
 
 const applicationStoreService = new ApplicationStoreService();
 Vue.prototype.$applicationController = new ApplicationController(apiSenderFacade, applicationStoreService);
 
 const apiReceiverService = new ApiReceiverService(
     Vue.prototype.$applicationController,
-    Vue.prototype.$gameController,
+    Vue.prototype.$scribbleGameController,
     applicationStoreService,
     scribbleStoreService);
 Object.freeze(apiReceiverService);

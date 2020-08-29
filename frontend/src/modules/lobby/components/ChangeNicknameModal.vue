@@ -1,11 +1,11 @@
 <template>
     <span>
-        <b-button class="lobby-button" variant="primary" v-b-modal.modal-2
+        <b-button class="lobby-button" variant="primary" v-b-modal.nickname-modal
             >Change Nickname</b-button
         >
         <b-modal
             ref="nicknameModal"
-            id="modal-2"
+            id="nickname-modal"
             @ok="onOkClicked"
             title="Set your nickname"
         >

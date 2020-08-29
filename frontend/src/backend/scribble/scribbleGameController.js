@@ -8,4 +8,8 @@ export default class ScribbleGameController {
         this.apiServiceFacade.requestCurrentGameInfo();
     }
 
+    setIsReady(isReady) {
+        this.apiServiceFacade.setIsReady(isReady)
+    }
+
 }

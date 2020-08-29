@@ -30,6 +30,10 @@ export default class GameManager {
 
         if (api === "hub") {
             this.setPlayers(payload);
+        } else if (api === "game") {
+            if (payload.gameMasterAPI === "waitForStart") {
+                this.storeService.setPlayerReadyState(payload.waitForStart);
+            }
         }
     }
 
@@ -44,7 +48,6 @@ export default class GameManager {
         );
 
         this.storeService.setPlayers(players);
-
     }
 }
 

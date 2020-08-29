@@ -19,7 +19,8 @@ export default class ApiReceiverService {
         if (event === WebSocketEvent.WEBSOCKET_CONNECTED) {
             EventBus.$emit(Event.WEBSOCKET_CONNECTED, data);
             this.gameController.initGame();
-            this.applicationControler.changeNickname(this.applicationStoreService.getNickname());
+            const nickname = this.applicationStoreService.getNickname() == "" ? "RANDOM" : this.applicationStoreService.getNickname()
+            this.applicationControler.changeNickname(nickname);
         }
 
         if (event === WebSocketEvent.WEBSOCKET_ONMESSAGE) {

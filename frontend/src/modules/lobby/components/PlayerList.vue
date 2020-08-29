@@ -62,10 +62,10 @@ export default {
             return store.getters["application/getPlayerUuid"] === playerUuid;
         },
         setIsReady: function () {
-            this.$gameApiService.setIsReady(true);
+            this.$scribbleGameController.setIsReady(true);
         },
         setIsNotReady: function () {
-            this.$gameApiService.setIsReady(false);
+            this.$scribbleGameController.setIsReady(false);
         },
     },
 };

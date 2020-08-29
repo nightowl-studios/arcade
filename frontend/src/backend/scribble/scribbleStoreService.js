@@ -15,4 +15,8 @@ export default class ScribbleStoreService {
     setLoading(isLoading) {
         store.commit("scribble/setLoading", isLoading);
     }
+
+    setPlayerReadyState(readyState) {
+        store.commit("scribble/setPlayerReadyState", readyState);
+    }
 }

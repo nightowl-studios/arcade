@@ -19,9 +19,9 @@ class ApiSenderFacade {
         return this.hubApiService.checkLobbyExists(lobbyId);
     }
 
-    // setPlayerIsReadyState(isReady) {
-
-    // }
+    setIsReady(isReady) {
+        this.gameApiService.setIsReady(this.webSocketService.getConnection(), isReady)
+    }
 
     // selectWordToDraw(index) {
 
