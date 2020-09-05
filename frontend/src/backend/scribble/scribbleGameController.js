@@ -5,6 +5,7 @@ export default class ScribbleGameController {
     }
 
     initGame() {
+        console.log("requesting for current game info")
         this.apiServiceFacade.requestCurrentGameInfo();
     }
 

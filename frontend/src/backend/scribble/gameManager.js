@@ -23,16 +23,23 @@ export default class GameManager {
         const payload = data.payload;
 
         if (api === "hub") {
-            console.log("initializing game");
+            console.log("loading players...");
             this.setPlayers(payload);
 
             this.gameController.initGame();
         }
 
         if (api === "game") {
-            if (payload.gameMasterAPI === "waitForStart") {
-                const state = new WaitingInLobby();
-                this.storeService.setState(state);
+            if (payload.gameMasterAPI === "requestCurrentGameInfo") {
+                console.log("Initializing games state...");
+                const gameState = payload.requestCurrentGameInfo.gameState;
+                if (gameState === "waitForStart") {
+                    const state = new WaitingInLobby();
+                    this.storeService.setState(state);
+                } else if (gameState === "wordSelect") {
+                    const state = new WaitingForPlayerToChooseWord();
+                    this.storeService.setState(state);
+                }
             }
         }
     }
