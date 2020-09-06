@@ -24,6 +24,7 @@ export default {
             return state.players;
         },
         getPlayerWithUuid: (state) => {
+            console.log("getting player with uuid");
             return (uuid) => state.players.filter((p) => p.uuid === uuid)[0];
         },
     },

@@ -1,9 +1,8 @@
+import Player from "./entities/player";
 import {
     ChoosingWord,
-    WaitingForPlayerToChooseWord
-} from "@/modules/scribble/stores/states/gamestates";
-import Player from "./entities/player";
-import { WaitingInLobby } from "./states/gameStates";
+    WaitingForPlayerToChooseWord, WaitingInLobby
+} from "./states/gameStates";
 
 const NANOSECOND_TO_SECONDS_FACTOR = 1000000000;
 
@@ -59,12 +58,13 @@ export default class GameManager {
                 this.storeService.setRoundNumber(payload.wordSelect.round);
                 const playerUuid = this.playerUuid;
                 if (playerUuid === payload.wordSelect.chosenUUID) {
-                    const player = this.storeService.getPlayerWithUuid(playerUuid)
+                    const player = this.storeService.getPlayerWithUuid(playerUuid);
                     const state = new ChoosingWord(
                         player,
                         payload.wordSelect.choices,
                         this._convertNanoSecsToSecs(payload.wordSelect.duration)
                     );
+                    console.log("Setting game state to ChoosingWord")
                     this.storeService.setState(state);
                 } else {
                     const player = this.storeService.getPlayerWithUuid(playerUuid)
@@ -72,6 +72,7 @@ export default class GameManager {
                         player,
                         this._convertNanoSecsToSecs(payload.wordSelect.duration)
                     );
+                    console.log("Setting game state to WaitingForPlayerToChooseWord")
                     this.storeService.setState(state);
                 }
             }

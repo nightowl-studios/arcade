@@ -1,5 +1,7 @@
 import ApiReceiverService from "@/backend/apiservice/receive/apiReceiverService";
 import ApiSenderFacade from "@/backend/apiservice/send/apiSenderFacade";
+import ChatApiService from "@/backend/apiservice/send/chatApiService";
+import DrawApiService from "@/backend/apiservice/send/drawApiService";
 import GameApiService from "@/backend/apiservice/send/gameApiService";
 import HubApiService from "@/backend/apiservice/send/hubApiService";
 import WebSocketService from "@/backend/communication/webSocketService";
@@ -38,6 +40,10 @@ const hubApiService = new HubApiService(httpUrl);
 apiSenderFacade.setHubApiService(hubApiService);
 const gameApiService = new GameApiService();
 apiSenderFacade.setGameApiService(gameApiService);
+const chatApiService = new ChatApiService();
+apiSenderFacade.setChatApiService(chatApiService);
+const drawApiService = new DrawApiService();
+apiSenderFacade.setDrawApiService(drawApiService);
 Object.freeze(apiSenderFacade);
 
 const scribbleStoreService = new ScribbleStoreService();

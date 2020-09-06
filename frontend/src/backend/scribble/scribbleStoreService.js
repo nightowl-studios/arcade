@@ -25,6 +25,6 @@ export default class ScribbleStoreService {
     }
 
     getPlayerWithUuid(uuid) {
-        return store.getters["scrrible/getPlayerWithUuid", uuid]
+        return store.getters["scribble/getPlayerWithUuid"](uuid);
     }
 }

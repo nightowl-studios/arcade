@@ -13,4 +13,12 @@ export default class ScribbleGameController {
         this.apiServiceFacade.setIsReady(isReady)
     }
 
+    requestChatHistory() {
+        this.apiServiceFacade.requestChatHistory();
+    }
+
+    requestDrawHistory() {
+        this.apiServiceFacade.requestDrawHistory();
+    }
+
 }

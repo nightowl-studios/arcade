@@ -55,10 +55,7 @@ export default {
         },
 
         sendRequestHistory() {
-            const requestHistoryMsg = createDrawMessage({
-                requestHistory: true,
-            });
-            this.$webSocketService.send(requestHistoryMsg);
+            this.$scribbleGameController.requestDrawHistory();
         },
 
         handleDrawMessage(drawMessage) {

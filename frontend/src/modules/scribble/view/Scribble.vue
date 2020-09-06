@@ -40,7 +40,6 @@
 </template>
 
 <script>
-import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 import Header from "../containers/Header.vue";
 import LeftSidePanel from "../containers/LeftSidePanel.vue";
 import Results from "../components/Results.vue";
@@ -54,7 +53,6 @@ import Loading from "@/modules/common/view/Loading.vue";
 // import { Event } from "@/events";
 
 export default {
-    mixins: [WebSocketMixin],
     name: "Scribble",
     components: {
         Header,

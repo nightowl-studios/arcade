@@ -1,8 +1,13 @@
-import { createChatMessage } from "@/utility/WebSocketMessageUtils";
 // Service for making request to chat API.
 export default class GameApiService {
     sendChatMessage(webSocketConnection, message) {
-        const data = createChatMessage(message);
+        const data = {
+            api: "chat",
+            payload: {
+                message: message
+            }
+        }
+
         this.sendMessage(webSocketConnection, data)
     }
 

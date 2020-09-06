@@ -11,6 +11,14 @@ class ApiSenderFacade {
         this.gameApiService = gameApiService;
     }
 
+    setChatApiService(chatApiService) {
+        this.chatApiService = chatApiService;
+    }
+
+    setDrawApiService(drawApiService) {
+        this.drawApiService = drawApiService;
+    }
+
     createLobby() {
         return this.hubApiService.createLobby();
     }
@@ -36,9 +44,9 @@ class ApiSenderFacade {
 
     // }
 
-    // requestChatHistory() {
-
-    // }
+    requestChatHistory() {
+        this.chatApiService.requestChatHistory(this.webSocketService.getConnection());
+    }
 
     changeNickname(nickname) {
         this.hubApiService.changeNickname(this.webSocketService.getConnection(), nickname);
@@ -46,6 +54,10 @@ class ApiSenderFacade {
 
     getWebSocketService() {
         return this.webSocketService;
+    }
+
+    requestDrawHistory() {
+        this.drawApiService.requestDrawHistory(this.webSocketService.getConnection());
     }
 }
 

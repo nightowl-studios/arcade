@@ -66,13 +66,7 @@ export default {
             this.$nextTick(() => adjustScrollTop());
         });
 
-        if (this.$webSocketService.isConnected()) {
-            this.$chatApiService.requestChatHistory();
-        } else {
-            EventBus.$on(Event.WEBSOCKET_CONNECTED, () => {
-                this.$chatApiService.requestChatHistory();
-            });
-        }
+        this.$scribbleGameController.requestChatHistory();
 
         function adjustScrollTop() {
             const chatBox = this.$refs.chatbox;
