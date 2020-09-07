@@ -12,6 +12,10 @@ export default class ScribbleStoreService {
         store.commit("scribble/setPlayers", players);
     }
 
+    setPlayerScore(playerScore) {
+        store.commit("scribble/setPlayerScore", playerScore);
+    }
+
     setLoading(isLoading) {
         store.commit("scribble/setLoading", isLoading);
     }

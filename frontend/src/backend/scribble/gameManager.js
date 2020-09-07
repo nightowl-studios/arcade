@@ -4,7 +4,8 @@ import Player from "./entities/player";
 import {
     ChoosingWord,
     Drawing,
-    Guessing,
+
+    GameOver, Guessing,
     WaitingForPlayerToChooseWord, WaitingInLobby
 } from "./states/gameStates";
 
@@ -113,7 +114,27 @@ export default class GameManager {
                         this._convertNanoSecsToSecs(payload.playTimeSend.duration)
                     );
                     this.storeService.setState(state);
+                } else {
+                    const totalScores = payload.playTimeSend.totalScore;
+                    Object.keys(totalScores).forEach((key) => {
+                        const playerScore = {
+                            uuid: key,
+                            score: totalScores[key],
+                        };
+                        this.storeService.setPlayerScore(playerScore);
+                    });
+
+                    let correctClientUuid = payload.playTimeSend.correctClient.UUID;
+
+                    const player = this.storeService.getPlayerWithUuid(correctClientUuid);
+                    EventBus.$emit(Event.CORRECT_GUESS, player);
                 }
+            }
+            else if (payload.gameMasterAPI === "scoreTime") {
+                this.storeService.setRoundNumber(payload.scoreTime.round);
+            } else if (payload.gameMasterAPI === "showResults") {
+                const state = new GameOver();
+                this.storeService.setState(state);
             }
 
         }

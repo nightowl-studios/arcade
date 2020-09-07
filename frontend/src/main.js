@@ -61,33 +61,6 @@ Object.freeze(apiReceiverService);
 
 webSocketService.getConnection().addListener(apiReceiverService);
 
-
-
-/* DEPRECATED CODE */
-// Global Instance Properties
-// Vue.prototype.$hubAPI = "hub";
-
-// const webSocketURL = `ws://${document.location.hostname}:8081/ws`;
-// const httpURL = `http://${document.location.hostname}:8081`;
-
-// const cookieService = new CookieService();
-// const eventHandlerService = new EventHandlerService();
-// Vue.prototype.$webSocketService = new WebSocketService(
-//     webSocketURL,
-//     cookieService,
-//     eventHandlerService
-// );
-
-// // API Services
-// Vue.prototype.$hubApiService = new HubApiService(httpURL);
-// Vue.prototype.$gameApiService = new GameApiService(
-//     Vue.prototype.$webSocketService
-// );
-// Vue.prototype.$chatApiService = new ChatApiService(
-//     Vue.prototype.$webSocketService
-// );
-/* END OF DEPRECATED CODE */
-
 new Vue({
     store,
     router,
