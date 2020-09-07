@@ -1,6 +1,10 @@
+import { EventBus } from "@/eventBus";
+import { Event } from "@/events";
 import Player from "./entities/player";
 import {
     ChoosingWord,
+    Drawing,
+    Guessing,
     WaitingForPlayerToChooseWord, WaitingInLobby
 } from "./states/gameStates";
 
@@ -21,9 +25,17 @@ export default class GameManager {
         const api = data.api;
         const payload = data.payload;
 
+        if (api === "auth") {
+            // TODO
+            // const cookieService = new CookieService();
+            // cookieService.setArcadeCookie(payload.tokenMessage);
+            // store.commit("application/setPlayerUuid", payload.uuid);
+        }
+
         if (api === "hub") {
             console.log("loading players...");
-            this.setPlayers(payload);
+            const players = this.mapToPlayers(payload);
+            this.setPlayers(players);
 
             this.gameController.initGame();
         }
@@ -49,7 +61,16 @@ export default class GameManager {
         const payload = data.payload;
 
         if (api === "hub") {
-            this.setPlayers(payload);
+            const players = this.mapToPlayers(payload);
+            this.handlePlayersChanged(players);
+            this.setPlayers(players);
+        } else if (api === "chat") {
+            if (payload.history) {
+                EventBus.$emit(Event.CHAT_HISTORY, payload.history);
+            }
+            else if (payload.message) {
+                EventBus.$emit(Event.CHAT_MESSAGE, payload.message);
+            }
         } else if (api === "game") {
             if (payload.gameMasterAPI === "waitForStart") {
                 this.storeService.setPlayerReadyState(payload.waitForStart);
@@ -76,6 +97,25 @@ export default class GameManager {
                     this.storeService.setState(state);
                 }
             }
+            else if (payload.gameMasterAPI === "playTime") {
+                const currentState = this.storeService.getState();
+                if (currentState.state === ChoosingWord.STATE) {
+                    const selectedWord = this.storeService.getWordSelected();
+                    const state = new Drawing(
+                        selectedWord,
+                        this._convertNanoSecsToSecs(payload.playTimeSend.duration)
+                    );
+                    this.storeService.setState(state);
+                }
+                else if (currentState.state === WaitingForPlayerToChooseWord.STATE) {
+                    const state = new Guessing(
+                        payload.playTimeSend.hint,
+                        this._convertNanoSecsToSecs(payload.playTimeSend.duration)
+                    );
+                    this.storeService.setState(state);
+                }
+            }
+
         }
     }
 
@@ -83,7 +123,11 @@ export default class GameManager {
         return durationNS / NANOSECOND_TO_SECONDS_FACTOR;
     }
 
-    setPlayers(payload) {
+    setPlayers(players) {
+        this.storeService.setPlayers(players);
+    }
+
+    mapToPlayers(payload) {
         const players = payload.connectedClients.map(
             (client) =>
                 new Player(
@@ -93,7 +137,36 @@ export default class GameManager {
                 )
         );
 
-        this.storeService.setPlayers(players);
+        return players;
+    }
+
+    handlePlayersChanged(players) {
+        const currentPlayers = this.storeService.getPlayers();
+        if (currentPlayers.length !== 0) {
+            const playersJoined = this.getPlayerListDifference(
+                players,
+                currentPlayers
+            );
+            playersJoined.forEach((player) => {
+                console.log("Player joined");
+                EventBus.$emit(Event.PLAYER_JOIN, player);
+            });
+
+            const playersLeft = this.getPlayerListDifference(
+                currentPlayers,
+                players
+            );
+            playersLeft.forEach((player) => {
+                console.log("Player left");
+                EventBus.$emit(Event.PLAYER_LEFT, player);
+            });
+        }
+    }
+
+    getPlayerListDifference(playerList1, playerList2) {
+        return playerList1.filter(
+            (p) => !playerList2.map((q) => q.uuid).includes(p.uuid)
+        );
     }
 }
 

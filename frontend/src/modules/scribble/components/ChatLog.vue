@@ -34,46 +34,45 @@ export default {
         playPlayerJoinSound() {
             // TODO
         },
-    },
-    created() {
-        EventBus.$on(Event.CHAT_HISTORY, (data) => {
-            for (const messages of data) {
-                this.chatLog.push([messages.sender.nickname, messages.message]);
-                this.$nextTick(() => adjustScrollTop());
-            }
-        });
-
-        EventBus.$on(Event.CHAT_MESSAGE, (data) => {
-            this.chatLog.push([data.sender.nickname, data.message]);
-            this.$nextTick(() => adjustScrollTop());
-        });
-
-        EventBus.$on(Event.CORRECT_GUESS, (data) => {
-            this.chatLog.push([data.nickname, "guessed correctly"]);
-            this.playCorrectSound();
-            this.$nextTick(() => adjustScrollTop());
-        });
-
-        EventBus.$on(Event.PLAYER_LEFT, (data) => {
-            this.chatLog.push([data.nickname, "has left the game"]);
-            this.playPlayerLeftSound();
-            this.$nextTick(() => adjustScrollTop());
-        });
-
-        EventBus.$on(Event.PLAYER_JOIN, (data) => {
-            this.chatLog.push([data.nickname, "has joined the game"]);
-            this.playPlayerJoinSound();
-            this.$nextTick(() => adjustScrollTop());
-        });
-
-        this.$scribbleGameController.requestChatHistory();
-
-        function adjustScrollTop() {
+        adjustScrollTop() {
             const chatBox = this.$refs.chatbox;
             if (chatBox) {
                 chatBox.scrollTop = chatBox.scrollHeight;
             }
         }
+    },
+    created() {
+        EventBus.$on(Event.CHAT_HISTORY, (data) => {
+            for (const messages of data) {
+                this.chatLog.push([messages.sender.nickname, messages.message]);
+                this.$nextTick(() => this.adjustScrollTop());
+            }
+        });
+
+        EventBus.$on(Event.CHAT_MESSAGE, (data) => {
+            this.chatLog.push([data.sender.nickname, data.message]);
+            this.$nextTick(() => this.adjustScrollTop());
+        });
+
+        EventBus.$on(Event.CORRECT_GUESS, (data) => {
+            this.chatLog.push([data.nickname, "guessed correctly"]);
+            this.playCorrectSound();
+            this.$nextTick(() => this.adjustScrollTop());
+        });
+
+        EventBus.$on(Event.PLAYER_LEFT, (data) => {
+            this.chatLog.push([data.nickname, "has left the game"]);
+            this.playPlayerLeftSound();
+            this.$nextTick(() => this.adjustScrollTop());
+        });
+
+        EventBus.$on(Event.PLAYER_JOIN, (data) => {
+            this.chatLog.push([data.nickname, "has joined the game"]);
+            this.playPlayerJoinSound();
+            this.$nextTick(() => this.adjustScrollTop());
+        });
+
+        this.$scribbleGameController.requestChatHistory();
     },
 };
 </script>

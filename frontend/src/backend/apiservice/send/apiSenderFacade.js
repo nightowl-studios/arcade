@@ -40,9 +40,9 @@ class ApiSenderFacade {
         this.gameApiService.requestCurrentGameInfo(this.webSocketService.getConnection());
     }
 
-    // sendChatMessage(message) {
-
-    // }
+    sendChatMessage(msg) {
+        this.chatApiService.sendChatMessage(this.webSocketService.getConnection(), msg)
+    }
 
     requestChatHistory() {
         this.chatApiService.requestChatHistory(this.webSocketService.getConnection());
@@ -58,6 +58,14 @@ class ApiSenderFacade {
 
     requestDrawHistory() {
         this.drawApiService.requestDrawHistory(this.webSocketService.getConnection());
+    }
+
+    selectWord(index) {
+        this.gameApiService.selectWord(this.webSocketService.getConnection(), index);
+    }
+
+    draw(drawAction) {
+        this.drawApiService.draw(this.webSocketService.getConnection(), drawAction);
     }
 }
 

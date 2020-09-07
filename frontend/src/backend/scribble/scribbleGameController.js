@@ -21,4 +21,17 @@ export default class ScribbleGameController {
         this.apiServiceFacade.requestDrawHistory();
     }
 
+    selectWord(index, word) {
+        this.storeService.setWordSelected(word);
+        this.apiServiceFacade.selectWord(index);
+    }
+
+    sendChatMessage(msg) {
+        this.apiServiceFacade.sendChatMessage(msg);
+    }
+
+    draw(drawAction) {
+        this.apiServiceFacade.draw(drawAction);
+    }
+
 }

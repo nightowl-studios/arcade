@@ -18,7 +18,6 @@ import Canvas from "./Canvas.vue";
 import BrushSelector from "./BrushSelector.vue";
 import { createBrushStyle } from "../utility/BrushStyleUtils";
 import { EventBus } from "@/eventBus.js";
-import { createDrawMessage } from "@/utility/WebSocketMessageUtils";
 
 export default {
     name: "CanvasPanel",
@@ -47,11 +46,7 @@ export default {
 
     methods: {
         sendDrawAction(drawAction) {
-            const drawMsg = createDrawMessage({
-                action: drawAction,
-                requestHistory: false,
-            });
-            this.$webSocketService.send(drawMsg);
+            this.$scribbleGameController.draw(drawAction);
         },
 
         sendRequestHistory() {

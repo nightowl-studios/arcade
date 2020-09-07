@@ -29,6 +29,20 @@ export default class WebSocketConnection {
                 `Successfully connected to the websocket. url: ${this.url}`
             );
 
+            // TODO add this legacy code somehow
+            // const arcadeSession = this.cookieService.getArcadeCookie();
+            // if (arcadeSession != null && arcadeSession.ContainsToken != false) {
+            //     this.send(arcadeSession);
+            // } else {
+            //     const noToken = {
+            //         api: "auth",
+            //         payload: {
+            //             ContainsToken: false,
+            //         },
+            //     };
+            //     this.send(noToken);
+            // }
+
             let eventType = WebSocketEvent.WEBSOCKET_CONNECTED;
             let data = this.lobbyId;
             this.listeners.forEach(listener => listener.update(eventType, data))

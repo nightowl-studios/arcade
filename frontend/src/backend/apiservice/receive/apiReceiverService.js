@@ -33,6 +33,11 @@ export default class ApiReceiverService {
             if (currentState == null) {
                 this.initApplication(gameManager, data);
             } else {
+                // TODO Refactor this to use vuex instead of an event?
+                if (data.api === "draw") {
+                    EventBus.$emit(data.api, data.payload);
+                }
+
                 gameManager.handleEvent(data);
             }
         }

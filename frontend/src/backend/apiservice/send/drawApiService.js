@@ -10,6 +10,18 @@ export default class DrawApiService {
         this.sendMessage(webSocketConnection, request);
     }
 
+    draw(webSocketConnection, drawAction) {
+        const request = {
+            api: "draw",
+            payload: {
+                action: drawAction,
+                requestHistory: false,
+            }
+        }
+
+        this.sendMessage(webSocketConnection, request);
+    }
+
     sendMessage(webSocketConnection, data) {
         webSocketConnection.send(data);
     }
