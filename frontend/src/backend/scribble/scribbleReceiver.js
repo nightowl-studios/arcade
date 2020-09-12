@@ -16,6 +16,9 @@ export default class ScribbleReceiver {
                 if (api === "hub") {
                     this.gameManager.handle(ScribbleEvent.PLAYER_UPDATE, data);
                 }
+                else {
+                    this.gameManager.handle(ScribbleEvent.GAME_EVENT, data);
+                }
             }
         }
     }
