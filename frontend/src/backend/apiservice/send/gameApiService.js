@@ -1,6 +1,10 @@
 // Service for making request to game API.
 export default class GameApiService {
-    setIsReady(webSocketConnection, isReady) {
+    constructor(webSocketService) {
+        this.webSocketService = webSocketService;
+    }
+
+    setIsReady(isReady) {
         const message = {
             api: "game",
             payload: {
@@ -11,10 +15,10 @@ export default class GameApiService {
             },
         };
 
-        this.sendMessage(webSocketConnection, message);
+        this.sendMessage(message);
     }
 
-    selectWord(webSocketConnection, index) {
+    selectWord(index) {
         const message = {
             api: "game",
             payload: {
@@ -25,20 +29,20 @@ export default class GameApiService {
                 },
             },
         };
-        this.sendMessage(webSocketConnection, message);
+        this.sendMessage(message);
     }
 
-    requestCurrentGameInfo(webSocketConnection) {
+    requestCurrentGameInfo() {
         const message = {
             api: "game",
             payload: {
                 gameMasterAPI: "requestCurrentGameInfo",
             },
         };
-        this.sendMessage(webSocketConnection, message);
+        this.sendMessage(message);
     }
 
-    sendMessage(webSocketConnection, message) {
-        webSocketConnection.send(message);
+    sendMessage(message) {
+        this.webSocketService.send(message);
     }
 }

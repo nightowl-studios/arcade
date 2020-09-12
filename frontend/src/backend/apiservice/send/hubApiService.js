@@ -2,8 +2,9 @@ import axios from "axios";
 
 // Service for making REST API requests to HubAPI
 export default class HubApiService {
-    constructor(httpUrl) {
+    constructor(httpUrl, webSocketService) {
         this.apiUrl = `${httpUrl}/hub`;
+        this.webSocketService = webSocketService;
     }
 
     async createLobby() {
@@ -18,18 +19,17 @@ export default class HubApiService {
         return response.data.exists;
     }
 
-    changeNickname(webSocketConnection, nickname) {
+    changeNickname(nickname) {
         const message = {
             api: "hub",
             payload: {
                 changeNameTo: nickname
             }
         };
-
-        this.sendMessage(webSocketConnection, message);
+        this.sendMessage(message);
     }
 
-    sendMessage(webSocketConnection, message) {
-        webSocketConnection.send(message);
+    sendMessage(message) {
+        this.webSocketService.send(message);
     }
 }

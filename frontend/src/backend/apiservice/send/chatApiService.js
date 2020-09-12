@@ -1,6 +1,10 @@
 // Service for making request to chat API.
 export default class GameApiService {
-    sendChatMessage(webSocketConnection, message) {
+    constructor(webSocketService) {
+        this.webSocketSerivce = webSocketService;
+    }
+
+    sendChatMessage(message) {
         const data = {
             api: "chat",
             payload: {
@@ -8,20 +12,20 @@ export default class GameApiService {
             }
         }
 
-        this.sendMessage(webSocketConnection, data)
+        this.sendMessage(data)
     }
 
-    requestChatHistory(webSocketConnection) {
+    requestChatHistory() {
         const request = {
             api: "chat",
             payload: {
                 requestHistory: true,
             },
         };
-        this.sendMessage(webSocketConnection, request);
+        this.sendMessage(request);
     }
 
-    sendMessage(webSocketConnection, data) {
-        webSocketConnection.send(data);
+    sendMessage(data) {
+        this.webSocketSerivce.send(data);
     }
 }

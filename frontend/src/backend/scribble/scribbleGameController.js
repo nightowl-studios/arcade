@@ -34,4 +34,12 @@ export default class ScribbleGameController {
         this.apiServiceFacade.draw(drawAction);
     }
 
+    changeNickname(nickname) {
+        this.apiServiceFacade.changeNickname(nickname);
+    }
+
+    authenticate() {
+        this.apiServiceFacade.authenticate();
+    }
+
 }

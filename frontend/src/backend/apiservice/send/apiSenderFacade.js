@@ -19,6 +19,10 @@ class ApiSenderFacade {
         this.drawApiService = drawApiService;
     }
 
+    setAuthApiService(authApiService) {
+        this.authApiService = authApiService;
+    }
+
     createLobby() {
         return this.hubApiService.createLobby();
     }
@@ -28,7 +32,7 @@ class ApiSenderFacade {
     }
 
     setIsReady(isReady) {
-        this.gameApiService.setIsReady(this.webSocketService.getConnection(), isReady)
+        this.gameApiService.setIsReady(isReady)
     }
 
     // selectWordToDraw(index) {
@@ -36,20 +40,19 @@ class ApiSenderFacade {
     // }
 
     requestCurrentGameInfo() {
-        console.log("requesting current game info");
-        this.gameApiService.requestCurrentGameInfo(this.webSocketService.getConnection());
+        this.gameApiService.requestCurrentGameInfo();
     }
 
     sendChatMessage(msg) {
-        this.chatApiService.sendChatMessage(this.webSocketService.getConnection(), msg)
+        this.chatApiService.sendChatMessage(msg)
     }
 
     requestChatHistory() {
-        this.chatApiService.requestChatHistory(this.webSocketService.getConnection());
+        this.chatApiService.requestChatHistory();
     }
 
     changeNickname(nickname) {
-        this.hubApiService.changeNickname(this.webSocketService.getConnection(), nickname);
+        this.hubApiService.changeNickname(nickname);
     }
 
     getWebSocketService() {
@@ -57,15 +60,19 @@ class ApiSenderFacade {
     }
 
     requestDrawHistory() {
-        this.drawApiService.requestDrawHistory(this.webSocketService.getConnection());
+        this.drawApiService.requestDrawHistory();
     }
 
     selectWord(index) {
-        this.gameApiService.selectWord(this.webSocketService.getConnection(), index);
+        this.gameApiService.selectWord(index);
     }
 
     draw(drawAction) {
-        this.drawApiService.draw(this.webSocketService.getConnection(), drawAction);
+        this.drawApiService.draw(drawAction);
+    }
+
+    authenticate() {
+        this.authApiService.authenticate();
     }
 }
 

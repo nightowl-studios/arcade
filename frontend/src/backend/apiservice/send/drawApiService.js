@@ -1,5 +1,9 @@
 export default class DrawApiService {
-    requestDrawHistory(webSocketConnection) {
+    constructor(webSocketService) {
+        this.webSocketService = webSocketService;
+    }
+
+    requestDrawHistory() {
         const request = {
             api: "draw",
             payload: {
@@ -7,10 +11,10 @@ export default class DrawApiService {
             }
         }
 
-        this.sendMessage(webSocketConnection, request);
+        this.sendMessage(request);
     }
 
-    draw(webSocketConnection, drawAction) {
+    draw(drawAction) {
         const request = {
             api: "draw",
             payload: {
@@ -19,10 +23,10 @@ export default class DrawApiService {
             }
         }
 
-        this.sendMessage(webSocketConnection, request);
+        this.sendMessage(request);
     }
 
-    sendMessage(webSocketConnection, data) {
-        webSocketConnection.send(data);
+    sendMessage(data) {
+        this.webSocketService.send(data);
     }
 }

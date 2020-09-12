@@ -8,14 +8,6 @@ export default class ApplicationStoreService {
         return store.getters["application/getLobbyId"];
     }
 
-    setPlayerUuid(uuid) {
-        store.commit("application/setPlayerUuid", uuid);
-    }
-
-    getPlayerUuid() {
-        return store.getters["application/getPlayerUuid"];
-    }
-
     setNickname(nickname) {
         store.commit("application/setNickname", nickname);
     }

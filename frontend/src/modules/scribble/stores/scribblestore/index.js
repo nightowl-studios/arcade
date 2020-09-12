@@ -6,6 +6,7 @@ export default {
         wordSelected: "",
         roundNumber: 0,
         players: [],
+        player: null,
     },
     getters: {
         getGameState: (state) => {
@@ -27,6 +28,12 @@ export default {
             console.log("getting player with uuid");
             return (uuid) => state.players.filter((p) => p.uuid === uuid)[0];
         },
+        getPlayerUuid: (state) => {
+            return state.player.uuid;
+        },
+        getPlayerNickname: (state) => {
+            return state.player.nickname;
+        },
     },
     mutations: {
         setGameState: (state, payload) => {
@@ -43,6 +50,15 @@ export default {
         },
         setPlayers: (state, payload) => {
             state.players = payload;
+        },
+        setPlayer: (state, payload) => {
+            state.player = payload;
+        },
+        setPlayerUuid: (state, payload) => {
+            state.player.uuid = payload;
+        },
+        setPlayerNickname: (state, payload) => {
+            state.player.nickname = payload;
         },
         setPlayerReadyState: (state, payload) => {
             const playerUuid = payload.clientUUID;

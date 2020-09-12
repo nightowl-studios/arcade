@@ -1,17 +1,21 @@
-import WebSocketConnection from "./webSocketConnection";
 
 export default class WebSocketService {
-    constructor(webSocketUrl) {
+    constructor(webSocketUrl, webSocketConnection) {
         this.webSocketUrl = webSocketUrl;
-        this.webSocketConnection = new WebSocketConnection();
+        this.webSocketConnection = webSocketConnection;
     }
 
     createConnection(lobbyId) {
         if (!this.webSocketConnection.isConnected()) {
-            this.webSocketConnection.connect(this.webSocketUrl, lobbyId);
+            const url = `${this.webSocketUrl}/${lobbyId}`;
+            this.webSocketConnection.connect(url);
         } else {
             console.error("There is an existing connection already");
         }
+    }
+
+    send(data) {
+        this.webSocketConnection.send(data);
     }
 
     disconnect() {

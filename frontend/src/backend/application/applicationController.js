@@ -33,11 +33,6 @@ export default class ApplicationController {
     }
 
     changeNickname(nickname) {
-        if (this.webSocketService.getConnection() != null &&
-            this.webSocketService.getConnection().isConnected()) {
-            this.apiServiceFacade.changeNickname(nickname);
-        }
-
         this.storeService.setNickname(nickname);
     }
 }

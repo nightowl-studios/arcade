@@ -1,4 +1,5 @@
 import { store } from "@/store";
+
 export default class ScribbleStoreService {
     getState() {
         return store.getters["scribble/getGameState"];
@@ -42,5 +43,25 @@ export default class ScribbleStoreService {
 
     getWordSelected() {
         return store.getters["scribble/getWordSelected"];
+    }
+
+    setPlayer(player) {
+        store.commit("scribble/setPlayer", player);
+    }
+
+    setPlayerUuid(uuid) {
+        store.commit("scribble/setPlayerUuid", uuid);
+    }
+
+    getPlayerUuid() {
+        return store.getters["scribble/getPlayerUuid"];
+    }
+
+    setNickname(nickname) {
+        store.commit("scribble/setPlayerNickname", nickname);
+    }
+
+    getNickname() {
+        return store.getters["scribble/getNickname"];
     }
 }
