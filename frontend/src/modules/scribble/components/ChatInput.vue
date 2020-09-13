@@ -28,7 +28,7 @@ export default {
         onSendMessage: function () {
             console.log(`Sending message ${this.message}`);
             if (this.message !== "") {
-                this.$chatApiService.sendChatMessage(this.message);
+                this.$scribbleGameController.sendChatMessage(this.message);
                 this.message = "";
             }
         },

@@ -13,7 +13,7 @@ export default {
         PlayerList,
     },
     computed: {
-        ...mapState("application", {
+        ...mapState("scribble", {
             players: (state) => state.players,
         }),
     },
