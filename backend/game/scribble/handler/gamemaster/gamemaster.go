@@ -273,7 +273,8 @@ func (h *Handler) HandleInteraction(
 		}
 	case WordSelect:
 		if api == h.Name() {
-			if caller.ClientUUID != h.clientList.clients[h.clientList.currentlySelected].ClientUUIDStruct {
+			if caller.ClientUUID !=
+				h.clientList.clients[h.clientList.currentlySelected].ClientUUIDStruct {
 				log.Errorf("client: %v tried to send to gamemaster out of turn", caller)
 				return
 			}
@@ -364,6 +365,7 @@ type RequestCurrentGameInfoSend struct {
 	HintString     string        `json:"hintString"`
 	MaxRounds      int           `json:"maxRounds"`
 	TimerRemaining time.Duration `json:"timerRemaining"`
+	selectedClient client        `json:"selectedClient"`
 }
 
 func (h *Handler) RequestCurrentGameInfo(
@@ -397,6 +399,7 @@ func (h *Handler) RequestCurrentGameInfo(
 			HintString:     h.hintString,
 			MaxRounds:      h.maxRounds,
 			TimerRemaining: remainingTime,
+			selectedClient: h.clientList.clients[h.clientList.currentlySelected],
 		},
 	}
 	selectedPlayerBytes, err := game.MessageBuild(h.Name(), send)
