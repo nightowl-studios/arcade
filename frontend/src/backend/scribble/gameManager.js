@@ -299,7 +299,7 @@ export default class GameManager {
     // }
 
     _convertNanoSecsToSecs(durationNS) {
-        return durationNS / NANOSECOND_TO_SECONDS_FACTOR;
+        return Math.round(durationNS / NANOSECOND_TO_SECONDS_FACTOR);
     }
 }
 
