@@ -1,6 +1,7 @@
 <template>
     <div class="scribble">
-        <Lobby v-if="gameState.showLobby" />
+        <Loading v-if="loading" />
+        <Lobby v-else-if="gameState.showLobby" />
         <div v-else>
             <b-container fluid class="scribble__container">
                 <b-row class="scribble__container__header" align-v="center">
@@ -39,7 +40,6 @@
 </template>
 
 <script>
-import WebSocketMixin from "@/modules/common/mixins/webSocketMixin.js";
 import Header from "../containers/Header.vue";
 import LeftSidePanel from "../containers/LeftSidePanel.vue";
 import Results from "../components/Results.vue";
@@ -48,10 +48,11 @@ import Modal from "../containers/Modal.vue";
 import RightSidePanel from "../containers/RightSidePanel.vue";
 import Lobby from "@/modules/lobby/view/Lobby.vue";
 import { mapState } from "vuex";
-import { WaitingInLobby } from "@/modules/scribble/stores/states/gamestates";
+import Loading from "@/modules/common/view/Loading.vue";
+// import { EventBus } from "@/eventBus";
+// import { Event } from "@/events";
 
 export default {
-    mixins: [WebSocketMixin],
     name: "Scribble",
     components: {
         Header,
@@ -61,9 +62,11 @@ export default {
         RightSidePanel,
         Modal,
         Results,
+        Loading,
     },
     computed: {
         ...mapState("scribble", {
+            loading: (state) => state.loading,
             gameState: (state) => state.gameState,
             showResults: (state) => state.gameState.showResults,
         }),
@@ -74,13 +77,12 @@ export default {
             this.$router.push({ name: "home" });
         },
     },
-    created() {
-        this.$store.commit("application/setLobbyId", this.lobbyId);
-
-        const startState = new WaitingInLobby();
-        this.$store.commit("scribble/setGameState", startState);
-        // request info from backend (except it does not seem to work right now)
-        this.$gameApiService.requestCurrentGameInfo();
+    async created() {
+        const lobbyId = this.$router.currentRoute.params.lobbyId;
+        const goodToGo = await this.$applicationController.initApplication(lobbyId);
+        if (!goodToGo) {
+            console.log("Room is invalid");
+        }
     },
 };
 </script>

@@ -47,7 +47,6 @@
 
 <script>
 import ChangeNicknameModal from "../components/ChangeNicknameModal.vue";
-import { store } from "@/store";
 
 export default {
     name: "PlayerList",
@@ -59,13 +58,13 @@ export default {
     },
     methods: {
         isCurrentPlayer: function (playerUuid) {
-            return store.getters["application/getPlayerUuid"] === playerUuid;
+            return this.$scribbleStoreService.getPlayerUuid() === playerUuid;
         },
         setIsReady: function () {
-            this.$gameApiService.setIsReady(true);
+            this.$scribbleGameController.setIsReady(true);
         },
         setIsNotReady: function () {
-            this.$gameApiService.setIsReady(false);
+            this.$scribbleGameController.setIsReady(false);
         },
     },
 };

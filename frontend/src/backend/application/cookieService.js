@@ -5,7 +5,7 @@ Vue.use(VueCookies);
 
 // Service for handling browser cookies.
 export default class CookieService {
-    constructor() {}
+    constructor() { }
 
     getArcadeCookie() {
         return Vue.$cookies.get("arcade_session");

@@ -13,9 +13,7 @@
 import Title from "../components/Title.vue";
 import CreateButton from "../components/CreateButton.vue";
 import JoinRoom from "../components/JoinRoom.vue";
-import { EventBus } from "@/eventBus.js";
 import NicknameInput from "@/modules/common/components/NicknameInput.vue";
-import { Event } from "@/events";
 
 export default {
     name: "Home",
@@ -40,16 +38,10 @@ export default {
             if (!this.$refs["nicknameInput"].validateNickname()) {
                 return;
             }
-            this.$webSocketService.connect(lobbyId);
-        },
-    },
-    created() {
-        EventBus.$on(Event.WEBSOCKET_CONNECTED, (lobbyId) => {
             this.$router.push({ name: "lobby", params: { lobbyId: lobbyId } });
+            this.$applicationController.setLobbyId(lobbyId);
             this.$refs["nicknameInput"].changeNickname();
-        });
-
-        this.$webSocketService.disconnect();
+        },
     },
 };
 </script>
