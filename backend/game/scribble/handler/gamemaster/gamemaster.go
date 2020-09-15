@@ -365,7 +365,7 @@ type RequestCurrentGameInfoSend struct {
 	HintString     string        `json:"hintString"`
 	MaxRounds      int           `json:"maxRounds"`
 	TimerRemaining time.Duration `json:"timerRemaining"`
-	selectedClient client        `json:"selectedClient"`
+	SelectedClient client        `json:"selectedClient"`
 }
 
 func (h *Handler) RequestCurrentGameInfo(
@@ -399,7 +399,7 @@ func (h *Handler) RequestCurrentGameInfo(
 			HintString:     h.hintString,
 			MaxRounds:      h.maxRounds,
 			TimerRemaining: remainingTime,
-			selectedClient: h.clientList.clients[h.clientList.currentlySelected],
+			SelectedClient: h.clientList.clients[h.clientList.currentlySelected],
 		},
 	}
 	selectedPlayerBytes, err := game.MessageBuild(h.Name(), send)
