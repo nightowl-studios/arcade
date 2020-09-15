@@ -2,7 +2,7 @@ import { EventBus } from "@/eventBus";
 import { Event } from "@/events";
 import Player from "./entities/player";
 import { ScribbleEvent } from "./scribbleEvent";
-import { ChoosingWord, WaitingForPlayerToChooseWord, WaitingInLobby } from "./states/gameStates";
+import { ChoosingWord, Drawing, Guessing, WaitingForPlayerToChooseWord, WaitingInLobby } from "./states/gameStates";
 
 const NANOSECOND_TO_SECONDS_FACTOR = 1000000000;
 
@@ -124,6 +124,24 @@ export default class GameManager {
                     this._convertNanoSecsToSecs(payload.wordSelect.duration)
                 );
                 console.log("Setting game state to WaitingForPlayerToChooseWord")
+                this.storeService.setState(state);
+            }
+        } else if (payload.gameMasterAPI === "playTime") {
+            const currentState = this.storeService.getState();
+            if (currentState.state === ChoosingWord.STATE) {
+                const selectedWord = this.storeService.getWordSelected();
+                const state = new Drawing(
+                    selectedWord,
+                    this._convertNanoSecsToSecs(payload.playTimeSend.duration)
+                );
+                console.log("Setting game state to Drawing")
+                this.storeService.setState(state);
+            } else if (currentState.state === WaitingForPlayerToChooseWord.STATE) {
+                const state = new Guessing(
+                    payload.playTimeSend.hint,
+                    this._convertNanoSecsToSecs(payload.playTimeSend.duration)
+                );
+                console.log("Setting game state to Guessing")
                 this.storeService.setState(state);
             }
         }
