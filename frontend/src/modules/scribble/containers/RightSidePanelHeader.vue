@@ -1,7 +1,7 @@
 <template>
     <div class="right-side-panel-header">
         <div class="right-side-panel-header__timer">
-            <BaseTimerCircle size="sm" :timeLimit="gameState.duration" />
+            <BaseTimerCircle size="sm"/>
         </div>
         <div class="right-side-panel-header__lobby-id">
             <LobbyId />
@@ -16,18 +16,12 @@
 import LobbyId from "../components/LobbyId.vue";
 import BaseTimerCircle from "@/modules/common/components/BaseTimerCircle.vue";
 import RoundNumber from "../components/RoundNumber.vue";
-import { mapState } from "vuex";
 
 export default {
     components: {
         BaseTimerCircle,
         LobbyId,
         RoundNumber,
-    },
-    computed: {
-        ...mapState("scribble", {
-            gameState: (state) => state.gameState,
-        }),
     },
 };
 </script>
