@@ -76,8 +76,6 @@ export default class GameManager {
                     const remainingTime = payload.requestCurrentGameInfo.timerRemaining;
                     this._setStateToWaitingForPlayerToChooseWord(playerDrawingUuid, remainingTime);
                 } else if (gameState === "playTime") {
-                    console.log("playtime");
-                    console.log(payload);
                     this._setStateToGuessing(payload.requestCurrentGameInfo.hintString, payload.requestCurrentGameInfo.timerRemaining);
                 }
 
