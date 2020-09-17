@@ -2,7 +2,7 @@ import { EventBus } from "@/eventBus";
 import { Event } from "@/events";
 import Player from "./entities/player";
 import { ScribbleEvent } from "./scribbleEvent";
-import { ChoosingWord, WaitingForPlayerToChooseWord, WaitingInLobby } from "./states/gameStates";
+import { ChoosingWord, Drawing, Guessing, WaitingForPlayerToChooseWord, WaitingInLobby } from "./states/gameStates";
 
 const NANOSECOND_TO_SECONDS_FACTOR = 1000000000;
 
@@ -43,7 +43,6 @@ export default class GameManager {
     onNewPlayerJoin() {
         this.gameController.authenticate();
         const nickname = this.applicationStoreService.getNickname() == null ? "RANDOM" : this.applicationStoreService.getNickname()
-        console.log(nickname);
         this.gameController.changeNickname(nickname);
         this.gameController.initGame();
     }
@@ -73,8 +72,14 @@ export default class GameManager {
                     console.log("Game state set to: " + WaitingInLobby.STATE);
                     this.storeService.setState(state);
                 } else if (gameState === "wordSelect") {
+                    const playerDrawingUuid = payload.requestCurrentGameInfo.selectedClient.UUID;
+                    const playerDrawing = this.storeService.getPlayerWithUuid(playerDrawingUuid)
                     console.log("Game state set to: " + WaitingForPlayerToChooseWord.STATE);
-                    const state = new WaitingForPlayerToChooseWord();
+                    const remainingTime = payload.requestCurrentGameInfo.timerRemaining;
+                    const state = new WaitingForPlayerToChooseWord(
+                        playerDrawing,
+                        this._convertNanoSecsToSecs(remainingTime)
+                    );
                     this.storeService.setState(state);
                 }
 
@@ -102,7 +107,7 @@ export default class GameManager {
         }
         else if (payload.gameMasterAPI === "wordSelect") {
             this.storeService.setRoundNumber(payload.wordSelect.round);
-            const playerUuid = this.playerUuid;
+            const playerUuid = this.storeService.getPlayerUuid();
             if (playerUuid === payload.wordSelect.chosenUUID) {
                 const player = this.storeService.getPlayerWithUuid(playerUuid);
                 const state = new ChoosingWord(
@@ -119,6 +124,24 @@ export default class GameManager {
                     this._convertNanoSecsToSecs(payload.wordSelect.duration)
                 );
                 console.log("Setting game state to WaitingForPlayerToChooseWord")
+                this.storeService.setState(state);
+            }
+        } else if (payload.gameMasterAPI === "playTime") {
+            const currentState = this.storeService.getState();
+            if (currentState.state === ChoosingWord.STATE) {
+                const selectedWord = this.storeService.getWordSelected();
+                const state = new Drawing(
+                    selectedWord,
+                    this._convertNanoSecsToSecs(payload.playTimeSend.duration)
+                );
+                console.log("Setting game state to Drawing")
+                this.storeService.setState(state);
+            } else if (currentState.state === WaitingForPlayerToChooseWord.STATE) {
+                const state = new Guessing(
+                    payload.playTimeSend.hint,
+                    this._convertNanoSecsToSecs(payload.playTimeSend.duration)
+                );
+                console.log("Setting game state to Guessing")
                 this.storeService.setState(state);
             }
         }
@@ -294,7 +317,7 @@ export default class GameManager {
     // }
 
     _convertNanoSecsToSecs(durationNS) {
-        return durationNS / NANOSECOND_TO_SECONDS_FACTOR;
+        return Math.round(durationNS / NANOSECOND_TO_SECONDS_FACTOR);
     }
 }
 
