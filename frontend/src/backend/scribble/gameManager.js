@@ -117,6 +117,7 @@ export default class GameManager {
                 );
                 console.log("Setting game state to ChoosingWord")
                 this.storeService.setState(state);
+                EventBus.$emit(Event.TIMER_RESET, state.duration);
             } else {
                 const player = this.storeService.getPlayerWithUuid(playerUuid)
                 const state = new WaitingForPlayerToChooseWord(
@@ -125,6 +126,7 @@ export default class GameManager {
                 );
                 console.log("Setting game state to WaitingForPlayerToChooseWord")
                 this.storeService.setState(state);
+                EventBus.$emit(Event.TIMER_RESET, state.duration);
             }
         } else if (payload.gameMasterAPI === "playTime") {
             const currentState = this.storeService.getState();
@@ -136,6 +138,7 @@ export default class GameManager {
                 );
                 console.log("Setting game state to Drawing")
                 this.storeService.setState(state);
+                EventBus.$emit(Event.TIMER_RESET, state.duration);
             } else if (currentState.state === WaitingForPlayerToChooseWord.STATE) {
                 const state = new Guessing(
                     payload.playTimeSend.hint,
@@ -143,6 +146,7 @@ export default class GameManager {
                 );
                 console.log("Setting game state to Guessing")
                 this.storeService.setState(state);
+                EventBus.$emit(Event.TIMER_RESET, state.duration);
             }
         }
         // else if (payload.gameMasterAPI === "playTime") {

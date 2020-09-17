@@ -64,4 +64,9 @@ export default class ScribbleStoreService {
     getNickname() {
         return store.getters["scribble/getNickname"];
     }
+
+    getTimerDuration() {
+        const state = this.getState();
+        return state.duration;
+    }
 }

@@ -27,6 +27,9 @@
 </template>
 
 <script>
+import { EventBus } from "@/eventBus";
+import { Event } from "@/events";
+
 const FULL_DASH_ARRAY = 283;
 const WARNING_THRESHOLD = 10;
 const ALERT_THRESHOLD = 5;
@@ -49,7 +52,6 @@ export default {
     name: "BaseTimerCircle",
 
     props: {
-        timeLimit: Number,
         size: String,
     },
 
@@ -57,6 +59,7 @@ export default {
         return {
             timePassed: 0,
             timerInterval: null,
+            timeLimit: 0,
         };
     },
 
@@ -79,10 +82,6 @@ export default {
             return `${(this.timeFraction * FULL_DASH_ARRAY).toFixed(0)} 283`;
         },
 
-        timeLeft() {
-            return this.timeLimit - this.timePassed;
-        },
-
         timeFraction() {
             const rawTimeFraction = this.timeLeft / this.timeLimit;
             return (
@@ -101,6 +100,10 @@ export default {
                 return info.color;
             }
         },
+
+        timeLeft() {
+            return this.timeLimit - this.timePassed;
+        },
     },
 
     watch: {
@@ -116,18 +119,28 @@ export default {
     },
 
     methods: {
-        onTimesUp() {
-            clearInterval(this.timerInterval);
-            this.$emit("onTimesUp");
-        },
-
-        startTimer() {
+       startTimer() {
             this.timerInterval = setInterval(
                 () => (this.timePassed += 1),
                 1000
             );
         },
+        stopTimer() {
+            clearInterval(this.timeInterval)
+        },
+        resetTimer(data) {
+            this.timeLimit = data;
+            this.timePassed = 0;
+        }
     },
+    created() {
+        EventBus.$on(Event.TIMER_RESET, (data) => {
+            console.log("Resetting timer");
+            this.resetTimer(data);
+        });
+
+        this.timeLimit = this.$scribbleStoreService.getTimerDuration();
+    }
 };
 </script>
 
