@@ -62,4 +62,11 @@ export default {
     justify-content: center;
     align-content: center;
 }
+
+/*
+    Resources to follow
+    - https://codepen.io/byron-seto/pen/MWyqNKO
+    - https://codepen.io/byron-seto/pen/eYZLqBr
+
+*/
 </style>
