@@ -11,8 +11,6 @@
 </template>
 
 <script>
-import { createChangeNicknameMessage } from "@/utility/WebSocketMessageUtils";
-
 export default {
     name: "NicknameInput",
 
@@ -37,9 +35,7 @@ export default {
         },
 
         changeNickname: function () {
-            this.$webSocketService.send(
-                createChangeNicknameMessage(this.nickname)
-            );
+            this.$applicationController.changeNickname(this.nickname);
         },
     },
 };

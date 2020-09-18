@@ -20,6 +20,9 @@
 </template>
 
 <script>
+import { EventBus } from "@/eventBus";
+import { Event } from "@/events";
+
 const FULL_DASH_ARRAY = 48;
 const WARNING_THRESHOLD = 5;
 const DANGER_THRESHOLD = 2;
@@ -39,12 +42,12 @@ const COLOR_CODES = {
 export default {
     name: "BaseTimerBar",
     props: {
-        timeLimit: Number,
         size: String,
     },
 
     data() {
         return {
+            timeLimit: 0,
             timePassed: 0,
             timerInterval: null,
         };
@@ -56,9 +59,6 @@ export default {
         timeFraction() {
             return this.timeLeft / this.timeLimit;
         },
-        timeLeft() {
-            return this.timeLimit - this.timePassed;
-        },
         remainingPathColor() {
             const { healthy, warning, danger } = COLOR_CODES;
             if (this.timeLeft <= DANGER_THRESHOLD) {
@@ -69,16 +69,16 @@ export default {
                 return healthy.color;
             }
         },
+        timeLeft() {
+            return this.timeLimit - this.timePassed;
+        },
     },
     watch: {
         timeLeft(newValue) {
             if (newValue === 0) {
-                this.onTimesUp();
+                this.stopTimer();
             }
         },
-    },
-    mounted() {
-        this.startTimer();
     },
     methods: {
         startTimer() {
@@ -87,10 +87,22 @@ export default {
                 1000
             );
         },
-        onTimesUp() {
-            clearInterval(this.timerInterval);
+        stopTimer() {
+            clearInterval(this.timeInterval)
         },
+        resetTimer(data) {
+            this.timeLimit = data;
+            this.timePassed = 0;
+        }
     },
+    created() {
+         EventBus.$on(Event.TIMER_RESET, (data) => {
+            this.resetTimer(data);
+        });
+
+        this.timeLimit = this.$scribbleStoreService.getTimerDuration();
+        this.startTimer();
+    }
 };
 </script>
 

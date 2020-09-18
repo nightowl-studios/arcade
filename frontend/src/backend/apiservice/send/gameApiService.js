@@ -14,6 +14,7 @@ export default class GameApiService {
                 },
             },
         };
+
         this.sendMessage(message);
     }
 
@@ -35,7 +36,7 @@ export default class GameApiService {
         const message = {
             api: "game",
             payload: {
-                gameMasterAPI: "gameMasterAPI",
+                gameMasterAPI: "requestCurrentGameInfo",
             },
         };
         this.sendMessage(message);

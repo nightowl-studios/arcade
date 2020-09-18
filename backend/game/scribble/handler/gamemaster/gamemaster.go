@@ -196,8 +196,8 @@ func Get(reg registry.Registry) *Handler {
 		wordChoices:      3,
 		round:            1,
 		gameState:        WaitForStart,
-		selectTopicTimer: 10 * time.Second,
-		playTimeTimer:    30 * time.Second,
+		selectTopicTimer: 100 * time.Second,
+		playTimeTimer:    100 * time.Second,
 		playTimeChan:     make(chan PlayTimeChanReceive),
 		selectTopicChan:  make(chan WordSelectReceive),
 		waitForStartChan: make(chan WaitForStartReceive),
@@ -273,7 +273,8 @@ func (h *Handler) HandleInteraction(
 		}
 	case WordSelect:
 		if api == h.Name() {
-			if caller.ClientUUID != h.clientList.clients[h.clientList.currentlySelected].ClientUUIDStruct {
+			if caller.ClientUUID !=
+				h.clientList.clients[h.clientList.currentlySelected].ClientUUIDStruct {
 				log.Errorf("client: %v tried to send to gamemaster out of turn", caller)
 				return
 			}
@@ -364,6 +365,7 @@ type RequestCurrentGameInfoSend struct {
 	HintString     string        `json:"hintString"`
 	MaxRounds      int           `json:"maxRounds"`
 	TimerRemaining time.Duration `json:"timerRemaining"`
+	SelectedClient client        `json:"selectedClient"`
 }
 
 func (h *Handler) RequestCurrentGameInfo(
@@ -397,6 +399,7 @@ func (h *Handler) RequestCurrentGameInfo(
 			HintString:     h.hintString,
 			MaxRounds:      h.maxRounds,
 			TimerRemaining: remainingTime,
+			SelectedClient: h.clientList.clients[h.clientList.currentlySelected],
 		},
 	}
 	selectedPlayerBytes, err := game.MessageBuild(h.Name(), send)

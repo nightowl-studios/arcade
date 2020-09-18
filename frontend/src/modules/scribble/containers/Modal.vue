@@ -2,7 +2,6 @@
     <WordChoiceModal
         :words="gameState.words"
         :modalShow="gameState.showWordChoices"
-        :timeLimit="gameState.duration"
     />
 </template>
 
