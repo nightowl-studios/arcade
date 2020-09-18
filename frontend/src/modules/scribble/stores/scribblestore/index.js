@@ -82,6 +82,21 @@ export default {
                 }
             }
         },
+        addPlayer: (state, payload) => {
+            console.log("Adding player");
+            console.log(payload);
+            state.players.push(payload);
+        },
+        removePlayer: (state, payload) => {
+            const index = state.players.indexOf(payload);
+            state.players.splice(index, 1);
+        },
+        updateNickname: (state, payload) => {
+            const uuid = payload.uuid;
+            const nickname = payload.nickname;
+            const playerToUpdate = state.players.filter((p) => p.uuid === uuid)[0];
+            playerToUpdate.nickname = nickname;
+        }
     },
     actions: {},
 };
