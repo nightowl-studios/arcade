@@ -69,4 +69,20 @@ export default class ScribbleStoreService {
         const state = this.getState();
         return state.duration;
     }
+
+    addPlayer(player) {
+        store.commit("scribble/addPlayer", player);
+    }
+
+    removePlayer(player) {
+        store.commit("scribble/removePlayer", player);
+    }
+
+    updateNickname(uuid, nickname) {
+        const payload = {
+            uuid: uuid,
+            nickname: nickname
+        };
+        store.commit("scribble/updateNickname", payload);
+    }
 }
