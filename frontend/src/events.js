@@ -7,4 +7,5 @@ export const Event = {
     PLAYER_JOIN: "player_join",
     PLAYER_LEFT: "player_left",
     TIMER_RESET: "timer_reset",
+    CANVAS_UPDATE: "canvas_update",
 };

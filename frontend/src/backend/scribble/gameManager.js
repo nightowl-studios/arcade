@@ -24,6 +24,10 @@ export default class GameManager {
             this.onPlayerUpdate(data);
         } else if (event === ScribbleEvent.GAME_EVENT) {
             this.onGameEvent(data);
+        } else if (event === ScribbleEvent.DRAW_EVENT) {
+            this.onDrawEvent(data);
+        } else if (event === ScribbleEvent.CHAT_EVENT) {
+            this.onChatEvent(data);
         } else {
             const currentState = this.getCurrentState();
             if (currentState == null) {
@@ -38,6 +42,19 @@ export default class GameManager {
             }
         }
 
+    }
+
+    onChatEvent(data) {
+        if (data.payload.history) {
+            EventBus.$emit(Event.CHAT_HISTORY, data.payload.history);
+        }
+        else if (data.payload.message) {
+            EventBus.$emit(Event.CHAT_MESSAGE, data.payload.message);
+        }
+    }
+
+    onDrawEvent(data) {
+        EventBus.$emit(Event.CANVAS_UPDATE, data.payload);
     }
 
     onNewPlayerJoin() {

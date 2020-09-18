@@ -17,6 +17,7 @@
 import Canvas from "./Canvas.vue";
 import BrushSelector from "./BrushSelector.vue";
 import { createBrushStyle } from "../utility/BrushStyleUtils";
+import { Event } from "@/events.js";
 import { EventBus } from "@/eventBus.js";
 
 export default {
@@ -40,7 +41,7 @@ export default {
     },
 
     mounted: function () {
-        EventBus.$on("draw", this.handleDrawMessage);
+        EventBus.$on(Event.CANVAS_UPDATE, this.handleDrawMessage);
         this.sendRequestHistory();
     },
 
