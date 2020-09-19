@@ -28,20 +28,7 @@ export default class GameManager {
             this.onDrawEvent(data);
         } else if (event === ScribbleEvent.CHAT_EVENT) {
             this.onChatEvent(data);
-        } else {
-            const currentState = this.getCurrentState();
-            if (currentState == null) {
-                this.initGame(data);
-            } else {
-                // TODO Refactor this to use vuex instead of an event?
-                if (data.api === "draw") {
-                    EventBus.$emit(data.api, data.payload);
-                }
-
-                this.handleEvent(data);
-            }
         }
-
     }
 
     onChatEvent(data) {
@@ -84,6 +71,7 @@ export default class GameManager {
             if (payload.gameMasterAPI === "requestCurrentGameInfo") {
                 console.log("Initializing game state...");
                 const gameState = payload.requestCurrentGameInfo.gameState;
+                this._updateRoundNumber(payload.requestCurrentGameInfo.round);
                 if (gameState === "waitForStart") {
                     const state = new WaitingInLobby();
                     console.log("Game state set to: " + WaitingInLobby.STATE);
@@ -118,7 +106,6 @@ export default class GameManager {
             this.storeService.setPlayerReadyState(payload.waitForStart);
         }
         else if (payload.gameMasterAPI === "wordSelect") {
-            this.storeService.setRoundNumber(payload.wordSelect.round);
             const playerUuid = this.storeService.getPlayerUuid();
             if (playerUuid === payload.wordSelect.chosenUUID) {
                 this._setStateToChoosingWord(playerUuid, payload.wordSelect.choices, payload.wordSelect.duration);
@@ -136,8 +123,9 @@ export default class GameManager {
                 this._applyScore(payload.playTimeSend.correctClient.UUID, payload.playTimeSend.totalScore)
             }
         }
-        // else if (payload.gameMasterAPI === "scoreTime") {
-        //     this.storeService.setRoundNumber(payload.scoreTime.round);
+        else if (payload.gameMasterAPI === "scoreTime") {
+            this._updateRoundNumber(payload.wordSelect.round);
+        }
         // } else if (payload.gameMasterAPI === "showResults") {
         //     const state = new GameOver();
         //     this.storeService.setState(state);
@@ -265,6 +253,10 @@ export default class GameManager {
 
     _convertNanoSecsToSecs(durationNS) {
         return Math.round(durationNS / NANOSECOND_TO_SECONDS_FACTOR);
+    }
+
+    _updateRoundNumber(roundNumber) {
+        this.storeService.setRoundNumber(roundNumber);
     }
 }
 
