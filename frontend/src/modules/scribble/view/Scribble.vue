@@ -49,8 +49,6 @@ import RightSidePanel from "../containers/RightSidePanel.vue";
 import Lobby from "@/modules/lobby/view/Lobby.vue";
 import { mapState } from "vuex";
 import Loading from "@/modules/common/view/Loading.vue";
-// import { EventBus } from "@/eventBus";
-// import { Event } from "@/events";
 
 export default {
     name: "Scribble",

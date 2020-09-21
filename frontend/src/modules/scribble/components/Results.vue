@@ -16,8 +16,6 @@
 </template>
 
 <script>
-import { store } from "@/store";
-
 export default {
     name: "Results",
     data: function () {
@@ -27,7 +25,7 @@ export default {
         };
     },
     created() {
-        this.players = [...store.getters["application/getPlayers"]];
+        this.players = this.$scribbleStoreService.getPlayers();
         this.players.sort(function (a, b) {
             if (a.score > b.score) return -1;
             if (a.score < b.score) return 1;

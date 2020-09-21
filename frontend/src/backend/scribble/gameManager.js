@@ -2,7 +2,7 @@ import { EventBus } from "@/eventBus";
 import { Event } from "@/events";
 import Player from "./entities/player";
 import { ScribbleEvent } from "./scribbleEvent";
-import { ChoosingWord, Drawing, Guessing, WaitingForPlayerToChooseWord, WaitingInLobby } from "./states/gameStates";
+import { ChoosingWord, Drawing, GameOver, Guessing, WaitingForPlayerToChooseWord, WaitingInLobby } from "./states/gameStates";
 
 const NANOSECOND_TO_SECONDS_FACTOR = 1000000000;
 
@@ -124,12 +124,12 @@ export default class GameManager {
             }
         }
         else if (payload.gameMasterAPI === "scoreTime") {
-            this._updateRoundNumber(payload.wordSelect.round);
+            this._updateRoundNumber(payload.scoreTime.round);
         }
-        // } else if (payload.gameMasterAPI === "showResults") {
-        //     const state = new GameOver();
-        //     this.storeService.setState(state);
-        // }
+        else if (payload.gameMasterAPI === "showResults") {
+            const state = new GameOver();
+            this.storeService.setState(state);
+        }
 
     }
 
@@ -256,6 +256,7 @@ export default class GameManager {
     }
 
     _updateRoundNumber(roundNumber) {
+        console.log("updating round number");
         this.storeService.setRoundNumber(roundNumber);
     }
 }
