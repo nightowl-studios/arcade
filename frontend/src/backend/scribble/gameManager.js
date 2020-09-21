@@ -127,10 +127,14 @@ export default class GameManager {
             this._updateRoundNumber(payload.scoreTime.round);
         }
         else if (payload.gameMasterAPI === "showResults") {
-            const state = new GameOver();
-            this.storeService.setState(state);
+            this._setStateToGameOver();
         }
+    }
 
+    _setStateToGameOver() {
+        console.log("Game state set to: " + GameOver.STATE);
+        const state = new GameOver();
+        this.storeService.setState(state);
     }
 
     _applyScore(correctPlayerUuid, score) {

@@ -23,7 +23,7 @@
                 <Modal />
             </b-container>
             <b-modal
-                v-model="showResults"
+                :visible="gameState.showResults"
                 @ok="goHome"
                 title="Results"
                 centered
@@ -47,8 +47,8 @@ import MainContent from "../containers/MainContent.vue";
 import Modal from "../containers/Modal.vue";
 import RightSidePanel from "../containers/RightSidePanel.vue";
 import Lobby from "@/modules/lobby/view/Lobby.vue";
-import { mapState } from "vuex";
 import Loading from "@/modules/common/view/Loading.vue";
+import { mapGetters } from 'vuex'
 
 export default {
     name: "Scribble",
@@ -63,16 +63,17 @@ export default {
         Loading,
     },
     computed: {
-        ...mapState("scribble", {
-            loading: (state) => state.loading,
-            gameState: (state) => state.gameState,
-            showResults: (state) => state.gameState.showResults,
-        }),
+        ...mapGetters("scribble", {
+            loading: 'getLoading',
+            gameState: 'getGameState'
+        })
     },
     methods: {
         goHome() {
-            this.$webSocketService.disconnect();
+            // TODO: Reset vuex state
+            this.$applicationController.closeWebSocket();
             this.$router.push({ name: "home" });
+
         },
     },
     async created() {

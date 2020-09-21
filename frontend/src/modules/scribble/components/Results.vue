@@ -25,7 +25,7 @@ export default {
         };
     },
     created() {
-        this.players = this.$scribbleStoreService.getPlayers();
+        this.players = Object.create(this.$scribbleStoreService.getPlayers());
         this.players.sort(function (a, b) {
             if (a.score > b.score) return -1;
             if (a.score < b.score) return 1;
