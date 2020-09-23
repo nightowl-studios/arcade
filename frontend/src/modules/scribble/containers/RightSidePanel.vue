@@ -20,3 +20,10 @@ export default {
     },
 };
 </script>
+
+<style lang="scss" scoped>
+.right-side-panel {
+    height: 100%;
+    border: 1px black solid;
+}
+</style>

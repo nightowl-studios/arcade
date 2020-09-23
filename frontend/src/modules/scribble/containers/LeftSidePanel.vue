@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="left-side-panel">
         <PlayerList :players="players" />
     </div>
 </template>
@@ -19,3 +19,10 @@ export default {
     },
 };
 </script>
+
+<style lang="scss" scoped>
+.left-side-panel {
+    height: 100%;
+    border: 1px black solid;
+}
+</style>
