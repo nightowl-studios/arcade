@@ -10,6 +10,11 @@
             <PlayerList :players="players" />
             </b-col>
         </b-row>
+        <b-row>
+            <b-col>
+                <LobbyId />
+            </b-col>
+        </b-row>
     </b-container>
 </template>
 
@@ -17,11 +22,13 @@
 import { mapState } from "vuex";
 import PlayerList from "../components/PlayerList.vue";
 import RoundNumber from "../components/RoundNumber.vue";
+import LobbyId from "../components/LobbyId.vue";
 
 export default {
     components: {
         PlayerList,
         RoundNumber,
+        LobbyId,
     },
     computed: {
         ...mapState("scribble", {
