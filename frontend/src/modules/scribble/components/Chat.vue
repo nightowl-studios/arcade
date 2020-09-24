@@ -1,7 +1,11 @@
 <template>
-    <div id="chat">
-        <ChatLog />
-        <ChatInput />
+    <div class="chat">
+        <div class="chat__log">
+            <ChatLog />
+        </div>
+        <div class="chat__input">
+            <ChatInput />
+        </div>
     </div>
 </template>
 
@@ -18,13 +22,24 @@ export default {
 };
 </script>
 
-<style scoped>
-#chat {
-    margin: 0;
-    padding: 10px;
+<style lang="scss" scoped>
+.chat {
+    height: 100%;
+    position: relative;
     background: #e5f4fc;
-    border: 1px solid #a1c5d8;
-    width: 100%;
-    max-height: 400px;
+
+    &__log {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 95%;
+    }
+
+    &__input {
+        width: 100%;
+        position: absolute;
+        bottom: 5px;
+    }
 }
 </style>

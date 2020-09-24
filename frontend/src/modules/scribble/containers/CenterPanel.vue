@@ -1,7 +1,7 @@
 <template>
     <b-container fluid class="center-panel">
         <b-row class="center-panel__header" align-v="center">
-            <b-col>
+            <b-col class="center-panel__col">
                 <Header />
             </b-col>
         </b-row>
@@ -44,5 +44,9 @@ export default {
 .center-panel {
     height: 100%;
     border: 1px black solid;
+
+    &__col {
+        padding: 0;
+    }
 }
 </style>
