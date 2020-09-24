@@ -1,3 +1,5 @@
+import { WaitingInLobby } from "./states/gameStates";
+
 export default class ScribbleGameController {
     constructor(apiServiceFacade, storeService) {
         this.apiServiceFacade = apiServiceFacade;
@@ -40,6 +42,12 @@ export default class ScribbleGameController {
 
     authenticate() {
         this.apiServiceFacade.authenticate();
+    }
+
+    endGame() {
+        const state = new WaitingInLobby();
+        console.log("Game state set to: " + WaitingInLobby.STATE);
+        this.storeService.setState(state);
     }
 
 }
