@@ -79,14 +79,14 @@ export default {
 
 <style scoped>
 .chatlog {
-    height: 88%;
+    margin: 5px;
+    height: 100%;
     overflow: scroll;
-    margin-bottom: 10px;
     border: 1px solid gray;
     border-radius: 4px;
     overflow-x: hidden;
-    display: flex;
 }
+
 .message {
     font-size: 15px;
     text-align: left;

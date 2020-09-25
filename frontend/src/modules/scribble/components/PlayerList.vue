@@ -1,6 +1,5 @@
 <template>
     <div class="player-list">
-        <h2>Players</h2>
         <div v-for="player in players" :key="player.uuid">
             <Player :player="player" />
         </div>
@@ -23,7 +22,7 @@ export default {
 
 <style scoped>
 .player-list {
-    flex: 1;
     background-color: lightblue;
+    border: 1px solid black;
 }
 </style>

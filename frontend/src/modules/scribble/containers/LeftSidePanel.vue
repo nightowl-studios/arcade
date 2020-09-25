@@ -1,17 +1,17 @@
 <template>
     <b-container class="left-side-panel">
         <b-row>
-            <b-col>
+            <b-col class="left-side-panel__col">
                 <RoundNumber />
             </b-col>
         </b-row>
         <b-row>
-            <b-col>
-            <PlayerList :players="players" />
+            <b-col class="left-side-panel__col">
+                <PlayerList :players="players" />
             </b-col>
         </b-row>
         <b-row>
-            <b-col>
+            <b-col class="left-side-panel__col">
                 <LobbyId />
             </b-col>
         </b-row>
@@ -42,5 +42,10 @@ export default {
 .left-side-panel {
     height: 100%;
     border: 1px black solid;
+
+    &__col {
+        padding: 0;
+        padding-bottom: 5px;
+    }
 }
 </style>
