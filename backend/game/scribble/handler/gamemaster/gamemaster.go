@@ -186,6 +186,23 @@ type Handler struct {
 	pointHandler point.Handler
 	wordFactory  wordfactory.WordFactory
 	wordHint     wordhint.WordHint
+	wordListener []WordListener
+}
+
+// WordListener should be implemented if you want to listen to when
+// the gamemaster changes the word
+type WordListener interface {
+	SelectedWord(word string)
+}
+
+func (h *Handler) RegisterWordListener(listener WordListener) {
+	h.wordListener = append(h.wordListener, listener)
+}
+
+func (h *Handler) notifyWordChange(newWord string) {
+	for _, listener := range h.wordListener {
+		listener.SelectedWord(newWord)
+	}
 }
 
 func Get(reg registry.Registry) *Handler {
