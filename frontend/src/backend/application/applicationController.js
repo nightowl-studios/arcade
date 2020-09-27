@@ -35,4 +35,8 @@ export default class ApplicationController {
     changeNickname(nickname) {
         this.storeService.setNickname(nickname);
     }
+
+    closeWebSocket() {
+        this.webSocketService.disconnect();
+    }
 }

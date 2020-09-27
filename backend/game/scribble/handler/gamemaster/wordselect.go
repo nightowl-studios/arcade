@@ -83,6 +83,7 @@ func (h *Handler) wordSelect() {
 			h.changeGameStateTo(WordSelect)
 		} else {
 			h.chosenWord = wordChoices[msg.Choice]
+			h.notifyWordChange(h.chosenWord)
 			h.changeGameStateTo(PlayTime)
 		}
 	case <-h.endChan:

@@ -16,6 +16,7 @@ export default class WebSocketConnection {
     }
 
     disconnect() {
+        console.log("Closing websocket connection");
         this.webSocket.close();
         this.webSocket = null;
     }
@@ -39,10 +40,7 @@ export default class WebSocketConnection {
         }
 
         this.webSocket.onclose = () => {
-            let eventType = WebSocketEvent.WEBSOCKET_CLOSED;
-            let data = JSON.parse(event.data);
-
-            this.listeners.forEach(listener => listener.update(eventType, data))
+            console.log("Websocket Closed");
         };
     }
 

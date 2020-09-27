@@ -39,6 +39,9 @@ type ChatMessage struct {
 type Handler struct {
 	chatHistoryLock sync.RWMutex
 	chatHistory     ChatHistory
+
+	selectedWordLock       sync.RWMutex
+	gamemasterSelectedWord string
 }
 
 type ChatTime time.Time
@@ -50,6 +53,14 @@ func Get() *Handler {
 func (c ChatTime) MarshalJSON() ([]byte, error) {
 	stamp := fmt.Sprintf("\"%s\"", time.Time(c).Format("2006-01-02T15:04:05Z07:00"))
 	return []byte(stamp), nil
+}
+
+// Listener to the Gamemaster when the gamemaster changes or selects a
+// new word
+func (h *Handler) SelectedWord(word string) {
+	h.selectedWordLock.Lock()
+	defer h.selectedWordLock.Unlock()
+	h.gamemasterSelectedWord = word
 }
 
 // HandleInteraction will be given the tools it needs to handle
@@ -120,6 +131,11 @@ func (h *Handler) EchoMessage(
 	caller identifier.Client,
 	registry registry.Registry,
 ) {
+	h.selectedWordLock.RLock()
+	defer h.selectedWordLock.RUnlock()
+	if h.gamemasterSelectedWord == message {
+		return
+	}
 	newChatMessage := ChatMessage{
 		Timestamp: ChatTime(time.Now()),
 		Sender:    registry.GetClientUserDetail(caller.ClientUUID),

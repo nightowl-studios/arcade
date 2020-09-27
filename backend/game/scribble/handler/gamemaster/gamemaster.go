@@ -186,6 +186,23 @@ type Handler struct {
 	pointHandler point.Handler
 	wordFactory  wordfactory.WordFactory
 	wordHint     wordhint.WordHint
+	wordListener []WordListener
+}
+
+// WordListener should be implemented if you want to listen to when
+// the gamemaster changes the word
+type WordListener interface {
+	SelectedWord(word string)
+}
+
+func (h *Handler) RegisterWordListener(listener WordListener) {
+	h.wordListener = append(h.wordListener, listener)
+}
+
+func (h *Handler) notifyWordChange(newWord string) {
+	for _, listener := range h.wordListener {
+		listener.SelectedWord(newWord)
+	}
 }
 
 func Get(reg registry.Registry) *Handler {
@@ -359,13 +376,15 @@ func (h *Handler) Name() string {
 }
 
 type RequestCurrentGameInfoSend struct {
-	Clients        []client      `json:"clients"`
-	GameState      State         `json:"gameState"`
-	Round          int           `json:"round"`
-	HintString     string        `json:"hintString"`
-	MaxRounds      int           `json:"maxRounds"`
-	TimerRemaining time.Duration `json:"timerRemaining"`
-	SelectedClient client        `json:"selectedClient"`
+	Clients        []client       `json:"clients"`
+	GameState      State          `json:"gameState"`
+	Round          int            `json:"round"`
+	HintString     string         `json:"hintString"`
+	MaxRounds      int            `json:"maxRounds"`
+	TimerRemaining time.Duration  `json:"timerRemaining"`
+	SelectedClient client         `json:"selectedClient"`
+	TotalScore     map[string]int `json:"totalScore"`
+	RoundScore     map[string]int `json:"roundScore"`
 }
 
 func (h *Handler) RequestCurrentGameInfo(
@@ -400,6 +419,8 @@ func (h *Handler) RequestCurrentGameInfo(
 			MaxRounds:      h.maxRounds,
 			TimerRemaining: remainingTime,
 			SelectedClient: h.clientList.clients[h.clientList.currentlySelected],
+			TotalScore:     h.clientList.totalScore,
+			RoundScore:     h.clientList.roundScore,
 		},
 	}
 	selectedPlayerBytes, err := game.MessageBuild(h.Name(), send)

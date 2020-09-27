@@ -1,9 +1,9 @@
 <template>
-    <div>
+    <div class="canvas-panel">
         <Canvas
             ref="canvas"
-            :width="400"
-            :height="400"
+            :width="2000"
+            :height="2000"
             :defaultBrushStyle="defaultBrushStyle"
             :drawingLocked="isCanvasLocked"
             @drawAction="sendDrawAction"

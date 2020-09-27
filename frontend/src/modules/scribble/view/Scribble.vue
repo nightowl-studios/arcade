@@ -4,26 +4,21 @@
         <Lobby v-else-if="gameState.showLobby" />
         <div v-else>
             <b-container fluid class="scribble__container">
-                <b-row class="scribble__container__header" align-v="center">
-                    <b-col>
-                        <Header />
+                <b-row class="scribble__container__row">
+                    <b-col class="scribble__container__col">
+                        <LeftSidePanel/>
                     </b-col>
-                </b-row>
-                <b-row class="scribble__container__body">
-                    <b-col>
-                        <LeftSidePanel />
+                    <b-col cols=6 class="scribble__container__col">
+                        <CenterPanel />
                     </b-col>
-                    <b-col>
-                        <MainContent />
-                    </b-col>
-                    <b-col>
+                    <b-col class="scribble__container__col">
                         <RightSidePanel />
                     </b-col>
                 </b-row>
                 <Modal />
             </b-container>
             <b-modal
-                v-model="showResults"
+                :visible="gameState.showResults"
                 @ok="goHome"
                 title="Results"
                 centered
@@ -40,41 +35,38 @@
 </template>
 
 <script>
-import Header from "../containers/Header.vue";
 import LeftSidePanel from "../containers/LeftSidePanel.vue";
 import Results from "../components/Results.vue";
-import MainContent from "../containers/MainContent.vue";
+import CenterPanel from "../containers/CenterPanel.vue";
 import Modal from "../containers/Modal.vue";
 import RightSidePanel from "../containers/RightSidePanel.vue";
 import Lobby from "@/modules/lobby/view/Lobby.vue";
-import { mapState } from "vuex";
 import Loading from "@/modules/common/view/Loading.vue";
-// import { EventBus } from "@/eventBus";
-// import { Event } from "@/events";
+import { mapGetters } from 'vuex'
 
 export default {
     name: "Scribble",
     components: {
-        Header,
         LeftSidePanel,
         Lobby,
-        MainContent,
+        CenterPanel,
         RightSidePanel,
         Modal,
         Results,
         Loading,
     },
     computed: {
-        ...mapState("scribble", {
-            loading: (state) => state.loading,
-            gameState: (state) => state.gameState,
-            showResults: (state) => state.gameState.showResults,
-        }),
+        ...mapGetters("scribble", {
+            loading: 'getLoading',
+            gameState: 'getGameState'
+        })
     },
     methods: {
         goHome() {
-            this.$webSocketService.disconnect();
+            // TODO: Reset vuex state
+            this.$applicationController.closeWebSocket();
             this.$router.push({ name: "home" });
+
         },
     },
     async created() {
@@ -90,13 +82,23 @@ export default {
 <style lang="scss" scoped>
 .scribble {
     height: 100%;
+    padding-top: 5%;
+    padding-bottom: 5%;
+    /* TODO only add margins when media size is large enough */
+    padding-left: 10%;
+    padding-right: 10%;
 
     &__container {
         height: 100%;
 
-        &__body {
+        &__row {
             height: 100%;
         }
+    }
+
+    &__col {
+        margin: 2px;
+        padding: 0;
     }
 }
 </style>
