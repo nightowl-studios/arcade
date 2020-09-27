@@ -28,12 +28,15 @@ type Router struct {
 func GetScribbleRouter(reg registry.Registry) game.GameRouter {
 	var handlers map[string][]game.GameHandler
 	if reg != nil {
+		chatHandler := chat.Get()
+		gamemasterHandler := gamemaster.Get(reg)
+		gamemasterHandler.RegisterWordListener(chatHandler)
 		handlers = game.CreateGameHandlersMap(
 			echo.Get(),
+			chatHandler,
 			hubapi.Get(),
-			chat.Get(),
 			draw.Get(),
-			gamemaster.Get(reg),
+			gamemasterHandler,
 		)
 	}
 
