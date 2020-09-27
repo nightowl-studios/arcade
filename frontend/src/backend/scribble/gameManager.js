@@ -72,6 +72,7 @@ export default class GameManager {
                 console.log("Initializing game state...");
                 const gameState = payload.requestCurrentGameInfo.gameState;
                 this._updateRoundNumber(payload.requestCurrentGameInfo.round);
+                this._updateScore(payload.requestCurrentGameInfo.totalScore);
                 if (gameState === "waitForStart") {
                     const state = new WaitingInLobby();
                     console.log("Game state set to: " + WaitingInLobby.STATE);
@@ -128,6 +129,15 @@ export default class GameManager {
         }
         else if (payload.gameMasterAPI === "showResults") {
             this._setStateToGameOver();
+        }
+    }
+
+    _updateScore(scores) {
+        if (scores !== null) {
+            Object.keys(scores).forEach(key => {
+                console.log(key, scores[key]);
+                this.storeService.setScore(key, scores[key]);
+            });
         }
     }
 

@@ -96,6 +96,14 @@ export default {
             const nickname = payload.nickname;
             const playerToUpdate = state.players.filter((p) => p.uuid === uuid)[0];
             playerToUpdate.nickname = nickname;
+        },
+        setScore: (state, payload) => {
+            const playerToUpdate = state.players.filter((p) => p.uuid === payload.playerUuid);
+            if (Array.isArray(playerToUpdate) && playerToUpdate.length) {
+                console.log("Upodating score")
+                console.log(playerToUpdate);
+                playerToUpdate[0].score = payload.score;
+            }
         }
     },
     actions: {},
