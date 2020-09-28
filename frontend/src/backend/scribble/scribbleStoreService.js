@@ -85,4 +85,8 @@ export default class ScribbleStoreService {
         };
         store.commit("scribble/updateNickname", payload);
     }
+
+    resetState() {
+        store.commit("scribble/resetState");
+    }
 }

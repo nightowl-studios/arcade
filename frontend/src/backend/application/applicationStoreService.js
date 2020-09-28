@@ -15,4 +15,8 @@ export default class ApplicationStoreService {
     getNickname() {
         return store.getters["application/getNickname"];
     }
+
+    resetState() {
+        store.commit("application/resetState");
+    }
 }
