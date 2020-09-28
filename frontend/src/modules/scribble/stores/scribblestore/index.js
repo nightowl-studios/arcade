@@ -12,95 +12,94 @@ const getDefaultState = () => {
 const state = getDefaultState();
 
 const getters = {
-    getGameState: (state) => {
-        return state.gameState;
+    getGameState: (storeState) => {
+        return storeState.gameState;
     },
-    getWordSelected: (state) => {
-        return state.wordSelected;
+    getWordSelected: (storeState) => {
+        return storeState.wordSelected;
     },
-    getRoundNumber: (state) => {
-        return state.roundNumber;
+    getRoundNumber: (storeState) => {
+        return storeState.roundNumber;
     },
-    getLoading: (state) => {
-        return state.loading;
+    getLoading: (storeState) => {
+        return storeState.loading;
     },
-    getPlayers: (state) => {
-        return state.players;
+    getPlayers: (storeState) => {
+        return storeState.players;
     },
-    getPlayerWithUuid: (state) => {
-        console.log("getting player with uuid");
-        return (uuid) => state.players.filter((p) => p.uuid === uuid)[0];
+    getPlayerWithUuid: (storeState) => {
+        return (uuid) => storeState.players.filter((p) => p.uuid === uuid)[0];
     },
-    getPlayerUuid: (state) => {
-        return state.player.uuid;
+    getPlayerUuid: (storeState) => {
+        return storeState.player.uuid;
     },
-    getPlayerNickname: (state) => {
-        return state.player.nickname;
+    getPlayerNickname: (storeState) => {
+        return storeState.player.nickname;
     },
 }
 
 const mutations = {
-    setGameState: (state, payload) => {
-        state.gameState = payload;
+    setGameState: (storeState, payload) => {
+        storeState.gameState = payload;
     },
-    setWordSelected: (state, payload) => {
-        state.wordSelected = payload;
+    setWordSelected: (storeState, payload) => {
+        storeState.wordSelected = payload;
     },
-    setRoundNumber: (state, payload) => {
-        state.roundNumber = payload;
+    setRoundNumber: (storeState, payload) => {
+        storeState.roundNumber = payload;
     },
-    setLoading: (state, payload) => {
-        state.loading = payload;
+    setLoading: (storeState, payload) => {
+        storeState.loading = payload;
     },
-    setPlayers: (state, payload) => {
-        state.players = payload;
+    setPlayers: (storeState, payload) => {
+        storeState.players = payload;
     },
-    setPlayer: (state, payload) => {
-        state.player = payload;
+    setPlayer: (storeState, payload) => {
+        storeState.player = payload;
     },
-    setPlayerUuid: (state, payload) => {
-        state.player.uuid = payload;
+    setPlayerUuid: (storeState, payload) => {
+        storeState.player.uuid = payload;
     },
-    setPlayerNickname: (state, payload) => {
-        state.player.nickname = payload;
+    setPlayerNickname: (storeState, payload) => {
+        storeState.player.nickname = payload;
     },
-    setPlayerReadyState: (state, payload) => {
+    setPlayerReadyState: (storeState, payload) => {
         const playerUuid = payload.clientUUID;
         const isReady = payload.isReady;
 
-        for (let index = 0; index < state.players.length; index++) {
-            if (state.players[index].uuid === playerUuid) {
-                state.players[index].isReady = isReady;
+        for (let index = 0; index < storeState.players.length; index++) {
+            if (storeState.players[index].uuid === playerUuid) {
+                storeState.players[index].isReady = isReady;
                 break;
             }
         }
     },
-    setPlayerScore: (state, payload) => {
+    setPlayerScore: (storeState, payload) => {
         const playerUuid = payload.uuid;
         const score = payload.score;
 
-        for (let index = 0; index < state.players.length; index++) {
-            if (state.players[index].uuid === playerUuid) {
-                state.players[index].score = score;
+        for (let index = 0; index < storeState.players.length; index++) {
+            if (storeState.players[index].uuid === playerUuid) {
+                storeState.players[index].score = score;
                 break;
             }
         }
     },
-    addPlayer: (state, payload) => {
-        state.players.push(payload);
+    addPlayer: (storeState, payload) => {
+        storeState.players.push(payload);
     },
-    removePlayer: (state, payload) => {
-        const index = state.players.indexOf(payload);
-        state.players.splice(index, 1);
+    removePlayer: (storeState, payload) => {
+        const index = storeState.players.indexOf(payload);
+        storeState.players.splice(index, 1);
     },
-    updateNickname: (state, payload) => {
+    updateNickname: (storeState, payload) => {
         const uuid = payload.uuid;
         const nickname = payload.nickname;
-        const playerToUpdate = state.players.filter((p) => p.uuid === uuid)[0];
+        const playerToUpdate = storeState.players.filter((p) => p.uuid === uuid)[0];
         playerToUpdate.nickname = nickname;
     },
-    resetState: (state) => {
-        Object.assign(state, getDefaultState());
+    resetState: (storeState) => {
+        Object.assign(storeState, getDefaultState());
     }
 }
 

@@ -135,7 +135,6 @@ export default {
     },
     created() {
         EventBus.$on(Event.TIMER_RESET, (data) => {
-            console.log("Resetting timer");
             this.resetTimer(data);
         });
 

@@ -8,23 +8,23 @@ const getDefaultState = () => {
 const state = getDefaultState();
 
 const getters = {
-    getLobbyId: (state) => {
-        return state.lobbyId;
+    getLobbyId: (storeState) => {
+        return storeState.lobbyId;
     },
-    getNickname: (state) => {
-        return state.tempNickname;
+    getNickname: (storeState) => {
+        return storeState.tempNickname;
     }
 }
 
 const mutations = {
-    setLobbyId: (state, payload) => {
-        state.lobbyId = payload;
+    setLobbyId: (storeState, payload) => {
+        storeState.lobbyId = payload;
     },
-    setNickname: (state, payload) => {
-        state.tempNickname = payload;
+    setNickname: (storeState, payload) => {
+        storeState.tempNickname = payload;
     },
-    resetState: (state) => {
-        Object.assign(state, getDefaultState());
+    resetState: (storeState) => {
+        Object.assign(storeState, getDefaultState());
     }
 }
 
