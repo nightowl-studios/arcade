@@ -85,4 +85,12 @@ export default class ScribbleStoreService {
         };
         store.commit("scribble/updateNickname", payload);
     }
+
+    setScore(playerUuid, score) {
+        const payload = {
+            playerUuid: playerUuid,
+            score: score
+        };
+        store.commit("scribble/setScore", payload);
+    }
 }
