@@ -89,4 +89,12 @@ export default class ScribbleStoreService {
     resetState() {
         store.commit("scribble/resetState");
     }
+  
+    setScore(playerUuid, score) {
+        const payload = {
+            playerUuid: playerUuid,
+            score: score
+        };
+        store.commit("scribble/setScore", payload);
+    }
 }
