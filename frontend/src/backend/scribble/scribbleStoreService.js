@@ -86,6 +86,10 @@ export default class ScribbleStoreService {
         store.commit("scribble/updateNickname", payload);
     }
 
+    resetState() {
+        store.commit("scribble/resetState");
+    }
+  
     setScore(playerUuid, score) {
         const payload = {
             playerUuid: playerUuid,
