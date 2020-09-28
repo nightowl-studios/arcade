@@ -65,6 +65,8 @@ export default {
         goHome() {
             // TODO: Reset vuex state
             this.$applicationController.closeWebSocket();
+            this.$applicationController.resetStoreState();
+            this.$scribbleGameController.resetStoreState();
             this.$router.push({ name: "home" });
 
         },

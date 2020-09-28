@@ -39,4 +39,8 @@ export default class ApplicationController {
     closeWebSocket() {
         this.webSocketService.disconnect();
     }
+
+    resetStoreState() {
+        this.storeService.resetState();
+    }
 }
