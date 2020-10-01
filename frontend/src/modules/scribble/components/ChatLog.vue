@@ -24,15 +24,16 @@ export default {
     },
     methods: {
         playCorrectSound() {
-            let audio = new Audio(require("@/assets/audio/sound-correct.wav"));
+            let audio = new Audio(require("@/assets/audio/player-correct-2.mp3"));
             audio.play();
         },
         playPlayerLeftSound() {
-            let audio = new Audio(require("@/assets/audio/player-leave.wav"));
+            let audio = new Audio(require("@/assets/audio/player-leave-2.mp3"));
             audio.play();
         },
         playPlayerJoinSound() {
-            // TODO
+            let audio = new Audio(require("@/assets/audio/player-join-2.mp3"));
+            audio.play();
         },
         adjustScrollTop() {
             const chatBox = this.$refs.chatbox;
