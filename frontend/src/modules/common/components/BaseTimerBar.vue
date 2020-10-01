@@ -74,7 +74,7 @@ export default {
         },
     },
     watch: {
-        timeLeft(newValue) {
+        timeLeft: function(newValue) {
             if (newValue === 0) {
                 this.stopTimer();
             }
@@ -102,7 +102,7 @@ export default {
 
         this.timeLimit = this.$scribbleStoreService.getTimerDuration();
         this.startTimer();
-    }
+    },
 };
 </script>
 

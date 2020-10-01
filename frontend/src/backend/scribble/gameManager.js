@@ -170,6 +170,8 @@ export default class GameManager {
         );
         console.log("Game state set to: " + ChoosingWord.STATE);
         this.storeService.setState(state);
+
+        EventBus.$emit(Event.START_PLAY, state.duration);
         EventBus.$emit(Event.TIMER_RESET, state.duration);
     }
 
@@ -181,6 +183,7 @@ export default class GameManager {
         );
         console.log("Game state set to: " + WaitingForPlayerToChooseWord.STATE);
         this.storeService.setState(state);
+        EventBus.$emit(Event.START_PLAY, state.duration);
         EventBus.$emit(Event.TIMER_RESET, state.duration);
     }
 
