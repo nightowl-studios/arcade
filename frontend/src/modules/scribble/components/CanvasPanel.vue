@@ -9,7 +9,7 @@
             @drawAction="sendDrawAction"
             @requestHistory="sendRequestHistory"
         />
-        <BrushSelector :colors="colors" :sizes="sizes" />
+        <BrushSelector :colors="colors" :sizes="sizes" :showResetButton="showResetButton" />
     </div>
 </template>
 
@@ -19,14 +19,21 @@ import BrushSelector from "./BrushSelector.vue";
 import { createBrushStyle } from "../utility/BrushStyleUtils";
 import { Event } from "@/events.js";
 import { EventBus } from "@/eventBus.js";
+import { DrawEvent } from "@/modules/scribble/utility/drawEvents";
 
 export default {
     name: "CanvasPanel",
 
     props: {
-        colors: Array,
-        sizes: Array,
         isCanvasLocked: Boolean,
+    },
+
+    data: function () {
+       return {
+            colors: ["#000000", "#4287f5", "#da42f5", "#7ef542", "#ffffff"],
+            sizes: [8, 16, 32, 64],
+            showResetButton: true
+        };
     },
 
     components: {
@@ -42,6 +49,7 @@ export default {
 
     mounted: function () {
         EventBus.$on(Event.CANVAS_UPDATE, this.handleDrawMessage);
+        EventBus.$on(DrawEvent.RESET_CANVAS, this.resetCanvas);
         this.sendRequestHistory();
     },
 
@@ -64,6 +72,10 @@ export default {
                 this.$refs["canvas"].draw(drawMessage.action);
             }
         },
+
+        resetCanvas() {
+            this.$refs["canvas"].resetCanvas();
+        }
     },
 };
 </script>
