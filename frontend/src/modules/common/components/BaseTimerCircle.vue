@@ -109,7 +109,7 @@ export default {
 
     watch: {
         timeLeft: function(newValue) {
-            if (newValue <= 80) {
+            if (newValue <= 5) {
                 this.sound.play();
             } else {
                 this.sound.pause();
