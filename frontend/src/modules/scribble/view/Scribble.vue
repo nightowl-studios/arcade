@@ -43,6 +43,8 @@ import RightSidePanel from "../containers/RightSidePanel.vue";
 import Lobby from "@/modules/lobby/view/Lobby.vue";
 import Loading from "@/modules/common/view/Loading.vue";
 import { mapGetters } from 'vuex'
+import { EventBus } from "@/eventBus";
+import { Event } from "@/events";
 
 export default {
     name: "Scribble",
@@ -77,6 +79,12 @@ export default {
         if (!goodToGo) {
             console.log("Room is invalid");
         }
+
+        EventBus.$on(Event.START_PLAY, () => {
+            let audio = new Audio(require("@/assets/audio/play-start-sound.mp3"));
+            audio.play();
+        });
+
     },
 };
 </script>

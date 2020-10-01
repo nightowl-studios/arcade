@@ -60,6 +60,7 @@ export default {
             timePassed: 0,
             timerInterval: null,
             timeLimit: 0,
+            sound: new Audio(require("@/assets/audio/timer-sound.mp3")),
         };
     },
 
@@ -107,9 +108,15 @@ export default {
     },
 
     watch: {
-        timeLeft(newValue) {
+        timeLeft: function(newValue) {
+            if (newValue <= 80) {
+                this.sound.play();
+            } else {
+                this.sound.pause();
+            }
+
             if (newValue === 0) {
-                this.onTimesUp();
+                this.stopTimer();
             }
         },
     },
@@ -136,9 +143,13 @@ export default {
     created() {
         EventBus.$on(Event.TIMER_RESET, (data) => {
             this.resetTimer(data);
+            this.sound.pause();
         });
 
         this.timeLimit = this.$scribbleStoreService.getTimerDuration();
+    },
+    destroyed() {
+        this.sound.pause();
     }
 };
 </script>
