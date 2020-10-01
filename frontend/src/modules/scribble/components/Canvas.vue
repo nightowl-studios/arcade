@@ -6,6 +6,7 @@
 
 <script>
 import { EventBus } from "@/eventBus.js";
+import { DrawEvent } from "@/modules/scribble/utility/drawEvents";
 
 export default {
     name: "Canvas",
@@ -36,7 +37,7 @@ export default {
         this.canvas.addEventListener("mousedown", this.onMouseDown, false);
         this.canvas.addEventListener("mouseup", this.onMouseUp, false);
         this.canvas.addEventListener("mouseover", this.onMouseOver, false);
-        EventBus.$on("brushUpdated", this.setBrushStyle);
+        EventBus.$on(DrawEvent.UPDATE_BRUSH, this.setBrushStyle);
     },
 
     methods: {
@@ -134,6 +135,11 @@ export default {
             this.context.stroke();
             this.context.closePath();
         },
+
+        resetCanvas: function() {
+            this.context.clearRect(0, 0, this.width, this.height);
+            // TODO: Add a way to reset canvas on the api
+        }
     },
 };
 </script>
