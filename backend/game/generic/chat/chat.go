@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/bseto/arcade/backend/game"
+	"github.com/bseto/arcade/backend/game/scribble/handler/gamemaster/action"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/bseto/arcade/backend/websocket/registry"
@@ -55,12 +56,19 @@ func (c ChatTime) MarshalJSON() ([]byte, error) {
 	return []byte(stamp), nil
 }
 
-// Listener to the Gamemaster when the gamemaster changes or selects a
-// new word
-func (h *Handler) SelectedWord(word string) {
+func (h *Handler) ActionHappened(a action.Action, details interface{}) {
+	if a != action.NewWordSelected {
+		return
+	}
+
+	newWord, ok := details.(action.NewWordDetails)
+	if !ok {
+		log.Errorf("unable to convert details to NewWordDetails")
+		return
+	}
 	h.selectedWordLock.Lock()
 	defer h.selectedWordLock.Unlock()
-	h.gamemasterSelectedWord = word
+	h.gamemasterSelectedWord = string(newWord)
 }
 
 // HandleInteraction will be given the tools it needs to handle

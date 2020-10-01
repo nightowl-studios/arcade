@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/bseto/arcade/backend/game"
+	"github.com/bseto/arcade/backend/game/scribble/handler/gamemaster/action"
 	"github.com/bseto/arcade/backend/game/scribble/handler/gamemaster/util/point"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/util/wordfactory"
@@ -183,25 +184,23 @@ type Handler struct {
 	playTimeTimer    time.Duration
 
 	// util things
-	pointHandler point.Handler
-	wordFactory  wordfactory.WordFactory
-	wordHint     wordhint.WordHint
-	wordListener []WordListener
+	pointHandler   point.Handler
+	wordFactory    wordfactory.WordFactory
+	wordHint       wordhint.WordHint
+	actionListener []ActionListener
 }
 
-// WordListener should be implemented if you want to listen to when
-// the gamemaster changes the word
-type WordListener interface {
-	SelectedWord(word string)
+type ActionListener interface {
+	ActionHappened(a action.Action, details interface{})
 }
 
-func (h *Handler) RegisterWordListener(listener WordListener) {
-	h.wordListener = append(h.wordListener, listener)
+func (h *Handler) RegisterActionListener(listener ActionListener) {
+	h.actionListener = append(h.actionListener, listener)
 }
 
-func (h *Handler) notifyWordChange(newWord string) {
-	for _, listener := range h.wordListener {
-		listener.SelectedWord(newWord)
+func (h *Handler) notifyAction(action action.Action, details interface{}) {
+	for _, listener := range h.actionListener {
+		listener.ActionHappened(action, details)
 	}
 }
 

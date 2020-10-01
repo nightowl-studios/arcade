@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/bseto/arcade/backend/game"
+	"github.com/bseto/arcade/backend/game/scribble/handler/gamemaster/action"
 	"github.com/bseto/arcade/backend/log"
 	"github.com/bseto/arcade/backend/websocket/identifier"
 	"github.com/bseto/arcade/backend/websocket/registry"
@@ -17,6 +18,7 @@ const (
 type ReceiveDraw struct {
 	Action         DrawAction `json:"action"`
 	RequestHistory bool       `json:"requestHistory"`
+	ClearHistory   bool       `json:"clearHistory"`
 }
 
 type DrawReply struct {
@@ -75,6 +77,10 @@ func (h *Handler) HandleInteraction(
 		return
 	}
 
+	if msg.ClearHistory {
+		h.ClearHistory()
+	}
+
 	if msg.RequestHistory == true {
 		h.SendHistory(caller, registry)
 	} else {
@@ -82,6 +88,18 @@ func (h *Handler) HandleInteraction(
 	}
 
 	return
+}
+
+func (h *Handler) ActionHappened(a action.Action, details interface{}) {
+	if a == action.WordSelectStart {
+		h.ClearHistory()
+	}
+}
+
+func (h *Handler) ClearHistory() {
+	h.drawHistoryLock.Lock()
+	defer h.drawHistoryLock.Unlock()
+	h.drawHistory.History = []DrawAction{}
 }
 
 func (h *Handler) forwardAction(
