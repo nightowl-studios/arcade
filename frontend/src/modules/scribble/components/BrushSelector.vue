@@ -1,18 +1,24 @@
 <template>
-    <div id="brush-selector">
-        <div id="color-selector"></div>
+    <div class="brush-selector">
+        <div class="brush-selector__color"></div>
         <BrushColorTile
             v-for="color in colors"
             :key="color"
             :color="color"
             @colorSelected="onColorSelected"
         />
-        <div id="size-selector">
+        <div class="brush-selector__size">
             <BrushSizeTile
                 v-for="size in sizes"
                 :key="size"
                 :size="size"
                 @sizeSelected="onSizeSelected"
+            />
+        </div>
+        <div class="brush-selector__actions">
+            <BrushResetActionTile
+                :v-if="showResetButton"
+                @resetCanvas="onResetCanvas"
             />
         </div>
     </div>
@@ -21,8 +27,10 @@
 <script>
 import BrushSizeTile from "./BrushSizeTile.vue";
 import BrushColorTile from "./BrushColorTile.vue";
+import BrushResetActionTile from "./BrushResetActionTile.vue";
 import { EventBus } from "@/eventBus.js";
 import { createBrushStyle } from "../utility/BrushStyleUtils";
+import { DrawEvent } from "@/modules/scribble/utility/drawEvents";
 
 export default {
     name: "BrushSelector",
@@ -30,11 +38,13 @@ export default {
     components: {
         BrushSizeTile,
         BrushColorTile,
+        BrushResetActionTile,
     },
 
     props: {
         colors: Array,
         sizes: Array,
+        showResetButton: Boolean,
     },
 
     data: function () {
@@ -53,9 +63,12 @@ export default {
             this.currentColor = color;
             this.emitUpdatedBrush();
         },
+        onResetCanvas: function() {
+            EventBus.$emit(DrawEvent.RESET_CANVAS);
+        },
         emitUpdatedBrush: function () {
             EventBus.$emit(
-                "brushUpdated",
+                DrawEvent.UPDATE_BRUSH,
                 createBrushStyle(this.currentSize, this.currentColor)
             );
         },
@@ -63,11 +76,12 @@ export default {
 };
 </script>
 
-<style scoped>
-#brush-selector {
+<style lang="scss" scoped>
+.brush-selector {
     display: flex;
-}
-#size-selector {
-    display: flex;
+
+    &__size {
+        display: flex;
+    }
 }
 </style>

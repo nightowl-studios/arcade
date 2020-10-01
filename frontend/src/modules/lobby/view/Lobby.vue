@@ -12,6 +12,8 @@ import Header from "../components/Header.vue";
 import PlayerList from "../components/PlayerList.vue";
 import InvitationLink from "../components/InvitationLink.vue";
 import { mapState } from "vuex";
+import { EventBus } from "@/eventBus";
+import { Event } from "@/events";
 
 export default {
     name: "Lobby",
@@ -30,6 +32,28 @@ export default {
             players: (state) => state.players,
         }),
     },
+
+    methods: {
+        playPlayerLeftSound() {
+            let audio = new Audio(require("@/assets/audio/player-leave-2.mp3"));
+            audio.play();
+        },
+        playPlayerJoinSound() {
+            let audio = new Audio(require("@/assets/audio/player-join-2.mp3"));
+            audio.play();
+        },
+    },
+    created() {
+        EventBus.$on(Event.PLAYER_LEFT, (data) => {
+            console.log("PLAYER LEFTTTTTTT" + data);
+            this.playPlayerLeftSound();
+        });
+
+        EventBus.$on(Event.PLAYER_JOIN, (data) => {
+            console.log("PLAYER JOINNNN" + data);
+            this.playPlayerJoinSound();
+        });
+    }
 };
 </script>
 <style scoped>
