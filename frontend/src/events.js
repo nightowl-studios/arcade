@@ -8,4 +8,5 @@ export const Event = {
     PLAYER_LEFT: "player_left",
     TIMER_RESET: "timer_reset",
     CANVAS_UPDATE: "canvas_update",
+    START_PLAY: "start_play",
 };
