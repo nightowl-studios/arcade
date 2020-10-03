@@ -26,7 +26,7 @@ func TestWaitForStart(t *testing.T) {
 	var wordFactory mockWf.WordFactory
 	reg.On("SendToSameHubExceptCaller", mock.Anything, mock.Anything)
 	reg.On("SendToCaller", mock.Anything, mock.Anything)
-	reg.On("SendToSameHub", mock.Anything, mock.Anything).Times(2)
+	reg.On("SendToSameHub", mock.Anything).Times(2)
 	wordFactory.On("GenerateWordList", 3).Return([]string{"a", "b", "c"})
 
 	gameMaster := Get(&reg)
@@ -179,7 +179,7 @@ func TestWordSelect(t *testing.T) {
 		}
 		return true
 	}))
-	reg.On("SendToSameHub", mock.Anything, mock.Anything).Return(nil)
+	reg.On("SendToSameHub", mock.Anything).Return(nil)
 	go gameMaster.run()
 	time.Sleep(time.Millisecond * 100)
 
@@ -313,7 +313,7 @@ func TestPlayTime(t *testing.T) {
 	gameMaster.NewClient(ID3, &reg)
 	wordFactory.On("GenerateWordList", 3).Return([]string{"a", "b", "c"})
 	wordHint.On("GiveHint", mock.Anything).Return(wordHintString)
-	reg.On("SendToSameHub", mock.Anything, mock.MatchedBy(
+	reg.On("SendToSameHub", mock.MatchedBy(
 		// The message that everyone gets with word hint
 		func(b []byte) bool {
 			var gameMsg game.Message
@@ -343,7 +343,7 @@ func TestPlayTime(t *testing.T) {
 			return true
 		},
 	))
-	reg.On("SendToSameHub", ID2.ClientUUID, mock.MatchedBy(
+	reg.On("SendToSameHub", mock.MatchedBy(
 		// The message that gets send because ID2 send the right word
 		func(b []byte) bool {
 			var gameMsg game.Message
@@ -365,7 +365,7 @@ func TestPlayTime(t *testing.T) {
 			return true
 		},
 	))
-	reg.On("SendToSameHub", ID3.ClientUUID, mock.MatchedBy(
+	reg.On("SendToSameHub", mock.MatchedBy(
 		// The message that gets send because ID3 send the right word
 		func(b []byte) bool {
 			var gameMsg game.Message
@@ -387,7 +387,7 @@ func TestPlayTime(t *testing.T) {
 			return true
 		},
 	))
-	reg.On("SendToSameHub", mock.Anything, mock.MatchedBy(
+	reg.On("SendToSameHub", mock.MatchedBy(
 		// The message is sent because state is now scoreTime
 		func(b []byte) bool {
 			var gameMsg game.Message
@@ -711,7 +711,7 @@ func TestWordSelectTimeout(t *testing.T) {
 	wordFactory.On("GenerateWordList", 3).Return(wordChoices)
 	reg.On("SendToSameHubExceptCaller", mock.Anything, mock.Anything)
 	reg.On("SendToCaller", mock.Anything, mock.Anything)
-	reg.On("SendToSameHub", mock.Anything, mock.Anything)
+	reg.On("SendToSameHub", mock.Anything)
 
 	go gameMaster.run()
 	time.Sleep(time.Millisecond * 100)

@@ -54,9 +54,9 @@ func (_m *Registry) SendToCaller(clientID identifier.ClientUUIDStruct, message [
 	_m.Called(clientID, message)
 }
 
-// SendToSameHub provides a mock function with given fields: clientID, message
-func (_m *Registry) SendToSameHub(clientID identifier.ClientUUIDStruct, message []byte) {
-	_m.Called(clientID, message)
+// SendToSameHub provides a mock function with given fields: message
+func (_m *Registry) SendToSameHub(message []byte) {
+	_m.Called(message)
 }
 
 // SendToSameHubExceptCaller provides a mock function with given fields: clientID, message
