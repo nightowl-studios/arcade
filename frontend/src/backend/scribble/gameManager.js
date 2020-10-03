@@ -2,7 +2,14 @@ import { EventBus } from "@/eventBus";
 import { Event } from "@/events";
 import Player from "./entities/player";
 import { ScribbleEvent } from "./scribbleEvent";
-import { ChoosingWord, Drawing, GameOver, Guessing, WaitingForPlayerToChooseWord, WaitingInLobby } from "./states/gameStates";
+import {
+    ChoosingWord,
+    Drawing,
+    GameOver,
+    Guessing,
+    WaitingForPlayerToChooseWord,
+    WaitingInLobby,
+} from "./states/gameStates";
 
 const NANOSECOND_TO_SECONDS_FACTOR = 1000000000;
 
@@ -14,8 +21,8 @@ export default class GameManager {
     }
 
     handle(event, data) {
-        console.log('Event:', event);
-        console.log('Data:', data);
+        console.log("Event:", event);
+        console.log("Data:", data);
         if (event === ScribbleEvent.NEW_PLAYER_JOIN) {
             this.onNewPlayerJoin();
         } else if (event === ScribbleEvent.INITIALIZATION) {
@@ -34,8 +41,7 @@ export default class GameManager {
     onChatEvent(data) {
         if (data.payload.history) {
             EventBus.$emit(Event.CHAT_HISTORY, data.payload.history);
-        }
-        else if (data.payload.message) {
+        } else if (data.payload.message) {
             EventBus.$emit(Event.CHAT_MESSAGE, data.payload.message);
         }
     }
@@ -46,13 +52,16 @@ export default class GameManager {
 
     onNewPlayerJoin() {
         this.gameController.authenticate();
-        const nickname = this.applicationStoreService.getNickname() == null ? "RANDOM" : this.applicationStoreService.getNickname()
+        const nickname =
+            this.applicationStoreService.getNickname() == null
+                ? "RANDOM"
+                : this.applicationStoreService.getNickname();
         this.gameController.changeNickname(nickname);
         this.gameController.initGame();
     }
 
     loadGame(data) {
-        const api = data.api
+        const api = data.api;
         const payload = data.payload;
 
         if (api === "auth") {
@@ -61,7 +70,7 @@ export default class GameManager {
             this.storeService.setPlayer(player);
 
             const uuid = payload.uuid;
-            console.log("Player uuid set to: " + uuid)
+            console.log("Player uuid set to: " + uuid);
             this.storeService.setPlayerUuid(uuid);
         } else if (api === "hub") {
             const players = this.mapToPlayers(payload);
@@ -78,11 +87,19 @@ export default class GameManager {
                     console.log("Game state set to: " + WaitingInLobby.STATE);
                     this.storeService.setState(state);
                 } else if (gameState === "wordSelect") {
-                    const playerDrawingUuid = payload.requestCurrentGameInfo.selectedClient.UUID;
-                    const remainingTime = payload.requestCurrentGameInfo.timerRemaining;
-                    this._setStateToWaitingForPlayerToChooseWord(playerDrawingUuid, remainingTime);
+                    const playerDrawingUuid =
+                        payload.requestCurrentGameInfo.selectedClient.UUID;
+                    const remainingTime =
+                        payload.requestCurrentGameInfo.timerRemaining;
+                    this._setStateToWaitingForPlayerToChooseWord(
+                        playerDrawingUuid,
+                        remainingTime
+                    );
                 } else if (gameState === "playTime") {
-                    this._setStateToGuessing(payload.requestCurrentGameInfo.hintString, payload.requestCurrentGameInfo.timerRemaining);
+                    this._setStateToGuessing(
+                        payload.requestCurrentGameInfo.hintString,
+                        payload.requestCurrentGameInfo.timerRemaining
+                    );
                 }
 
                 this.storeService.setLoading(false);
@@ -95,8 +112,10 @@ export default class GameManager {
         const players = this.mapToPlayers(data.payload);
 
         const currentPlayerUuid = this.storeService.getPlayerUuid();
-        const updatedCurrentPlayer = players.filter(p => p.uuid === currentPlayerUuid)[0];
-        this.storeService.setPlayer(updatedCurrentPlayer)
+        const updatedCurrentPlayer = players.filter(
+            (p) => p.uuid === currentPlayerUuid
+        )[0];
+        this.storeService.setPlayer(updatedCurrentPlayer);
 
         this.handlePlayersChanged(players);
     }
@@ -105,36 +124,47 @@ export default class GameManager {
         const payload = data.payload;
         if (payload.gameMasterAPI === "waitForStart") {
             this.storeService.setPlayerReadyState(payload.waitForStart);
-        }
-        else if (payload.gameMasterAPI === "wordSelect") {
+        } else if (payload.gameMasterAPI === "wordSelect") {
             const playerUuid = this.storeService.getPlayerUuid();
             if (playerUuid === payload.wordSelect.chosenUUID) {
-                this._setStateToChoosingWord(playerUuid, payload.wordSelect.choices, payload.wordSelect.duration);
+                this._setStateToChoosingWord(
+                    playerUuid,
+                    payload.wordSelect.choices,
+                    payload.wordSelect.duration
+                );
             } else {
-                this._setStateToWaitingForPlayerToChooseWord(playerUuid, payload.wordSelect.duration);
+                this._setStateToWaitingForPlayerToChooseWord(
+                    playerUuid,
+                    payload.wordSelect.duration
+                );
             }
         } else if (payload.gameMasterAPI === "playTime") {
             const currentState = this.storeService.getState();
             if (currentState.state === ChoosingWord.STATE) {
                 this._setStateToDrawing(payload.playTimeSend.duration);
-            }
-            else if (currentState.state === WaitingForPlayerToChooseWord.STATE) {
-                this._setStateToGuessing(payload.playTimeSend.hint, payload.playTimeSend.duration);
+            } else if (
+                currentState.state === WaitingForPlayerToChooseWord.STATE
+            ) {
+                this._setStateToGuessing(
+                    payload.playTimeSend.hint,
+                    payload.playTimeSend.duration
+                );
             } else {
-                this._applyScore(payload.playTimeSend.correctClient.UUID, payload.playTimeSend.totalScore)
+                this._applyScore(
+                    payload.playTimeSend.correctClient.UUID,
+                    payload.playTimeSend.totalScore
+                );
             }
-        }
-        else if (payload.gameMasterAPI === "scoreTime") {
+        } else if (payload.gameMasterAPI === "scoreTime") {
             this._updateRoundNumber(payload.scoreTime.round);
-        }
-        else if (payload.gameMasterAPI === "showResults") {
+        } else if (payload.gameMasterAPI === "showResults") {
             this._setStateToGameOver();
         }
     }
 
     _updateScore(scores) {
         if (scores !== null) {
-            Object.keys(scores).forEach(key => {
+            Object.keys(scores).forEach((key) => {
                 console.log(key, scores[key]);
                 this.storeService.setScore(key, scores[key]);
             });
@@ -174,7 +204,7 @@ export default class GameManager {
     }
 
     _setStateToWaitingForPlayerToChooseWord(playerUuid, duration) {
-        const player = this.storeService.getPlayerWithUuid(playerUuid)
+        const player = this.storeService.getPlayerWithUuid(playerUuid);
         const state = new WaitingForPlayerToChooseWord(
             player,
             this._convertNanoSecsToSecs(duration)
@@ -196,16 +226,11 @@ export default class GameManager {
     }
 
     _setStateToGuessing(hint, duration) {
-        const state = new Guessing(
-            hint,
-            this._convertNanoSecsToSecs(duration)
-        );
+        const state = new Guessing(hint, this._convertNanoSecsToSecs(duration));
         console.log("Game state set to " + Guessing.STATE);
         this.storeService.setState(state);
         EventBus.$emit(Event.TIMER_RESET, state.duration);
     }
-
-
 
     getCurrentState() {
         return this.storeService.getState();
@@ -249,13 +274,18 @@ export default class GameManager {
 
             // Update nickname if changed
             players.forEach((player) => {
-                const currentPlayer = this.storeService.getPlayerWithUuid(player.uuid);
+                const currentPlayer = this.storeService.getPlayerWithUuid(
+                    player.uuid
+                );
                 if (currentPlayer.nickname !== player.nickname) {
-                    this.storeService.updateNickname(player.uuid, player.nickname);
+                    this.storeService.updateNickname(
+                        player.uuid,
+                        player.nickname
+                    );
                 }
-            })
+            });
         } else {
-            this.storeService.setPlayers(players)
+            this.storeService.setPlayers(players);
         }
     }
 
@@ -274,4 +304,3 @@ export default class GameManager {
         this.storeService.setRoundNumber(roundNumber);
     }
 }
-

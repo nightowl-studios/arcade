@@ -22,8 +22,9 @@ type ReceiveDraw struct {
 }
 
 type DrawReply struct {
-	Action  DrawAction   `json:"action"`
-	History *DrawHistory `json:"history,omitempty"`
+	Action       DrawAction   `json:"action"`
+	History      *DrawHistory `json:"history,omitempty"`
+	ClearHistory bool         `json:"clearHistory,omitempty"`
 }
 
 type DrawHistory struct {
@@ -56,10 +57,11 @@ const (
 type Handler struct {
 	drawHistoryLock sync.RWMutex
 	drawHistory     DrawHistory
+	reg             registry.Registry
 }
 
-func Get() *Handler {
-	return &Handler{}
+func Get(reg registry.Registry) *Handler {
+	return &Handler{reg: reg}
 }
 
 // HandleInteraction will be given the tools it needs to handle
@@ -100,6 +102,16 @@ func (h *Handler) ClearHistory() {
 	h.drawHistoryLock.Lock()
 	defer h.drawHistoryLock.Unlock()
 	h.drawHistory.History = []DrawAction{}
+	h.SendClearHistoryCommand()
+}
+
+func (h *Handler) SendClearHistoryCommand() {
+	drawBytes, err := game.MessageBuild(name, DrawReply{ClearHistory: true})
+	if err != nil {
+		log.Errorf("unable to create send clear history: %v", err)
+		return
+	}
+	h.reg.SendToSameHub(drawBytes)
 }
 
 func (h *Handler) forwardAction(

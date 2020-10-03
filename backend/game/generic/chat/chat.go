@@ -159,7 +159,7 @@ func (h *Handler) EchoMessage(
 		return
 	}
 
-	go registry.SendToSameHub(caller.ClientUUID, byteMessage)
+	go registry.SendToSameHub(byteMessage)
 
 	h.chatHistoryLock.Lock()
 	defer h.chatHistoryLock.Unlock()

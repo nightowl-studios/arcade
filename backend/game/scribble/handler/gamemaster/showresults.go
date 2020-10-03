@@ -23,5 +23,5 @@ func (h *Handler) showResults() {
 		log.Fatalf("unable to marshal: %v", err)
 		return
 	}
-	h.reg.SendToSameHub(h.clientList.clients[0].ClientUUIDStruct, scoreTimeBytes)
+	h.reg.SendToSameHub(scoreTimeBytes)
 }

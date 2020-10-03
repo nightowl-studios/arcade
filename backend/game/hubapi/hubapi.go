@@ -59,7 +59,7 @@ func (h *Handler) SendLobbyDetails(
 		log.Errorf("unable to marshal response: %v", err)
 	}
 
-	reg.SendToSameHub(clientID.ClientUUID, replyBytes)
+	reg.SendToSameHub(replyBytes)
 }
 
 func (h *Handler) HandleInteraction(
@@ -109,7 +109,7 @@ func (h *Handler) HandleInteraction(
 	if sendToCallerOnly {
 		reg.SendToCaller(clientID.ClientUUID, replyBytes)
 	} else {
-		reg.SendToSameHub(clientID.ClientUUID, replyBytes)
+		reg.SendToSameHub(replyBytes)
 	}
 
 	return

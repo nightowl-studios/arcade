@@ -19,7 +19,6 @@ func (h *Handler) scoreTime() {
 	} else {
 		h.changeGameStateTo(WordSelect)
 	}
-	selectedClient := h.clientList.clients[0]
 	scoreTimeMsg := Send{
 		GameMasterAPI: ScoreTime,
 		ScoreTimeSend: ScoreTimeSend{
@@ -31,5 +30,5 @@ func (h *Handler) scoreTime() {
 		log.Fatalf("unable to marshal: %v", err)
 		return
 	}
-	h.reg.SendToSameHub(selectedClient.ClientUUIDStruct, scoreTimeBytes)
+	h.reg.SendToSameHub(scoreTimeBytes)
 }

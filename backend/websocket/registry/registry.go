@@ -21,7 +21,7 @@ type Registry interface {
 		clientID identifier.ClientUUIDStruct,
 	) *identifier.UserDetails
 
-	SendToSameHub(clientID identifier.ClientUUIDStruct, message []byte)
+	SendToSameHub(message []byte)
 	SendToCaller(clientID identifier.ClientUUIDStruct, message []byte)
 	SendToSameHubExceptCaller(clientID identifier.ClientUUIDStruct, message []byte)
 }
@@ -127,7 +127,6 @@ func (r *RegistryProvider) Unregister(
 }
 
 func (r *RegistryProvider) SendToSameHub(
-	clientID identifier.ClientUUIDStruct,
 	message []byte,
 ) {
 	r.lookupLock.RLock()
