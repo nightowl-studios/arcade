@@ -40,7 +40,6 @@ func (h *Handler) waitForStart() {
 						return
 					}
 					h.reg.SendToSameHub(
-						client.ClientUUIDStruct,
 						playerReadyStateChangedBytes)
 				}
 			}

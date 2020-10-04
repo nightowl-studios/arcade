@@ -45,7 +45,7 @@ func (h *Handler) playTime() {
 	if err != nil {
 		log.Fatalf("unable to marshal: %v", err)
 	}
-	h.reg.SendToSameHub(h.clientList.clients[0].ClientUUIDStruct, playTimeSendBytes)
+	h.reg.SendToSameHub(playTimeSendBytes)
 
 	// stop here until
 	// 1) playTime limit up
@@ -124,7 +124,7 @@ func (h *Handler) handlePlayChatMessages(
 	if err != nil {
 		log.Fatalf("unable to marshal: %v", err)
 	}
-	h.reg.SendToSameHub(caller.ClientUUID, sendBytes)
+	h.reg.SendToSameHub(sendBytes)
 
 	if h.allCorrect(caller) {
 		h.resetGuessRight()

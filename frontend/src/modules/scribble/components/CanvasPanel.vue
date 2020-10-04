@@ -9,7 +9,11 @@
             @drawAction="sendDrawAction"
             @requestHistory="sendRequestHistory"
         />
-        <BrushSelector :colors="colors" :sizes="sizes" :showResetButton="showResetButton" />
+        <BrushSelector
+            :colors="colors"
+            :sizes="sizes"
+            :showResetButton="showResetButton"
+        />
     </div>
 </template>
 
@@ -29,10 +33,10 @@ export default {
     },
 
     data: function () {
-       return {
+        return {
             colors: ["#000000", "#4287f5", "#da42f5", "#7ef542", "#ffffff"],
             sizes: [8, 16, 32, 64],
-            showResetButton: true
+            showResetButton: true,
         };
     },
 
@@ -71,11 +75,14 @@ export default {
             if (drawMessage.action != null) {
                 this.$refs["canvas"].draw(drawMessage.action);
             }
+            if (drawMessage.clearHistory) {
+                EventBus.$emit(DrawEvent.RESET_CANVAS);
+            }
         },
 
         resetCanvas() {
             this.$refs["canvas"].resetCanvas();
-        }
+        },
     },
 };
 </script>

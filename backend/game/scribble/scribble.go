@@ -29,13 +29,16 @@ func GetScribbleRouter(reg registry.Registry) game.GameRouter {
 	var handlers map[string][]game.GameHandler
 	if reg != nil {
 		chatHandler := chat.Get()
+		drawHandler := draw.Get(reg)
 		gamemasterHandler := gamemaster.Get(reg)
-		gamemasterHandler.RegisterWordListener(chatHandler)
+		gamemasterHandler.RegisterActionListener(chatHandler)
+		gamemasterHandler.RegisterActionListener(drawHandler)
+
 		handlers = game.CreateGameHandlersMap(
 			echo.Get(),
 			chatHandler,
 			hubapi.Get(),
-			draw.Get(),
+			drawHandler,
 			gamemasterHandler,
 		)
 	}

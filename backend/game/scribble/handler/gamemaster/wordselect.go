@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/bseto/arcade/backend/game"
+	"github.com/bseto/arcade/backend/game/scribble/handler/gamemaster/action"
 	"github.com/bseto/arcade/backend/log"
 )
 
@@ -58,6 +59,7 @@ func (h *Handler) wordSelect() {
 		log.Fatalf("unable to marshal: %v", err)
 		return
 	}
+	h.notifyAction(action.WordSelectStart, nil)
 	h.reg.SendToSameHubExceptCaller(selectedClient.ClientUUIDStruct, selectedPlayerBytes)
 
 	// We did not want to send the other players the wordChoices just in case
@@ -83,7 +85,7 @@ func (h *Handler) wordSelect() {
 			h.changeGameStateTo(WordSelect)
 		} else {
 			h.chosenWord = wordChoices[msg.Choice]
-			h.notifyWordChange(h.chosenWord)
+			h.notifyAction(action.NewWordSelected, action.NewWordDetails(h.chosenWord))
 			h.changeGameStateTo(PlayTime)
 		}
 	case <-h.endChan:
