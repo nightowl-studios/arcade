@@ -2,3 +2,4 @@ backend
 log.log
 backend.exe
 cover.out
+__debug_bin
