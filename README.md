@@ -1,22 +1,18 @@
-![alert
-status](https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=alert_status)
+<h1>Arcade</h1>
 
+![alert status](https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=alert_status)
 ![coverage](https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=coverage)
-
 ![bugs](https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=bugs)
-
 ![vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=vulnerabilities)
+![lines of code](https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=ncloc)
 
-![lines of
-code](https://sonarcloud.io/api/project_badges/measure?project=nightowl-studios_arcade&metric=ncloc)
-
-What is Arcade {#_what_is_arcade}
+[What is Arcade](#what-is-arcade)
 ==============
 
 Arcade is a webapp that will host random party games that we like to
 play.
 
-Drawing Game (no finalized name) {#_drawing_game_no_finalized_name}
+[Drawing Game (no finalized name)](#drawing-game-no-finalized-name)
 ================================
 
 The Drawing game is a game where a single person in a group of players
